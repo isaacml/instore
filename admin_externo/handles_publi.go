@@ -300,20 +300,15 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 			ident := valores[1]
 
 			if destino == "entidad" {
+				var st_entidad string //variable que va a contener el estado de la entidad
 				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos
 				resultado := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;entidades", "userAdmin;"+username, "id_entidad;"+ident)
 				if resultado != "" {
-					var arr_almacen []string
-					output = "<option value='almacen:.:0'>...</option>"
-					arr := strings.Split(resultado, "::")
-					for _, val := range arr {
-						if val != "" {
-							arr_almacen = strings.Split(val, ";")
-							output += fmt.Sprintf("<option value='almacen:.:%s'>%s</option>", arr_almacen[0], arr_almacen[1])
-						}
-					}
+					output, st_entidad = libs.GenerateSelectOrg(resultado, "almacen")
+					//Se guarda el identificador, para poder volver atrás
 					last_entidad = ident
-					estado_destino = arr_almacen[2] + ".*"
+					//Se forma el nuevo estado
+					estado_destino = st_entidad + ".*"
 					output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 					fmt.Fprint(w, output)
 				} else {
@@ -335,6 +330,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if destino == "almacen" {
+				var st_almacen string //variable que va a contener el estado del almacen
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las entidades
 					var arr_entidad []string
@@ -355,39 +351,22 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					//Enviamos nombre de usuario e id_almacen recogido en el formulario hacia el server para generar los destinos
 					resultado := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;almacenes", "userAdmin;"+username, "id_almacen;"+ident)
 					if resultado != "" {
-						var arr_pais []string
-						var res string
-						output = "<option value='pais:.:0'>...</option>"
-						arr := strings.Split(resultado, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_pais = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='pais:.:%s'>%s</option>", arr_pais[0], arr_pais[1])
-							}
-						}
+						output, st_almacen = libs.GenerateSelectOrg(resultado, "pais")
+						//Se guarda el identificador, para poder volver atrás
 						last_almacen = ident
-						separator := strings.Split(estado_destino, ".")
-						arr_alm := separator[:len(separator)-1]
-						for _, v := range arr_alm {
-							res += v + "."
-						}
-						estado_destino = res + arr_pais[2] + ".*"
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						//Se forma el nuevo estado
+						estado_destino = res + st_almacen + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar los almacenes
-						var arr_almacen []string
 						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
 						if resultado2 != "" {
-							output = "<option value='almacen:.:0'>...</option>"
-							arr := strings.Split(resultado2, "::")
-							for _, val := range arr {
-								if val != "" {
-									arr_almacen = strings.Split(val, ";")
-									output += fmt.Sprintf("<option value='almacen:.:%s'>%s</option>", arr_almacen[0], arr_almacen[1])
-								}
-							}
-							estado_destino = arr_almacen[2] + ".*"
+							output, st_almacen = libs.GenerateSelectOrg(resultado2, "almacen")
+							//Se forma el nuevo estado
+							estado_destino = st_almacen + ".*"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -395,20 +374,13 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if destino == "pais" {
+				var st_pais string //variable que va a contener el estado del pais
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar los almacenes
-					var arr_almacen []string
 					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
 					if resultado2 != "" {
-						output = "<option value='almacen:.:0'>...</option>"
-						arr := strings.Split(resultado2, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_almacen = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='almacen:.:%s'>%s</option>", arr_almacen[0], arr_almacen[1])
-							}
-						}
-						estado_destino = arr_almacen[2] + ".*"
+						output, st_pais = libs.GenerateSelectOrg(resultado2, "almacen")
+						estado_destino = st_pais + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -416,45 +388,24 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					//Enviamos nombre de usuario e id_pais recogido en el formulario hacia el server para generar los destinos
 					resultado := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;paises", "userAdmin;"+username, "id_pais;"+ident)
 					if resultado != "" {
-						var arr_region []string
-						var res string
-						output = "<option value='region:.:0'>...</option>"
-						arr := strings.Split(resultado, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_region = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='region:.:%s'>%s</option>", arr_region[0], arr_region[1])
-							}
-						}
+						output, st_pais = libs.GenerateSelectOrg(resultado, "region")
+						//Se guarda el identificador, para poder volver atrás
 						last_pais = ident
-						separator := strings.Split(estado_destino, ".")
-						arr_pais := separator[:len(separator)-1]
-						for _, v := range arr_pais {
-							res += v + "."
-						}
-						estado_destino = res + arr_region[2] + ".*"
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						//Se forma el nuevo estado
+						estado_destino = res + st_pais + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar los paises
-						var arr_pais []string
-						var res string
 						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
 						if resultado2 != "" {
-							output = "<option value='pais:.:0'>...</option>"
-							arr := strings.Split(resultado2, "::")
-							for _, val := range arr {
-								if val != "" {
-									arr_pais = strings.Split(val, ";")
-									output += fmt.Sprintf("<option value='pais:.:%s'>%s</option>", arr_pais[0], arr_pais[1])
-								}
-							}
-							separator := strings.Split(estado_destino, ".")
-							arr_alm := separator[:len(separator)-2]
-							for _, v := range arr_alm {
-								res += v + "."
-							}
-							estado_destino = res + arr_pais[2] + ".*"
+							output, st_pais = libs.GenerateSelectOrg(resultado2, "pais")
+							//Se borra el asterisco(*) y se retrocede en una ORG.
+							res := libs.BackDestOrg(estado_destino, 2)
+							//Se forma el nuevo estado
+							estado_destino = res + st_pais + ".*"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -462,26 +413,15 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if destino == "region" {
+				var st_region string //variable que va a contener el estado de la región
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar los paises
-					var arr_pais []string
-					var res string
 					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
 					if resultado2 != "" {
-						output = "<option value='pais:.:0'>...</option>"
-						arr := strings.Split(resultado2, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_pais = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='pais:.:%s'>%s</option>", arr_pais[0], arr_pais[1])
-							}
-						}
-						separator := strings.Split(estado_destino, ".")
-						arr_alm := separator[:len(separator)-3]
-						for _, v := range arr_alm {
-							res += v + "."
-						}
-						estado_destino = res + arr_pais[2] + ".*"
+						output, st_region = libs.GenerateSelectOrg(resultado2, "pais")
+						res := libs.BackDestOrg(estado_destino, 2)
+						//Se forma el nuevo estado
+						estado_destino = res + st_region + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -489,45 +429,22 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					//Enviamos nombre de usuario e id_region recogido en el formulario hacia el server para generar los destinos
 					resultado := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;regiones", "userAdmin;"+username, "id_region;"+ident)
 					if resultado != "" {
-						var arr_provincia []string
-						var res string
-						output = "<option value='provincia:.:0'>...</option>"
-						arr := strings.Split(resultado, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_provincia = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='provincia:.:%s'>%s</option>", arr_provincia[0], arr_provincia[1])
-							}
-						}
+						output, st_region = libs.GenerateSelectOrg(resultado, "provincia")
+						//Se guarda el identificador, para poder volver atrás
 						last_region = ident
-						separator := strings.Split(estado_destino, ".")
-						arr_reg := separator[:len(separator)-1]
-						for _, v := range arr_reg {
-							res += v + "."
-						}
-						estado_destino = res + arr_provincia[2] + ".*"
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						estado_destino = res + st_region + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar las regiones
-						var arr_region []string
-						var res string
 						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
 						if resultado2 != "" {
-							output = "<option value='region:.:0'>...</option>"
-							arr := strings.Split(resultado2, "::")
-							for _, val := range arr {
-								if val != "" {
-									arr_region = strings.Split(val, ";")
-									output += fmt.Sprintf("<option value='region:.:%s'>%s</option>", arr_region[0], arr_region[1])
-								}
-							}
-							separator := strings.Split(estado_destino, ".")
-							arr_pais := separator[:len(separator)-2]
-							for _, v := range arr_pais {
-								res += v + "."
-							}
-							estado_destino = res + arr_region[2] + ".*"
+							output, st_region = libs.GenerateSelectOrg(resultado, "provincia")
+							//Se borra el asterisco(*) y se retrocede en una ORG.
+							res := libs.BackDestOrg(estado_destino, 2)
+							estado_destino = res + st_region + ".*"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -535,26 +452,15 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if destino == "provincia" {
+				var st_provincia string //variable que va a contener el estado de la provincia
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las regiones
-					var arr_region []string
-					var res string
 					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
 					if resultado2 != "" {
-						output = "<option value='region:.:0'>...</option>"
-						arr := strings.Split(resultado2, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_region = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='region:.:%s'>%s</option>", arr_region[0], arr_region[1])
-							}
-						}
-						separator := strings.Split(estado_destino, ".")
-						arr_pais := separator[:len(separator)-3]
-						for _, v := range arr_pais {
-							res += v + "."
-						}
-						estado_destino = res + arr_region[2] + ".*"
+						output, st_provincia = libs.GenerateSelectOrg(resultado2, "region")
+						res := libs.BackDestOrg(estado_destino, 3)
+						//Se forma el nuevo estado
+						estado_destino = res + st_provincia + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -562,45 +468,24 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					//Enviamos nombre de usuario e id_provincia recogido en el formulario hacia el server para generar los destinos
 					resultado := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+ident)
 					if resultado != "" {
-						var arr_tienda []string
-						var res string
-						output = "<option value='tienda:.:0'>...</option>"
-						arr := strings.Split(resultado, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_tienda = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='tienda:.:%s'>%s</option>", arr_tienda[0], arr_tienda[1])
-							}
-						}
+						output, st_provincia = libs.GenerateSelectOrg(resultado, "tienda")
+						//Se guarda el identificador, para poder volver atrás
 						last_prov = ident
-						separator := strings.Split(estado_destino, ".")
-						arr_prov := separator[:len(separator)-1]
-						for _, v := range arr_prov {
-							res += v + "."
-						}
-						estado_destino = res + arr_tienda[2] + ".*"
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						//Se forma el nuevo estado
+						estado_destino = res + st_provincia + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar las regiones
-						var arr_provincia []string
-						var res string
 						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;regiones", "userAdmin;"+username, "id_region;"+last_region)
 						if resultado2 != "" {
-							output = "<option value='provincia:.:0'>...</option>"
-							arr := strings.Split(resultado2, "::")
-							for _, val := range arr {
-								if val != "" {
-									arr_provincia = strings.Split(val, ";")
-									output += fmt.Sprintf("<option value='provincia:.:%s'>%s</option>", arr_provincia[0], arr_provincia[1])
-								}
-							}
-							separator := strings.Split(estado_destino, ".")
-							arr_reg := separator[:len(separator)-2]
-							for _, v := range arr_reg {
-								res += v + "."
-							}
-							estado_destino = res + arr_provincia[2] + ".*"
+							output, st_provincia = libs.GenerateSelectOrg(resultado2, "provincia")
+							//Se borra el asterisco(*) y se retrocede en una ORG.
+							res := libs.BackDestOrg(estado_destino, 2)
+							//Se forma el nuevo estado
+							estado_destino = res + st_provincia + ".*"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -608,26 +493,15 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if destino == "tienda" {
+				var st_tienda string //variable que va a contener el estado de la tienda
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las regiones
-					var arr_provincia []string
-					var res string
 					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;regiones", "userAdmin;"+username, "id_region;"+last_region)
 					if resultado2 != "" {
-						output = "<option value='provincia:.:0'>...</option>"
-						arr := strings.Split(resultado2, "::")
-						for _, val := range arr {
-							if val != "" {
-								arr_provincia = strings.Split(val, ";")
-								output += fmt.Sprintf("<option value='provincia:.:%s'>%s</option>", arr_provincia[0], arr_provincia[1])
-							}
-						}
-						separator := strings.Split(estado_destino, ".")
-						arr_reg := separator[:len(separator)-3]
-						for _, v := range arr_reg {
-							res += v + "."
-						}
-						estado_destino = res + arr_provincia[2] + ".*"
+						output, st_tienda = libs.GenerateSelectOrg(resultado2, "provincia")
+						res := libs.BackDestOrg(estado_destino, 3)
+						//Se forma el nuevo estado
+						estado_destino = res + st_tienda + ".*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -635,21 +509,17 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					//Enviamos nombre de usuario e id_provincia recogido en el formulario hacia el server para generar los destinos
 					resultado := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;tiendas", "userAdmin;"+username, "id_tienda;"+ident)
 					if resultado != "" {
-						var res string
 						output = "<option value='destino_final:.:0'>...</option>"
+						//Se guarda el identificador, para poder volver atrás
 						last_tienda = ident
-						separator := strings.Split(estado_destino, ".")
-						arr_prov := separator[:len(separator)-1]
-						for _, v := range arr_prov {
-							res += v + "."
-						}
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + resultado
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar las provincias
 						var arr_tienda []string
-						var res string
 						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+last_tienda)
 						if resultado2 != "" {
 							output = "<option value='tienda:.:0'>...</option>"
@@ -660,11 +530,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 									output += fmt.Sprintf("<option value='tienda:.:%s'>%s</option>", arr_tienda[0], arr_tienda[1])
 								}
 							}
-							separator := strings.Split(estado_destino, ".")
-							rest_org := separator[:len(separator)-1]
-							for _, v := range rest_org {
-								res += v + "."
-							}
+							res := libs.BackDestOrg(estado_destino, 1)
 							estado_destino = res + "*"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
@@ -676,7 +542,6 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las provincias
 					var arr_tienda []string
-					var res string
 					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
 					if resultado2 != "" {
 						output = "<option value='tienda:.:0'>...</option>"
@@ -687,11 +552,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 								output += fmt.Sprintf("<option value='tienda:.:%s'>%s</option>", arr_tienda[0], arr_tienda[1])
 							}
 						}
-						separator := strings.Split(estado_destino, ".")
-						rest_org := separator[:len(separator)-1]
-						for _, v := range rest_org {
-							res += v + "."
-						}
+						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + "*"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)

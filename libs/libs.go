@@ -203,3 +203,33 @@ func GenerateFORM(link string, param ...interface{}) (r string) {
 	}
 	return string(body)
 }
+
+/*
+GenerateSelectOrg: esta función va a generar los selects de destino para las distintas organizaciones.
+	resultado: es el resultado obtenido de los selects. Formato: id;org1;org2::
+	org: nos indica a que organización pertenece el select. Formato: entidad:.:1
+Nos devuelve el select formado correctamente y un estado que contiene la organización a la que pertenece.
+*/
+func GenerateSelectOrg(resultado, org string) (seleccion, estado string) {
+	var arr_org []string
+	seleccion = "<option value='" + org + ":.:0'>...</option>"
+	arr := strings.Split(resultado, "::")
+	for _, val := range arr {
+		if val != "" {
+			arr_org = strings.Split(val, ";")
+			seleccion += fmt.Sprintf("<option value='"+org+":.:%s'>%s</option>", arr_org[0], arr_org[1])
+		}
+	}
+	estado = arr_org[2]
+	return
+}
+func BackDestOrg(estado_destino string, num_backs int) (resultado string) {
+	var res string
+	separator := strings.Split(estado_destino, ".")
+	arr := separator[:len(separator)-num_backs]
+	for _, v := range arr {
+		res += v + "."
+	}
+	resultado = res
+	return
+}
