@@ -14,7 +14,9 @@ func almacen(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/almacen.cgi", "almacen;"+r.FormValue("almacen"), "username;"+username, "entidad;"+r.FormValue("entidad")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("almacen"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/almacen.cgi", "almacen;"+correct_res, "username;"+username, "entidad;"+r.FormValue("entidad")))
 		if respuesta == "OK" {
 			good = "Almacen añadido correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
@@ -58,7 +60,9 @@ func edit_almacen(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_almacen.cgi", "edit_id;"+r.FormValue("id"), "almacen;"+r.FormValue("almacen"), "username;"+username, "entidad;"+r.FormValue("entidad")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("almacen"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_almacen.cgi", "edit_id;"+r.FormValue("id"), "almacen;"+correct_res, "username;"+username, "entidad;"+r.FormValue("entidad")))
 		if respuesta == "OK" {
 			good = "Almacen modificado correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)

@@ -14,7 +14,9 @@ func tienda(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tienda.cgi", "tienda;"+r.FormValue("tienda"), "username;"+username, "provincia;"+r.FormValue("provincia"), "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("tienda"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tienda.cgi", "tienda;"+correct_res, "username;"+username, "provincia;"+r.FormValue("provincia"), "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
 		if respuesta == "OK" {
 			good = "Tienda añadida correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
@@ -58,7 +60,9 @@ func edit_tienda(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_tienda.cgi", "edit_id;"+r.FormValue("id"), "tienda;"+r.FormValue("tienda"), "provincia;"+r.FormValue("provincia"), "username;"+username, "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("tienda"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_tienda.cgi", "edit_id;"+r.FormValue("id"), "tienda;"+correct_res, "provincia;"+r.FormValue("provincia"), "username;"+username, "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
 		if respuesta == "OK" {
 			good = "Tienda modificada correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)

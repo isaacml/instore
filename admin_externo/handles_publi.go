@@ -236,7 +236,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 		//Variables
 		f_inicio := r.FormValue("f_inicio")
 		f_final := r.FormValue("f_fin")
-		dest := r.FormValue("destino")
+		dest := estado_destino
 		timestamp := time.Now().Unix()
 		//trozeamos las fechas
 		arr_inicio := strings.Split(f_inicio, "/")

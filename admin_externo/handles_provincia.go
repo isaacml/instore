@@ -14,7 +14,9 @@ func provincia(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincia.cgi", "provincia;"+r.FormValue("provincia"), "username;"+username, "region;"+r.FormValue("region")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("provincia"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincia.cgi", "provincia;"+correct_res, "username;"+username, "region;"+r.FormValue("region")))
 		if respuesta == "OK" {
 			good = "Provincia añadida correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
@@ -58,7 +60,9 @@ func edit_provincia(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_provincia.cgi", "edit_id;"+r.FormValue("id"), "provincia;"+r.FormValue("provincia"), "username;"+username, "region;"+r.FormValue("region")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("provincia"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_provincia.cgi", "edit_id;"+r.FormValue("id"), "provincia;"+correct_res, "username;"+username, "region;"+r.FormValue("region")))
 		if respuesta == "OK" {
 			good = "Provincia modificada correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)

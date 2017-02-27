@@ -14,7 +14,9 @@ func region(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/region.cgi", "pais;"+r.FormValue("pais"), "username;"+username, "region;"+r.FormValue("region")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("region"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/region.cgi", "pais;"+r.FormValue("pais"), "username;"+username, "region;"+correct_res))
 		if respuesta == "OK" {
 			good = "Región añadida correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
@@ -58,7 +60,9 @@ func edit_region(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_region.cgi", "edit_id;"+r.FormValue("id"), "region;"+r.FormValue("region"), "username;"+username, "pais;"+r.FormValue("pais")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("region"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_region.cgi", "edit_id;"+r.FormValue("id"), "region;"+correct_res, "username;"+username, "pais;"+r.FormValue("pais")))
 		if respuesta == "OK" {
 			good = "Región modificada correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)

@@ -223,6 +223,12 @@ func GenerateSelectOrg(resultado, org string) (seleccion, estado string) {
 	estado = arr_org[2]
 	return
 }
+/*
+BackDestOrg: esta función nos va a permitir retroceder en un destino.
+	estado_destino: Estado del destino actual. Formato: entidad.almacen.pais.region.provincia.*
+	num_backs: Nos indica el numero de saltos que queremos dar hacia atrás.
+Nos devuelve un string con el nuevo estado, el cual será enviado a la base de datos.
+*/
 func BackDestOrg(estado_destino string, num_backs int) (resultado string) {
 	var res string
 	separator := strings.Split(estado_destino, ".")
@@ -231,5 +237,15 @@ func BackDestOrg(estado_destino string, num_backs int) (resultado string) {
 		res += v + "."
 	}
 	resultado = res
+	return
+}
+
+func DeleteSplitsChars(cadena string) (resultado string) {
+	var correct_res string
+	r := strings.NewReplacer(".", "", ":", "", ";", "")
+	if strings.Contains(cadena, ".") || strings.Contains(cadena, ":") || strings.Contains(cadena, ";"){
+		correct_res = r.Replace(cadena)
+	}
+	resultado = correct_res
 	return
 }

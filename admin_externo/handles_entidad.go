@@ -14,7 +14,9 @@ func entidad(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/entidad.cgi", "entidad;"+r.FormValue("entidad"), "username;"+username))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("entidad"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/entidad.cgi", "entidad;"+correct_res, "username;"+username))
 		if respuesta == "OK" {
 			good = "Entidad añadida correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
@@ -58,7 +60,9 @@ func edit_entidad(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_entidad.cgi", "edit_id;"+r.FormValue("id"), "entidad;"+r.FormValue("entidad"), "username;"+username))
+		//Eliminamos puntos, dos puntos y puntos comas
+		correct_res := libs.DeleteSplitsChars(r.FormValue("entidad"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_entidad.cgi", "edit_id;"+r.FormValue("id"), "entidad;"+correct_res, "username;"+username))
 		if respuesta == "OK" {
 			good = "Entidad modificada correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
