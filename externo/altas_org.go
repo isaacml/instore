@@ -20,6 +20,9 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 	input_padre := r.FormValue("input_padre")
 	input_entidad := r.FormValue("input_entidad")
 
+	fmt.Println("CHECK: " + r.FormValue("chk"))
+	fmt.Println(r.PostForm)
+
 	if user == "" || name_user == "" || pass == "" {
 		empty := "Los campos no pueden estar vacios"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)

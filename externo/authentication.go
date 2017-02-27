@@ -5,11 +5,9 @@ import (
 	"net/http"
 )
 
-var username string
-var password string
-
 // This function could be used to access to a Database for user/pass authentication procedure
 func authentication(user, pass string) bool {
+	var username, password string
 	db_mu.RLock()
 	query2, err := db.Query("SELECT user, pass FROM usuarios WHERE user = ?", user)
 	db_mu.RUnlock()
