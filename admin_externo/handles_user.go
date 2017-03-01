@@ -33,7 +33,9 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/alta_users.cgi", "user;"+r.FormValue("user"), "name_user;"+r.FormValue("name_user"), "pass;"+r.FormValue("pass"), "padre;"+username, "input_padre;"+r.FormValue("padre"), "input_entidad;"+r.FormValue("entidad")))
+		fmt.Println(r.Form)
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/alta_users.cgi", "user;"+r.FormValue("user"), "name_user;"+r.FormValue("name_user"), "pass;"+r.FormValue("pass"), "padre;"+username, "input_padre;"+r.FormValue("padre"), "input_entidad;"+r.FormValue("entidad"),
+			"prog_pub;"+r.FormValue("prog_pub"), "prog_mus;"+r.FormValue("prog_mus"), "add_mus;"+r.FormValue("add_mus"), "msg_auto;"+r.FormValue("msg_auto"), "msg_normal;"+r.FormValue("msg_normal"), "add_msg;"+r.FormValue("add_msg"), "change_dom;"+r.FormValue("change_dom")))
 		fmt.Fprint(w, respuesta)
 	}
 }

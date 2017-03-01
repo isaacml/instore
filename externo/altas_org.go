@@ -2,9 +2,20 @@ package main
 
 import (
 	"fmt"
+	//"github.com/isaacml/instore/libs"
 	"net/http"
 	"strconv"
 	"time"
+)
+
+const (
+	PROG_PUB = 1 << iota
+	PROG_MUS
+	ADD_MUS
+	MSG_AUTO
+	MSG_NORMAL
+	ADD_MSG
+	CHANGE_DOM
 )
 
 //Variables de estado global
@@ -19,10 +30,30 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 	padre := r.FormValue("padre")
 	input_padre := r.FormValue("input_padre")
 	input_entidad := r.FormValue("input_entidad")
+	//fmt.Println(PROG_PUB, PROG_MUS, ADD_MUS, MSG_AUTO, MSG_NORMAL, ADD_MSG, CHANGE_DOM)
 
-	fmt.Println("CHECK: " + r.FormValue("chk"))
-	fmt.Println(r.PostForm)
-
+	if r.FormValue("prog_pub") != "" || r.FormValue("prog_mus") != "" || r.FormValue("add_mus") != "" || r.FormValue("msg_auto") != "" || r.FormValue("msg_normal") != "" || r.FormValue("add_msg") != "" || r.FormValue("change_dom") != "" {
+		fmt.Println("prog_pub: " + r.FormValue("prog_pub"))
+		fmt.Println("prog_mus: " + r.FormValue("prog_mus"))
+		fmt.Println("add_mus: " + r.FormValue("add_mus"))
+		fmt.Println("msg_auto: " + r.FormValue("msg_auto"))
+		fmt.Println("msg_normal: " + r.FormValue("msg_normal"))
+		fmt.Println("add_msg: " + r.FormValue("add_msg"))
+		fmt.Println("change_dom: " + r.FormValue("change_dom"))
+	} /*
+		res23 := fmt.Sprintf("%x\n", r.FormValue("prog_pub"))
+		s, _ := strconv.ParseInt(res23, 16, 32)
+		fmt.Println(s)
+		res11 := s & 10
+		fmt.Println(res11)
+			//Llamada al generador de BitMap
+			bitmap := libs.BitMapGen(r.FormValue("accion1"), r.FormValue("accion2"), r.FormValue("accion3"), r.FormValue("accion4"), r.FormValue("accion5"), r.FormValue("accion6"), r.FormValue("accion7"))
+			s, err := strconv.ParseInt(bitmap, 16, 64)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Printf("%x\n", s)
+	*/
 	if user == "" || name_user == "" || pass == "" {
 		empty := "Los campos no pueden estar vacios"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)

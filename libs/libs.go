@@ -223,6 +223,7 @@ func GenerateSelectOrg(resultado, org string) (seleccion, estado string) {
 	estado = arr_org[2]
 	return
 }
+
 /*
 BackDestOrg: esta función nos va a permitir retroceder en un destino.
 	estado_destino: Estado del destino actual. Formato: entidad.almacen.pais.region.provincia.*
@@ -243,9 +244,50 @@ func BackDestOrg(estado_destino string, num_backs int) (resultado string) {
 func DeleteSplitsChars(cadena string) (resultado string) {
 	var correct_res string
 	r := strings.NewReplacer(".", "", ":", "", ";", "")
-	if strings.Contains(cadena, ".") || strings.Contains(cadena, ":") || strings.Contains(cadena, ";"){
+	if strings.Contains(cadena, ".") || strings.Contains(cadena, ":") || strings.Contains(cadena, ";") {
 		correct_res = r.Replace(cadena)
 	}
 	resultado = correct_res
+	return
+}
+
+func BitMapGen(act1, act2, act3, act4, act5, act6, act7 string) (res string) {
+	var bitmap string
+	if act1 == "yes" {
+		bitmap += "1"
+	} else {
+		bitmap += "0"
+	}
+	if act2 == "yes" {
+		bitmap += "1"
+	} else {
+		bitmap += "0"
+	}
+	if act3 == "yes" {
+		bitmap += "1"
+	} else {
+		bitmap += "0"
+	}
+	if act4 == "yes" {
+		bitmap += "1"
+	} else {
+		bitmap += "0"
+	}
+	if act5 == "yes" {
+		bitmap += "1"
+	} else {
+		bitmap += "0"
+	}
+	if act6 == "yes" {
+		bitmap += "1"
+	} else {
+		bitmap += "0"
+	}
+	if act7 == "yes" {
+		bitmap += "1"
+	} else {
+		bitmap += "0"
+	}
+	res = bitmap
 	return
 }
