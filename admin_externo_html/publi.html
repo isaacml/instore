@@ -121,7 +121,7 @@
                         <li>
                             <a href="#"><i class="fa fa-edit fa-fw"></i>Programar<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li>
+                                <li id="zona_publi">
                                     <a href="publi.html?{{sid}}">Publicidad</a>
                                 </li>
                                 <li>
@@ -211,7 +211,6 @@
         $("#stat").hide();
         $("#stat2").hide();
         $("#dest_stat").hide();
-        
         $.post("/explorer.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
     		$("#unidades").html(data);
 		});

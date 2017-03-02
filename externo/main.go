@@ -91,6 +91,8 @@ func main() {
 	//FUNCION ENCARGADA DE RECOGER LOS FICHEROS
 	http.HandleFunc("/get_files.cgi", get_files)
 	http.HandleFunc("/destino.cgi", destino)
+	//FUNCION ENCARGADA DE REVISAR LOS BITMAPS
+	http.HandleFunc("/check_actions.cgi", check_actions)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

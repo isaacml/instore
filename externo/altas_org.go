@@ -30,34 +30,37 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 	padre := r.FormValue("padre")
 	input_padre := r.FormValue("input_padre")
 	input_entidad := r.FormValue("input_entidad")
-	//fmt.Println(PROG_PUB, PROG_MUS, ADD_MUS, MSG_AUTO, MSG_NORMAL, ADD_MSG, CHANGE_DOM)
 
-	if r.FormValue("prog_pub") != "" || r.FormValue("prog_mus") != "" || r.FormValue("add_mus") != "" || r.FormValue("msg_auto") != "" || r.FormValue("msg_normal") != "" || r.FormValue("add_msg") != "" || r.FormValue("change_dom") != "" {
-		fmt.Println("prog_pub: " + r.FormValue("prog_pub"))
-		fmt.Println("prog_mus: " + r.FormValue("prog_mus"))
-		fmt.Println("add_mus: " + r.FormValue("add_mus"))
-		fmt.Println("msg_auto: " + r.FormValue("msg_auto"))
-		fmt.Println("msg_normal: " + r.FormValue("msg_normal"))
-		fmt.Println("add_msg: " + r.FormValue("add_msg"))
-		fmt.Println("change_dom: " + r.FormValue("change_dom"))
-	} /*
-		res23 := fmt.Sprintf("%x\n", r.FormValue("prog_pub"))
-		s, _ := strconv.ParseInt(res23, 16, 32)
-		fmt.Println(s)
-		res11 := s & 10
-		fmt.Println(res11)
-			//Llamada al generador de BitMap
-			bitmap := libs.BitMapGen(r.FormValue("accion1"), r.FormValue("accion2"), r.FormValue("accion3"), r.FormValue("accion4"), r.FormValue("accion5"), r.FormValue("accion6"), r.FormValue("accion7"))
-			s, err := strconv.ParseInt(bitmap, 16, 64)
-			if err != nil {
-				Error.Println(err)
-			}
-			fmt.Printf("%x\n", s)
-	*/
 	if user == "" || name_user == "" || pass == "" {
 		empty := "Los campos no pueden estar vacios"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
+		//Generar el bitmap de acciones en hexadecimal
+		var bitmap int
+		if r.FormValue("prog_pub") != "" {
+			bitmap = PROG_PUB
+		}
+		if r.FormValue("prog_mus") != "" {
+			bitmap = bitmap + PROG_MUS
+		}
+		if r.FormValue("add_mus") != "" {
+			bitmap = bitmap + ADD_MUS
+		}
+		if r.FormValue("msg_auto") != "" {
+			bitmap = bitmap + MSG_AUTO
+		}
+		if r.FormValue("msg_normal") != "" {
+			bitmap = bitmap + MSG_NORMAL
+		}
+		if r.FormValue("add_msg") != "" {
+			bitmap = bitmap + ADD_MSG
+		}
+		if r.FormValue("change_dom") != "" {
+			bitmap = bitmap + CHANGE_DOM
+		}
+		//Aquí se guarda el valor del bitmap en hexadecimal
+		bitmap_hex := fmt.Sprintf("%x", bitmap)
+		//Seleccionamos el usuario y la entidad de un padre concreto
 		query, err := db.Query("SELECT id, user, entidad_id FROM usuarios WHERE user = ?", padre)
 		if err != nil {
 			Error.Println(err)
@@ -99,7 +102,8 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 				db_mu.Lock()
-				_, err1 := db.Exec("INSERT INTO usuarios (`user`, `old_user`, `pass`, `nombre_completo`, `entidad_id`, `padre_id`) VALUES (?,?,?,?,?,?)", user, user, pass, name_user, entidad, permiso)
+				_, err1 := db.Exec("INSERT INTO usuarios (`user`, `old_user`, `pass`, `nombre_completo`, `entidad_id`, `padre_id`, `bitmap_acciones`) VALUES (?,?,?,?,?,?,?)",
+					user, user, pass, name_user, entidad, permiso, bitmap_hex)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
