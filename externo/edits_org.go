@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
 )
 
 //Función para modificar el nombre y contraseña del usuario propio
@@ -12,11 +12,11 @@ func edit_own_user(w http.ResponseWriter, r *http.Request) {
 	old_user := r.FormValue("old_user")
 	password := r.FormValue("password")
 	repeat_password := r.FormValue("repeat-password")
-	
+
 	if user == "" || password == "" || repeat_password == "" {
 		empty = "Los campos no pueden estar vacíos"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		//Solo si las contraseñas son iguales modificamos
 		if password == repeat_password {
 			query, err := db.Query("SELECT id, user FROM usuarios WHERE old_user = ?", old_user)
@@ -31,10 +31,10 @@ func edit_own_user(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 				}
 				//Comprobamos que no hay dos Usuarios con el mismo nombre
-				if user_bd == user{
+				if user_bd == user {
 					bad = "El usuario ya existe"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					db_mu.Lock()
 					_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, pass=? WHERE id = ?", user, user, password, id)
 					db_mu.Unlock()
@@ -50,6 +50,7 @@ func edit_own_user(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
 //Función que va a modificar a un usuario concreto por su identificador
 func edit_user(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
@@ -60,11 +61,11 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 	padre := r.FormValue("padre")
 	entidad := r.FormValue("entidad")
 	admin_user := r.FormValue("admin_user")
-	
+
 	if user == "" || name_user == "" || pass == "" {
 		empty = "Los campos no pueden estar vacíos"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		query, err := db.Query("SELECT padre_id FROM usuarios WHERE user = ?", admin_user)
 		if err != nil {
 			Error.Println(err)
@@ -77,18 +78,18 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 			}
 			if padre_id == 0 {
 				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, entidad_id=?, padre_id=? WHERE id = ?", 
-									user, user, name_user, pass, entidad, padre, edit_id)
+				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, entidad_id=?, padre_id=? WHERE id = ?",
+					user, user, name_user, pass, entidad, padre, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
 					bad = "Fallo al modificar usuario"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					good := "Usuario modificado correctamente"
 					fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
 				}
-			}else{
+			} else {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=? WHERE id = ?", user, user, name_user, pass, edit_id)
 				db_mu.Unlock()
@@ -96,26 +97,26 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err1)
 					bad = "Fallo al modificar usuario"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					good := "Usuario modificado correctamente"
 					fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
 				}
 			}
 		}
-		
 	}
 }
+
 //Función que va a modificar a una entidad concreta
 func edit_entidad(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	edit_id := r.FormValue("edit_id")
 	username := r.FormValue("username")
 	entidad := r.FormValue("entidad")
-	
+
 	if entidad == "" {
 		empty = "El campo no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
@@ -134,16 +135,17 @@ func edit_entidad(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err1)
 					bad = "Fallo al modificar entidad"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					fmt.Fprint(w, "OK")
 				}
-			}else{
+			} else {
 				bad = "Solo un usuario ROOT puede editar una entidad"
 				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
 			}
 		}
 	}
 }
+
 //Función que va a modificar un almacen concreto
 func edit_almacen(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
@@ -151,14 +153,14 @@ func edit_almacen(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	almacen := r.FormValue("almacen")
 	entidad := r.FormValue("entidad")
-	
+
 	if entidad == "" {
 		empty = "El campo entidad no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else if almacen == ""{
+	} else if almacen == "" {
 		empty = "El campo almacen no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
@@ -177,16 +179,17 @@ func edit_almacen(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err1)
 					bad = "Fallo al modificar almacen"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					fmt.Fprint(w, "OK")
 				}
-			}else{
+			} else {
 				bad = "Solo un usuario ROOT puede editar un almacen"
 				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
 			}
 		}
 	}
 }
+
 //Función que va a modificar un pais concreto
 func edit_pais(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
@@ -194,14 +197,14 @@ func edit_pais(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	almacen := r.FormValue("almacen")
 	pais := r.FormValue("pais")
-	
+
 	if almacen == "" {
 		empty = "El campo almacen no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else if pais == ""{
+	} else if pais == "" {
 		empty = "El campo pais no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
@@ -220,16 +223,17 @@ func edit_pais(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err1)
 					bad = "Fallo al modificar país"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					fmt.Fprint(w, "OK")
 				}
-			}else{
+			} else {
 				bad = "Solo un usuario ROOT puede editar un país"
 				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
 			}
 		}
 	}
 }
+
 //Función que va a modificar una región concreta
 func edit_region(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
@@ -237,14 +241,14 @@ func edit_region(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	region := r.FormValue("region")
 	pais := r.FormValue("pais")
-	
+
 	if region == "" {
 		empty = "El campo región no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else if pais == ""{
+	} else if pais == "" {
 		empty = "El campo país no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
@@ -263,16 +267,17 @@ func edit_region(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err1)
 					bad = "Fallo al modificar región"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					fmt.Fprint(w, "OK")
 				}
-			}else{
+			} else {
 				bad = "Solo un usuario ROOT puede editar una región"
 				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
 			}
 		}
 	}
 }
+
 //Función que va a modificar una provincia concreta
 func edit_provincia(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
@@ -280,14 +285,14 @@ func edit_provincia(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	region := r.FormValue("region")
 	provincia := r.FormValue("provincia")
-	
+
 	if provincia == "" {
 		empty = "El campo provincia no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else if region == ""{
+	} else if region == "" {
 		empty = "El campo región no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
@@ -306,16 +311,17 @@ func edit_provincia(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err1)
 					bad = "Fallo al modificar provincia"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					fmt.Fprint(w, "OK")
 				}
-			}else{
+			} else {
 				bad = "Solo un usuario ROOT puede editar una provincia"
 				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
 			}
 		}
 	}
 }
+
 //Función que va a modificar una tienda concreta
 func edit_tienda(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
@@ -326,11 +332,11 @@ func edit_tienda(w http.ResponseWriter, r *http.Request) {
 	address := r.FormValue("address")
 	phone := r.FormValue("phone")
 	extra := r.FormValue("extra")
-	
+
 	if provincia == "" || tienda == "" || address == "" || phone == "" {
 		empty = "No puede haber campos vacíos"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-	}else{
+	} else {
 		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
@@ -349,10 +355,10 @@ func edit_tienda(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err1)
 					bad = "Fallo al modificar tienda"
 					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				}else{
+				} else {
 					fmt.Fprint(w, "OK")
 				}
-			}else{
+			} else {
 				bad = "Solo un usuario ROOT puede editar una tienda"
 				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
 			}

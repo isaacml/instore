@@ -78,3 +78,9 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, respuesta)
 	}
 }
+
+//Pasamos el nombre de usuario al servidor para obtener los bitmaps de acciones
+func bitmaps(w http.ResponseWriter, r *http.Request) {
+	respuesta := libs.GenerateFORM(serverext["serverroot"]+"/bitmap_actions.cgi", "user;"+username)
+	fmt.Fprint(w, respuesta)
+}

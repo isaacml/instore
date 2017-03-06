@@ -11,11 +11,10 @@ import (
 const (
 	PROG_PUB = 1 << iota
 	PROG_MUS
+	PROG_MSG
 	ADD_MUS
 	MSG_AUTO
 	MSG_NORMAL
-	ADD_MSG
-	CHANGE_DOM
 )
 
 //Variables de estado global
@@ -43,6 +42,9 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("prog_mus") != "" {
 			bitmap = bitmap + PROG_MUS
 		}
+		if r.FormValue("prog_msg") != "" {
+			bitmap = bitmap + PROG_MSG
+		}
 		if r.FormValue("add_mus") != "" {
 			bitmap = bitmap + ADD_MUS
 		}
@@ -52,12 +54,7 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("msg_normal") != "" {
 			bitmap = bitmap + MSG_NORMAL
 		}
-		if r.FormValue("add_msg") != "" {
-			bitmap = bitmap + ADD_MSG
-		}
-		if r.FormValue("change_dom") != "" {
-			bitmap = bitmap + CHANGE_DOM
-		}
+
 		//Aquí se guarda el valor del bitmap en hexadecimal
 		bitmap_hex := fmt.Sprintf("%x", bitmap)
 		//Seleccionamos el usuario y la entidad de un padre concreto

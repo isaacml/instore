@@ -92,7 +92,7 @@ func main() {
 	http.HandleFunc("/get_files.cgi", get_files)
 	http.HandleFunc("/destino.cgi", destino)
 	//FUNCION ENCARGADA DE REVISAR LOS BITMAPS
-	http.HandleFunc("/check_actions.cgi", check_actions)
+	http.HandleFunc("/bitmap_actions.cgi", bitmap_actions)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

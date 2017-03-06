@@ -112,13 +112,13 @@
                         <li>
                             <a href="#"><i class="fa fa-edit fa-fw"></i>Programar<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li>
+                                <li id="zona_publi">
                                     <a href="publi.html?{{sid}}">Publicidad</a>
                                 </li>
-                                <li>
+                                <li id="zona_music">
                                     <a href="musica.html?{{sid}}">Música</a>
                                 </li>
-                                <li>
+                                <li id="zona_msg">
                                     <a href="mensajes.html?{{sid}}">Mensajes</a>
                                 </li>
                             </ul>
@@ -193,6 +193,18 @@
         table();
         $("#stat").hide();
         $("#modificar").hide();
+        $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+            var res = data.split(";");
+            if (res[0] == 0){
+                $("#zona_publi").hide();
+            }
+            if (res[1] == 0){
+                $("#zona_music").hide();
+            }
+            if (res[2] == 0){
+                $("#zona_msg").hide();
+            }
+        });
 		$("#enviar").click(function(){
 			$.post("/entidad.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
                 $("#stat").show();

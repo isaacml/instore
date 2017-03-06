@@ -251,43 +251,17 @@ func DeleteSplitsChars(cadena string) (resultado string) {
 	return
 }
 
-func BitMapGen(act1, act2, act3, act4, act5, act6, act7 string) (res string) {
-	var bitmap string
-	if act1 == "yes" {
-		bitmap += "1"
-	} else {
-		bitmap += "0"
+/*
+BitmapParsing: Parsea el valor tomado de la base de datos a INT y le aplica la máscara correspondiente.
+	bitmap_hex: Contiene el valor del bitmap parseado a INT.
+	mascara: Mascara aplicada al valor del bitmap_hex.
+Devuelve:  = 0  accion activada; != 0 no tiene la acción activada
+*/
+func BitmapParsing(bitmap_hex string, mascara int64) (res int64) {
+	bitmap_parsed, err := strconv.ParseInt(bitmap_hex, 16, 32)
+	if err != nil {
+		err = fmt.Errorf("fail to parsing")
 	}
-	if act2 == "yes" {
-		bitmap += "1"
-	} else {
-		bitmap += "0"
-	}
-	if act3 == "yes" {
-		bitmap += "1"
-	} else {
-		bitmap += "0"
-	}
-	if act4 == "yes" {
-		bitmap += "1"
-	} else {
-		bitmap += "0"
-	}
-	if act5 == "yes" {
-		bitmap += "1"
-	} else {
-		bitmap += "0"
-	}
-	if act6 == "yes" {
-		bitmap += "1"
-	} else {
-		bitmap += "0"
-	}
-	if act7 == "yes" {
-		bitmap += "1"
-	} else {
-		bitmap += "0"
-	}
-	res = bitmap
+	res = bitmap_parsed & mascara
 	return
 }

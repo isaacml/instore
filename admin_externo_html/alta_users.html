@@ -111,13 +111,13 @@
                         <li>
                             <a href="#"><i class="fa fa-edit fa-fw"></i>Programar<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li>
+                                <li id="zona_publi">
                                     <a href="publi.html?{{sid}}">Publicidad</a>
                                 </li>
-                                <li>
+                                <li id="zona_music">
                                     <a href="musica.html?{{sid}}">Música</a>
                                 </li>
-                                <li>
+                                <li id="zona_msg">
                                     <a href="mensajes.html?{{sid}}">Mensajes</a>
                                 </li>
                             </ul>
@@ -156,13 +156,12 @@
                                 </div>
                                 <div class='panel-heading'>Acciones</div>
                                 <div class="form-group">
-                                    <input type="checkbox" name="prog_pub" value="1"/>Programar Publicidad<br>
-                                    <input type="checkbox" name="prog_mus" value="2"/>Programar Música<br>
-                                    <input type="checkbox" name="add_mus" value="4"/>Añadir Música No Cifrada<br>
-                                    <input type="checkbox" name="msg_auto" value="8"/>Reproducir Mensajes Automatizados<br>
-                                    <input type="checkbox" name="msg_normal" value="16"/>Reproducir Mensajes Normales<br>
-                                    <input type="checkbox" name="add_msg" value="32"/>Añadir Mensajes Nuevos No Cifrados<br>
-                                    <input type="checkbox" name="change_dom" value="64"/>Cambiar Estado Activo de un Dominio<br>
+                                    <input type="checkbox" name="prog_pub" value="1"/> Programar Publicidad<br>
+                                    <input type="checkbox" name="prog_mus" value="2"/> Programar Música<br>
+                                    <input type="checkbox" name="prog_msg" value="4"/> Programar Mensajes Nuevos<br>
+                                    <input type="checkbox" name="add_mus" value="8"/> Añadir Música No Cifrada<br>
+                                    <input type="checkbox" name="msg_auto" value="16"/> Reproducir Mensajes Automatizados<br>
+                                    <input type="checkbox" name="msg_normal" value="32"/> Reproducir Mensajes Normales<br>
                                 </div>
                                 <br>
                                 <div class="form-group" align="center" id="stat">
@@ -217,6 +216,18 @@
         });
         $.post("/user_entidad.cgi?sid={{sid}}", function(data, status) {
             $("#ent").html(data);
+        });
+        $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+            var res = data.split(";");
+            if (res[0] == 0){
+                $("#zona_publi").hide();
+            }
+            if (res[1] == 0){
+                $("#zona_music").hide();
+            }
+            if (res[2] == 0){
+                $("#zona_msg").hide();
+            }
         });
 		$("#enviar").click(function(){
 			$.post("/alta_users.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {

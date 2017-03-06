@@ -124,10 +124,10 @@
                                 <li id="zona_publi">
                                     <a href="publi.html?{{sid}}">Publicidad</a>
                                 </li>
-                                <li>
+                                <li id="zona_music">
                                     <a href="musica.html?{{sid}}">Música</a>
                                 </li>
-                                <li>
+                                <li id="zona_msg">
                                     <a href="mensajes.html?{{sid}}">Mensajes</a>
                                 </li>
                             </ul>
@@ -211,6 +211,18 @@
         $("#stat").hide();
         $("#stat2").hide();
         $("#dest_stat").hide();
+        $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+            var res = data.split(";");
+            if (res[0] == 0){
+                $("#zona_publi").hide();
+            }
+            if (res[1] == 0){
+                $("#zona_music").hide();
+            }
+            if (res[2] == 0){
+                $("#zona_msg").hide();
+            }
+        });
         $.post("/explorer.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
     		$("#unidades").html(data);
 		});
