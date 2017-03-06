@@ -105,6 +105,8 @@ func main() {
 	//Publicidad
 	http.HandleFunc("/explorer.cgi", explorer)
 	http.HandleFunc("/recoger_destinos.cgi", recoger_destinos)
+	//Menu
+	http.HandleFunc("/zona_publi.cgi", zona_publi)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
