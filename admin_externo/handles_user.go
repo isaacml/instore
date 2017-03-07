@@ -14,11 +14,13 @@ func edit_own_user(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_own_user.cgi", "username;"+r.FormValue("username"), "old_user;"+username, "password;"+r.FormValue("pass"), "repeat-password;"+r.FormValue("repeat-password")))
+		//Eliminamos puntos, dos puntos y puntos comas
+		clearUser := libs.DeleteSplitsChars(r.FormValue("username"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_own_user.cgi", "username;"+clearUser, "old_user;"+username, "password;"+r.FormValue("pass"), "repeat-password;"+r.FormValue("repeat-password")))
 		if respuesta == "OK" {
 			good = "Datos modificados correctamente"
 			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
-			username = r.FormValue("username") // al cambiar el nombre de usuario, es necesario actualizar la variable global username
+			username = clearUser //Al cambiar el nombre de usuario, es necesario actualizar la variable global username
 		} else {
 			fmt.Fprint(w, respuesta)
 		}
@@ -33,8 +35,10 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		fmt.Println(r.Form)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/alta_users.cgi", "user;"+r.FormValue("user"), "name_user;"+r.FormValue("name_user"), "pass;"+r.FormValue("pass"), "padre;"+username, "input_padre;"+r.FormValue("padre"), "input_entidad;"+r.FormValue("entidad"),
+		//Eliminamos puntos, dos puntos y puntos comas
+		clearUser := libs.DeleteSplitsChars(r.FormValue("user"))
+		name_user := libs.DeleteSplitsChars(r.FormValue("name_user"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/alta_users.cgi", "user;"+clearUser, "name_user;"+name_user, "pass;"+r.FormValue("pass"), "padre;"+username, "input_padre;"+r.FormValue("padre"), "input_entidad;"+r.FormValue("entidad"),
 			"prog_pub;"+r.FormValue("prog_pub"), "prog_mus;"+r.FormValue("prog_mus"), "add_mus;"+r.FormValue("add_mus"), "msg_auto;"+r.FormValue("msg_auto"), "msg_normal;"+r.FormValue("msg_normal"), "add_msg;"+r.FormValue("add_msg"), "change_dom;"+r.FormValue("change_dom")))
 		fmt.Fprint(w, respuesta)
 	}
@@ -62,7 +66,8 @@ func load_user(w http.ResponseWriter, r *http.Request) {
 		loadSettings(serverRoot)
 		updateExpires(sid)
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/load_user.cgi", "edit_id;"+r.FormValue("load")))
-		fmt.Fprint(w, respuesta)
+		respuesta2 := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/bitmap_checked.cgi", "edit_id;"+r.FormValue("load")))
+		fmt.Fprint(w, respuesta+":.:"+respuesta2)
 	}
 }
 
@@ -74,7 +79,10 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_user.cgi", "edit_id;"+r.FormValue("id"), "user;"+r.FormValue("user"), "name_user;"+r.FormValue("name_user"), "pass;"+r.FormValue("pass"), "padre;"+r.FormValue("padre"), "entidad;"+r.FormValue("entidad"), "admin_user;"+username))
+		//Eliminamos puntos, dos puntos y puntos comas
+		clearUser := libs.DeleteSplitsChars(r.FormValue("user"))
+		name_user := libs.DeleteSplitsChars(r.FormValue("name_user"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_user.cgi", "edit_id;"+r.FormValue("id"), "user;"+clearUser, "name_user;"+name_user, "pass;"+r.FormValue("pass"), "padre;"+r.FormValue("padre"), "entidad;"+r.FormValue("entidad"), "admin_user;"+username))
 		fmt.Fprint(w, respuesta)
 	}
 }

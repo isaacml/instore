@@ -66,6 +66,30 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 		empty = "Los campos no pueden estar vacíos"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
+		//Generar el bitmap de acciones en hexadecimal
+		var bitmap int
+		if r.FormValue("prog_pub") != "" {
+			bitmap = PROG_PUB
+		}
+		if r.FormValue("prog_mus") != "" {
+			bitmap = bitmap + PROG_MUS
+		}
+		if r.FormValue("prog_msg") != "" {
+			bitmap = bitmap + PROG_MSG
+		}
+		if r.FormValue("add_mus") != "" {
+			bitmap = bitmap + ADD_MUS
+		}
+		if r.FormValue("msg_auto") != "" {
+			bitmap = bitmap + MSG_AUTO
+		}
+		if r.FormValue("msg_normal") != "" {
+			bitmap = bitmap + MSG_NORMAL
+		}
+
+		//Aquí se guarda el valor del bitmap en hexadecimal
+		bitmap_hex := fmt.Sprintf("%x", bitmap)
+
 		query, err := db.Query("SELECT padre_id FROM usuarios WHERE user = ?", admin_user)
 		if err != nil {
 			Error.Println(err)
@@ -78,8 +102,8 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 			}
 			if padre_id == 0 {
 				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, entidad_id=?, padre_id=? WHERE id = ?",
-					user, user, name_user, pass, entidad, padre, edit_id)
+				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, entidad_id=?, padre_id=?, bitmap_acciones=? WHERE id = ?",
+					user, user, name_user, pass, entidad, padre, bitmap_hex, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
@@ -91,7 +115,7 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 				}
 			} else {
 				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=? WHERE id = ?", user, user, name_user, pass, edit_id)
+				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, bitmap_acciones=? WHERE id = ?", user, user, name_user, pass, bitmap_hex, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)

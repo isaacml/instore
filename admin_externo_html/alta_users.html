@@ -155,13 +155,15 @@
                                 <div id="ent">     
                                 </div>
                                 <div class='panel-heading'>Acciones</div>
-                                <div class="form-group">
+                                <div class="form-group" id="defaultActions">
                                     <input type="checkbox" name="prog_pub" value="1"/> Programar Publicidad<br>
                                     <input type="checkbox" name="prog_mus" value="2"/> Programar Música<br>
                                     <input type="checkbox" name="prog_msg" value="4"/> Programar Mensajes Nuevos<br>
                                     <input type="checkbox" name="add_mus" value="8"/> Añadir Música No Cifrada<br>
                                     <input type="checkbox" name="msg_auto" value="16"/> Reproducir Mensajes Automatizados<br>
                                     <input type="checkbox" name="msg_normal" value="32"/> Reproducir Mensajes Normales<br>
+                                </div>
+                                <div class="form-group" id="editActions">
                                 </div>
                                 <br>
                                 <div class="form-group" align="center" id="stat">
@@ -211,6 +213,7 @@
         table();
         $("#stat").hide();
         $("#modificar").hide();
+        $("#editActions").hide();
         $.post("/user_permiso.cgi?sid={{sid}}", function(data, status) {
             $("#dad").html(data);
         });
@@ -265,7 +268,11 @@
 		$("#modificar").show();
     	$("#enviar").hide();
         $.post("/load_user.cgi?sid={{sid}}", "load="+id , function(data, status) {
-	    	$.each(data.split('&'), function (index, elem) {
+            var res = data.split(":.:");
+            $("#editActions").show();
+            $("#defaultActions").hide();
+            $("#editActions").html(res[1]);
+	    	$.each(res[0].split('&'), function (index, elem) {
 				var vals = elem.split('=');
 				$("[name=\"" + vals[0].trim() + "\"]").val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
     		});
