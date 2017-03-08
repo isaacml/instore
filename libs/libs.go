@@ -246,6 +246,8 @@ func DeleteSplitsChars(cadena string) (resultado string) {
 	r := strings.NewReplacer(".", "", ":", "", ";", "")
 	if strings.Contains(cadena, ".") || strings.Contains(cadena, ":") || strings.Contains(cadena, ";") {
 		correct_res = r.Replace(cadena)
+	} else {
+		correct_res = cadena
 	}
 	resultado = correct_res
 	return

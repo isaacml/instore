@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+//MASCARAS
 const (
 	PROG_PUB = 1 << iota
 	PROG_MUS

@@ -68,25 +68,24 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 	} else {
 		//Generar el bitmap de acciones en hexadecimal
 		var bitmap int
-		if r.FormValue("prog_pub") != "" {
+		if r.FormValue("prog_pub_edit") != "" {
 			bitmap = PROG_PUB
 		}
-		if r.FormValue("prog_mus") != "" {
+		if r.FormValue("prog_mus_edit") != "" {
 			bitmap = bitmap + PROG_MUS
 		}
-		if r.FormValue("prog_msg") != "" {
+		if r.FormValue("prog_msg_edit") != "" {
 			bitmap = bitmap + PROG_MSG
 		}
-		if r.FormValue("add_mus") != "" {
+		if r.FormValue("add_mus_edit") != "" {
 			bitmap = bitmap + ADD_MUS
 		}
-		if r.FormValue("msg_auto") != "" {
+		if r.FormValue("msg_auto_edit") != "" {
 			bitmap = bitmap + MSG_AUTO
 		}
-		if r.FormValue("msg_normal") != "" {
+		if r.FormValue("msg_normal_edit") != "" {
 			bitmap = bitmap + MSG_NORMAL
 		}
-
 		//Aquí se guarda el valor del bitmap en hexadecimal
 		bitmap_hex := fmt.Sprintf("%x", bitmap)
 

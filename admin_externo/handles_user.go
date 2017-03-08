@@ -39,7 +39,7 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 		clearUser := libs.DeleteSplitsChars(r.FormValue("user"))
 		name_user := libs.DeleteSplitsChars(r.FormValue("name_user"))
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/alta_users.cgi", "user;"+clearUser, "name_user;"+name_user, "pass;"+r.FormValue("pass"), "padre;"+username, "input_padre;"+r.FormValue("padre"), "input_entidad;"+r.FormValue("entidad"),
-			"prog_pub;"+r.FormValue("prog_pub"), "prog_mus;"+r.FormValue("prog_mus"), "add_mus;"+r.FormValue("add_mus"), "msg_auto;"+r.FormValue("msg_auto"), "msg_normal;"+r.FormValue("msg_normal"), "add_msg;"+r.FormValue("add_msg"), "change_dom;"+r.FormValue("change_dom")))
+			"prog_pub;"+r.FormValue("prog_pub"), "prog_mus;"+r.FormValue("prog_mus"), "prog_msg;"+r.FormValue("prog_msg"), "add_mus;"+r.FormValue("add_mus"), "msg_auto;"+r.FormValue("msg_auto"), "msg_normal;"+r.FormValue("msg_normal")))
 		fmt.Fprint(w, respuesta)
 	}
 }
@@ -82,7 +82,8 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 		//Eliminamos puntos, dos puntos y puntos comas
 		clearUser := libs.DeleteSplitsChars(r.FormValue("user"))
 		name_user := libs.DeleteSplitsChars(r.FormValue("name_user"))
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_user.cgi", "edit_id;"+r.FormValue("id"), "user;"+clearUser, "name_user;"+name_user, "pass;"+r.FormValue("pass"), "padre;"+r.FormValue("padre"), "entidad;"+r.FormValue("entidad"), "admin_user;"+username))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_user.cgi", "edit_id;"+r.FormValue("id"), "user;"+clearUser, "name_user;"+name_user, "pass;"+r.FormValue("pass"), "padre;"+r.FormValue("padre"), "entidad;"+r.FormValue("entidad"), "admin_user;"+username,
+			"prog_pub_edit;"+r.FormValue("prog_pub_edit"), "prog_mus_edit;"+r.FormValue("prog_mus_edit"), "prog_msg_edit;"+r.FormValue("prog_msg_edit"), "add_mus_edit;"+r.FormValue("add_mus_edit"), "msg_auto_edit;"+r.FormValue("msg_auto_edit"), "msg_normal_edit;"+r.FormValue("msg_normal_edit")))
 		fmt.Fprint(w, respuesta)
 	}
 }
