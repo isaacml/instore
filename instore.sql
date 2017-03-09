@@ -1,7 +1,7 @@
 /*
 Navicat SQLite Data Transfer
 
-Source Server         : INSTORE
+Source Server         : Prueba
 Source Server Version : 30808
 Source Host           : :0
 
@@ -9,25 +9,10 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2017-01-23 13:36:48
+Date: 2017-03-09 16:28:11
 */
 
 PRAGMA foreign_keys = OFF;
-
--- ----------------------------
--- Table structure for acciones
--- ----------------------------
-DROP TABLE IF EXISTS "main"."acciones";
-CREATE TABLE "acciones" (
-"id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-"codhex"  TEXT(16),
-"accion"  TEXT(255),
-"extra"  TEXT(1024)
-);
-
--- ----------------------------
--- Records of acciones
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for almacenes
@@ -44,10 +29,6 @@ CONSTRAINT "fk_entidad" FOREIGN KEY ("entidad_id") REFERENCES "entidades" ("id")
 );
 
 -- ----------------------------
--- Records of almacenes
--- ----------------------------
-
--- ----------------------------
 -- Table structure for entidades
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."entidades";
@@ -57,12 +38,8 @@ CREATE TABLE "entidades" (
 "creador_id"  INTEGER NOT NULL,
 "timestamp"  INTEGER,
 "last_access"  INTEGER,
-CONSTRAINT "fk_entidad" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+CONSTRAINT "fk_ent_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- ----------------------------
--- Records of entidades
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for mensaje
@@ -81,10 +58,6 @@ CONSTRAINT "fk_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON 
 );
 
 -- ----------------------------
--- Records of mensaje
--- ----------------------------
-
--- ----------------------------
 -- Table structure for musica
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."musica";
@@ -98,10 +71,6 @@ CREATE TABLE "musica" (
 "timestamp"  INTEGER,
 CONSTRAINT "fk_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- ----------------------------
--- Records of musica
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for pais
@@ -118,10 +87,6 @@ CONSTRAINT "fk_almacen" FOREIGN KEY ("almacen_id") REFERENCES "almacenes" ("id")
 );
 
 -- ----------------------------
--- Records of pais
--- ----------------------------
-
--- ----------------------------
 -- Table structure for provincia
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."provincia";
@@ -134,10 +99,6 @@ CREATE TABLE "provincia" (
 CONSTRAINT "fk_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
 CONSTRAINT "fk_region" FOREIGN KEY ("region_id") REFERENCES "region" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- ----------------------------
--- Records of provincia
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for publi
@@ -155,10 +116,6 @@ CONSTRAINT "fk_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON 
 );
 
 -- ----------------------------
--- Records of publi
--- ----------------------------
-
--- ----------------------------
 -- Table structure for region
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."region";
@@ -173,26 +130,10 @@ CONSTRAINT "fk_pais" FOREIGN KEY ("pais_id") REFERENCES "pais" ("id") ON DELETE 
 );
 
 -- ----------------------------
--- Records of region
--- ----------------------------
-
--- ----------------------------
 -- Table structure for sqlite_sequence
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."sqlite_sequence";
 CREATE TABLE sqlite_sequence(name,seq);
-
--- ----------------------------
--- Records of sqlite_sequence
--- ----------------------------
-INSERT INTO "main"."sqlite_sequence" VALUES ('musica', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('entidades', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('usuarios', 1);
-INSERT INTO "main"."sqlite_sequence" VALUES ('almacenes', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('pais', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('region', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('provincia', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('tiendas', 0);
 
 -- ----------------------------
 -- Table structure for tiendas
@@ -212,10 +153,6 @@ CONSTRAINT "fk_prov" FOREIGN KEY ("provincia_id") REFERENCES "provincia" ("id") 
 );
 
 -- ----------------------------
--- Records of tiendas
--- ----------------------------
-
--- ----------------------------
 -- Table structure for usuarios
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."usuarios";
@@ -228,10 +165,5 @@ CREATE TABLE "usuarios" (
 "entidad_id"  INTEGER,
 "padre_id"  INTEGER,
 "bitmap_acciones"  TEXT(16),
-CONSTRAINT "fk_user" FOREIGN KEY ("entidad_id") REFERENCES "entidades" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+CONSTRAINT "fk_user_entidad" FOREIGN KEY ("entidad_id") REFERENCES "entidades" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- ----------------------------
--- Records of usuarios
--- ----------------------------
-INSERT INTO "main"."usuarios" VALUES (1, 'admin', 'admin', 'admin', 'superusuario', 0, 0, 'FFFFFFFFFFFFFFFF');
