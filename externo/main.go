@@ -52,7 +52,6 @@ func main() {
 	http.HandleFunc("/load_user.cgi", load_user)
 	http.HandleFunc("/edit_user.cgi", edit_user)
 	http.HandleFunc("/user_entidad.cgi", user_entidad)
-	http.HandleFunc("/user_permiso.cgi", user_permiso)
 	//ENTIDADES
 	http.HandleFunc("/entidad.cgi", entidad)
 	http.HandleFunc("/get_entidad.cgi", get_entidad)

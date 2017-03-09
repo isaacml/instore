@@ -114,9 +114,6 @@
                                 <li id="zona_publi">
                                     <a href="publi.html?{{sid}}">Publicidad</a>
                                 </li>
-                                <li id="zona_music">
-                                    <a href="musica.html?{{sid}}">Música</a>
-                                </li>
                                 <li id="zona_msg">
                                     <a href="mensajes.html?{{sid}}">Mensajes</a>
                                 </li>
@@ -149,8 +146,6 @@
                                 </div>
                                 <div class="form-group">
                                     <input id="pass" class="form-control" placeholder="Password" name="pass" type="text">
-                                </div>
-                                <div id="dad">  
                                 </div>
                                 <div id="ent">     
                                 </div>
@@ -214,9 +209,6 @@
         $("#stat").hide();
         $("#modificar").hide();
         $("#editActions").hide();
-        $.post("/user_permiso.cgi?sid={{sid}}", function(data, status) {
-            $("#dad").html(data);
-        });
         $.post("/user_entidad.cgi?sid={{sid}}", function(data, status) {
             $("#ent").html(data);
         });
@@ -224,9 +216,6 @@
             var res = data.split(";");
             if (res[0] == 0){
                 $("#zona_publi").hide();
-            }
-            if (res[1] == 0){
-                $("#zona_music").hide();
             }
             if (res[2] == 0){
                 $("#zona_msg").hide();
@@ -252,6 +241,8 @@
                 $("#user").val("");
 				$("#name_user").val("");
 				$("#pass").val("");
+                $("#editActions").hide();
+                $("#defaultActions").show();
 				table();
 	        });
         });

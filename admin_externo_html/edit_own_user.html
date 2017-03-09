@@ -115,9 +115,6 @@
                                 <li id="zona_publi">
                                     <a href="publi.html?{{sid}}">Publicidad</a>
                                 </li>
-                                <li id="zona_music">
-                                    <a href="musica.html?{{sid}}">Música</a>
-                                </li>
                                 <li id="zona_msg">
                                     <a href="mensajes.html?{{sid}}">Mensajes</a>
                                 </li>
@@ -173,9 +170,6 @@
             var res = data.split(";");
             if (res[0] == 0){
                 $("#zona_publi").hide();
-            }
-            if (res[1] == 0){
-                $("#zona_music").hide();
             }
             if (res[2] == 0){
                 $("#zona_msg").hide();

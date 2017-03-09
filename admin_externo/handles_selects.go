@@ -23,19 +23,6 @@ func user_admin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//Envia un select del tipo de permiso(padre_id) al que pertenece el usuario (ROOT=0 o Normal=other)
-func user_permiso(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	sid := r.FormValue("sid")
-	_, ok := user[sid]
-	if ok {
-		loadSettings(serverRoot)
-		updateExpires(sid)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/user_permiso.cgi", "username;"+username))
-		fmt.Fprint(w, respuesta)
-	}
-}
-
 //Envia un select del tipo de entidad(entidad_id) a la que pertenece el usuario (ROOT=0 o Normal=other)
 func user_entidad(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()

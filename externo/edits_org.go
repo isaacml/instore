@@ -58,7 +58,6 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 	user := r.FormValue("user")
 	name_user := r.FormValue("name_user")
 	pass := r.FormValue("pass")
-	padre := r.FormValue("padre")
 	entidad := r.FormValue("entidad")
 	admin_user := r.FormValue("admin_user")
 
@@ -89,20 +88,20 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 		//Aquí se guarda el valor del bitmap en hexadecimal
 		bitmap_hex := fmt.Sprintf("%x", bitmap)
 
-		query, err := db.Query("SELECT padre_id FROM usuarios WHERE user = ?", admin_user)
+		query, err := db.Query("SELECT entidad_id FROM usuarios WHERE user = ?", admin_user)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var padre_id int
-			err = query.Scan(&padre_id)
+			var entidad_id int
+			err = query.Scan(&entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, entidad_id=?, padre_id=?, bitmap_acciones=? WHERE id = ?",
-					user, user, name_user, pass, entidad, padre, bitmap_hex, edit_id)
+				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, entidad_id=?, bitmap_acciones=? WHERE id = ?",
+					user, user, name_user, pass, entidad, bitmap_hex, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
@@ -140,17 +139,17 @@ func edit_entidad(w http.ResponseWriter, r *http.Request) {
 		empty = "El campo no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE entidades SET nombre=? WHERE id = ?", entidad, edit_id)
 				db_mu.Unlock()
@@ -184,17 +183,17 @@ func edit_almacen(w http.ResponseWriter, r *http.Request) {
 		empty = "El campo almacen no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE almacenes SET almacen=?, entidad_id=? WHERE id = ?", almacen, entidad, edit_id)
 				db_mu.Unlock()
@@ -228,17 +227,17 @@ func edit_pais(w http.ResponseWriter, r *http.Request) {
 		empty = "El campo pais no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE pais SET pais=?, almacen_id=? WHERE id = ?", pais, almacen, edit_id)
 				db_mu.Unlock()
@@ -272,17 +271,17 @@ func edit_region(w http.ResponseWriter, r *http.Request) {
 		empty = "El campo país no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE region SET region=?, pais_id=? WHERE id = ?", region, pais, edit_id)
 				db_mu.Unlock()
@@ -316,17 +315,17 @@ func edit_provincia(w http.ResponseWriter, r *http.Request) {
 		empty = "El campo región no puede estar vacío"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE provincia SET provincia=?, region_id=? WHERE id = ?", provincia, region, edit_id)
 				db_mu.Unlock()
@@ -360,17 +359,17 @@ func edit_tienda(w http.ResponseWriter, r *http.Request) {
 		empty = "No puede haber campos vacíos"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE tiendas SET tienda=?, provincia_id=?, address=?, phone=?, extra=? WHERE id = ?", tienda, provincia, address, phone, extra, edit_id)
 				db_mu.Unlock()

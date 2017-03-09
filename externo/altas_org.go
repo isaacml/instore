@@ -28,7 +28,6 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 	name_user := r.FormValue("name_user")
 	pass := r.FormValue("pass")
 	padre := r.FormValue("padre")
-	input_padre := r.FormValue("input_padre")
 	input_entidad := r.FormValue("input_entidad")
 
 	if user == "" || name_user == "" || pass == "" {
@@ -70,30 +69,17 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			//Comprobamos que no hay dos Usuarios con el mismo nombre
-			if user_bd == user {
-				bad := "El usuario ya existe"
+			if ent_bd != 0 {
+				bad := "Solo un ROOT puede añadir nuevos usuarios"
+				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+				return
+			} else if user_bd == user { //Comprobamos que no hay dos Usuarios con el mismo nombre
+				bad := "Fallo al añadir: el usuario ya existe"
 				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
 			} else {
-				var permiso int
 				var entidad int
-				// Diferenciamos entre permiso por parte de un usuario ROOT y un usuario normal
-				if input_padre == "" {
-					//usuario normal: el id del usuario es el padre del usuario a crear
-					permiso = id
-				} else {
-					//usuario ROOT: el id del usuario puede ser él o darle permisos de ROOT = 0
-					permiso, err = strconv.Atoi(input_padre)
-					if err != nil {
-						Error.Println(err)
-					}
-				}
-				// Diferenciamos entre entidad por parte de un usuario ROOT y un usuario normal
-				if input_entidad == "" {
-					//entidad normal: el id del usuario es el padre de la entidad a crear
-					entidad = ent_bd
-				} else {
-					//entidad ROOT: el id de la entidad puede ser él o darle permisos de ROOT = 0
+				if input_entidad != "" {
+					//tomamos el id_entidad, proporcionado por el select de formulario
 					entidad, err = strconv.Atoi(input_entidad)
 					if err != nil {
 						Error.Println(err)
@@ -101,7 +87,7 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 				}
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO usuarios (`user`, `old_user`, `pass`, `nombre_completo`, `entidad_id`, `padre_id`, `bitmap_acciones`) VALUES (?,?,?,?,?,?,?)",
-					user, user, pass, name_user, entidad, permiso, bitmap_hex)
+					user, user, pass, name_user, entidad, id, bitmap_hex)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
@@ -126,17 +112,17 @@ func entidad(w http.ResponseWriter, r *http.Request) {
 		empty = "El campo no puede estar vacio"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				timestamp := time.Now().Unix()
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO entidades (`nombre`, `creador_id`, `timestamp`, `last_access`) VALUES (?, ?, ?, ?)", entidad, id, timestamp, timestamp)
@@ -170,17 +156,17 @@ func almacen(w http.ResponseWriter, r *http.Request) {
 		empty = "Debe haber almenos una entidad"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				timestamp := time.Now().Unix()
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO almacenes (`almacen`, `creador_id`, `timestamp`, `entidad_id`) VALUES (?, ?, ?, ?)", almacen, id, timestamp, entidad)
@@ -214,17 +200,17 @@ func pais(w http.ResponseWriter, r *http.Request) {
 		empty = "Debe haber almenos un almacen"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				timestamp := time.Now().Unix()
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO pais (`pais`, `creador_id`, `timestamp`, `almacen_id`) VALUES (?, ?, ?, ?)", pais, id, timestamp, almacen)
@@ -258,17 +244,17 @@ func region(w http.ResponseWriter, r *http.Request) {
 		empty = "Debe haber almenos un almacen"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				timestamp := time.Now().Unix()
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO region (`region`, `creador_id`, `timestamp`, `pais_id`) VALUES (?, ?, ?, ?)", region, id, timestamp, pais)
@@ -302,17 +288,17 @@ func provincia(w http.ResponseWriter, r *http.Request) {
 		empty = "Debe haber almenos una región"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				timestamp := time.Now().Unix()
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO provincia (`provincia`, `creador_id`, `timestamp`, `region_id`) VALUES (?, ?, ?, ?)", provincia, id, timestamp, region)
@@ -349,17 +335,17 @@ func tienda(w http.ResponseWriter, r *http.Request) {
 		empty = "Debe haber almenos una provincia"
 		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 	} else {
-		query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+		query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, padre_id int
-			err = query.Scan(&id, &padre_id)
+			var id, entidad_id int
+			err = query.Scan(&id, &entidad_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if padre_id == 0 {
+			if entidad_id == 0 {
 				timestamp := time.Now().Unix()
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO tiendas (`tienda`, `creador_id`, `timestamp`, `provincia_id`, `address`, `phone`, `extra`) VALUES (?, ?, ?, ?, ?, ?, ?)", tienda, id, timestamp, provincia, address, phone, extra)

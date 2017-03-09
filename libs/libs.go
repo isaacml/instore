@@ -241,6 +241,11 @@ func BackDestOrg(estado_destino string, num_backs int) (resultado string) {
 	return
 }
 
+/*
+DeleteSplitsChars: Función que elimina los puntos, puntos comas y dobles puntos.
+	cadena: Se le pasa el valor de un input. Ex: r.FormValue("user")
+Nos devuelve un string limpio.
+*/
 func DeleteSplitsChars(cadena string) (resultado string) {
 	var correct_res string
 	r := strings.NewReplacer(".", "", ":", "", ";", "")
