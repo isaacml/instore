@@ -148,7 +148,7 @@
                         <div class="panel-body" align="center">
                         <form id="testform" action="" method="post">
                             <fieldset>
-                                <h5 class="text-muted">Unidades del Sistema</h5>
+                                <h5 class="text-muted">Unidades de Disco</h5>
                                 <br>
                                 <div class="form-group">
                                     <select id="unidades" name="unidades" style="width:30%;"></select>
@@ -159,10 +159,10 @@
                         <div class="panel-body" align="center">
                         <form id="testform1" action="" method="post">
                             <fieldset>
-                                <h5 class="text-muted">Directorios del Sistema</h5>
+                                <h5 class="text-muted">Directorios</h5>
                                 <br>
                                 <div class="form-group">
-                                    <select id="directory" name="directory" style="width:75%;height:85px;" multiple></select>
+                                    <select id="directory" name="directory" style="width:40%;"></select>
                                 </div>
                                 <div class="form-group" id="stat">
                                 </div>
@@ -173,16 +173,16 @@
                         <div class="panel-body" align="center">
                         <form id="testform2" action="" method="post">
                             <fieldset>
-                                <h5 class="text-muted">Ficheros del Sistema</h5>
+                                <h5 class="text-muted">Ficheros</h5>
                                 <br>
                                 <div class="form-group">
                                     <select id="files" name="files" style="width:100%;height:85px;" multiple></select>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio" name="f_inicio" type="text">
+                                    <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
                                 </div> 
                                 <div class="form-group">
-                                    <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin" name="f_fin" type="text">
+                                    <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
                                 </div>
                                 <h5 class="text-muted">Generar un destino</h5>
                                 <br>
@@ -232,7 +232,7 @@
                 $("#files").html(data);
             });
         });
-        $("#directory").dblclick(function(){
+        $("#directory").change(function(){
             $.post("/explorer.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
                 var res = data.split(";");
                 $("#directory").html(res[0]);
@@ -245,7 +245,7 @@
             });
         });
         $("#enviar").click(function(){
-            $.post("/explorer.cgi?sid={{sid}}&action=get_ficheros", $("#testform2").serialize(), function(data, status) {
+            $.post("/explorer.cgi?sid={{sid}}&action=get_ficheros&type=publi", $("#testform2").serialize(), function(data, status) {
                 var res = data.split(";");
                 $("#stat2").show();
 				$("#stat2").html(res[1]);

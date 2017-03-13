@@ -88,7 +88,8 @@ func main() {
 	http.HandleFunc("/load_tienda.cgi", load_tienda)
 	http.HandleFunc("/edit_tienda.cgi", edit_tienda)
 	//FUNCION ENCARGADA DE RECOGER LOS FICHEROS
-	http.HandleFunc("/get_files.cgi", get_files)
+	http.HandleFunc("/publi_files.cgi", publi_files)
+	http.HandleFunc("/msg_files.cgi", msg_files)
 	http.HandleFunc("/destino.cgi", destino)
 	//FUNCION ENCARGADA DE REVISAR LOS BITMAPS
 	http.HandleFunc("/bitmap_actions.cgi", bitmap_actions)

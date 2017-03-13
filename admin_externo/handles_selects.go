@@ -100,3 +100,32 @@ func tienda_provincia(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, respuesta)
 	}
 }
+
+//Envia un select para mostrar las horas en el panel de mensajes.html
+func horas_msg(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	sid := r.FormValue("sid")
+	_, ok := user[sid]
+	if ok {
+		var str string
+		for i := 1; i <= 24; i++ {
+	        str += fmt.Sprintf("<option value='%d'>%d</option>", i, i)
+	    }
+		fmt.Fprint(w, str)
+	}
+}
+
+//Envia un select para mostrar los minutos en el panel de mensajes.html
+func minutos_msg(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	sid := r.FormValue("sid")
+	_, ok := user[sid]
+	if ok {
+		var str string
+		for i := 1; i <= 60; i++ {
+	        str += fmt.Sprintf("<option value='%d'>%d</option>", i, i)
+	    }
+		fmt.Fprint(w, str)
+	}
+
+}

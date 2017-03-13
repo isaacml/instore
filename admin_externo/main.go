@@ -106,6 +106,9 @@ func main() {
 	http.HandleFunc("/recoger_destinos.cgi", recoger_destinos)
 	//Bitmap Actions
 	http.HandleFunc("/bitmaps.cgi", bitmaps)
+	//Mensajes
+	http.HandleFunc("/horas_msg.cgi", horas_msg)
+	http.HandleFunc("/minutos_msg.cgi", minutos_msg)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
@@ -122,14 +125,15 @@ func main() {
 func mantenimiento() {
 	loadSettings(serverRoot)
 	for {
-		var ruta, fichero, fecha_inicio, fecha_final, destino string
+		var ruta, fichero, fecha_inicio, fecha_final, destino, playtime string
 		var id int
-		query, err := db.Query("SELECT id, ruta, fichero, fecha_inicio, fecha_final, destino FROM publi WHERE id = (SELECT MIN(id) FROM publi)")
+		//ZONA PUBLICIDAD
+		publicidad, err := db.Query("SELECT id, ruta, fichero, fecha_inicio, fecha_final, destino FROM publi WHERE id = (SELECT MIN(id) FROM publi)")
 		if err != nil {
 			Error.Println(err)
 		}
-		for query.Next() {
-			err = query.Scan(&id, &ruta, &fichero, &fecha_inicio, &fecha_final, &destino)
+		for publicidad.Next() {
+			err = publicidad.Scan(&id, &ruta, &fichero, &fecha_inicio, &fecha_final, &destino)
 			if err != nil {
 				Error.Println(err)
 			}
@@ -145,6 +149,35 @@ func mantenimiento() {
 			if errUp == nil {
 				db_mu.Lock()
 				_, err1 := db.Exec("DELETE FROM publi WHERE id=?", id)
+				db_mu.Unlock()
+				if err1 != nil {
+					Error.Println(err1)
+				}
+				continue
+			}
+		}
+		//ZONA MENSAJES
+		mensajes, err := db.Query("SELECT id, ruta, fichero, fecha_inicio, fecha_final, destino, playtime FROM mensaje WHERE id = (SELECT MIN(id) FROM mensaje)")
+		if err != nil {
+			Error.Println(err)
+		}
+		for mensajes.Next() {
+			err = mensajes.Scan(&id, &ruta, &fichero, &fecha_inicio, &fecha_final, &destino, &playtime)
+			if err != nil {
+				Error.Println(err)
+			}
+			rutaCompleta := ruta + fichero
+			//parámetros pasados por URL
+			v := url.Values{}
+			v.Add("fichero", fichero)
+			v.Add("f_inicio", fecha_inicio)
+			v.Add("f_final", fecha_final)
+			v.Add("destino", destino)
+			v.Add("ownUser", serverext["usuarioPropietario"])
+			_, errUp := libs.ClienteUpload(rutaCompleta, serverext["serverroot"]+"/get_files.cgi?"+v.Encode(), 1000, 0)
+			if errUp == nil {
+				db_mu.Lock()
+				_, err1 := db.Exec("DELETE FROM mensaje WHERE id=?", id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
