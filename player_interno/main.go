@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
-	"github.com/isaacml/instore/libs"
+	//"github.com/isaacml/instore/libs"
 	_ "github.com/mattn/go-sqlite3"
 	"io"
 	"log"
 	"net/http"
-	"net/url"
+	//"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -51,64 +51,14 @@ func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
-	go mantenimiento()
+	//go mantenimiento()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
 	http.HandleFunc(login_cgi, login)
 	http.HandleFunc(logout_cgi, logout)
 	// handlers del administrador externo
-	http.HandleFunc("/user_admin.cgi", user_admin)
-	//Usuario
-	http.HandleFunc("/edit_own_user.cgi", edit_own_user)
-	http.HandleFunc("/alta_users.cgi", alta_users)
-	http.HandleFunc("/get_users.cgi", get_users)
-	http.HandleFunc("/load_user.cgi", load_user)
-	http.HandleFunc("/edit_user.cgi", edit_user)
-	http.HandleFunc("/user_entidad.cgi", user_entidad)
-	//Entidad
-	http.HandleFunc("/entidad.cgi", entidad)
-	http.HandleFunc("/get_entidad.cgi", get_entidad)
-	http.HandleFunc("/load_entidad.cgi", load_entidad)
-	http.HandleFunc("/edit_entidad.cgi", edit_entidad)
-	//Almacen
-	http.HandleFunc("/almacen_entidad.cgi", almacen_entidad)
-	http.HandleFunc("/almacen.cgi", almacen)
-	http.HandleFunc("/get_almacen.cgi", get_almacen)
-	http.HandleFunc("/load_almacen.cgi", load_almacen)
-	http.HandleFunc("/edit_almacen.cgi", edit_almacen)
-	//Pais
-	http.HandleFunc("/pais_almacen.cgi", pais_almacen)
-	http.HandleFunc("/pais.cgi", pais)
-	http.HandleFunc("/get_pais.cgi", get_pais)
-	http.HandleFunc("/load_pais.cgi", load_pais)
-	http.HandleFunc("/edit_pais.cgi", edit_pais)
-	//Region
-	http.HandleFunc("/region_pais.cgi", region_pais)
-	http.HandleFunc("/region.cgi", region)
-	http.HandleFunc("/get_region.cgi", get_region)
-	http.HandleFunc("/load_region.cgi", load_region)
-	http.HandleFunc("/edit_region.cgi", edit_region)
-	//Provincia
-	http.HandleFunc("/provincia_region.cgi", provincia_region)
-	http.HandleFunc("/provincia.cgi", provincia)
-	http.HandleFunc("/get_provincia.cgi", get_provincia)
-	http.HandleFunc("/load_provincia.cgi", load_provincia)
-	http.HandleFunc("/edit_provincia.cgi", edit_provincia)
-	//Tienda
-	http.HandleFunc("/tienda_provincia.cgi", tienda_provincia)
-	http.HandleFunc("/tienda.cgi", tienda)
-	http.HandleFunc("/get_tienda.cgi", get_tienda)
-	http.HandleFunc("/load_tienda.cgi", load_tienda)
-	http.HandleFunc("/edit_tienda.cgi", edit_tienda)
-	//Publicidad
-	http.HandleFunc("/explorer.cgi", explorer)
-	http.HandleFunc("/recoger_destinos.cgi", recoger_destinos)
-	//Bitmap Actions
-	http.HandleFunc("/bitmaps.cgi", bitmaps)
-	//Mensajes
-	http.HandleFunc("/horas_msg.cgi", horas_msg)
-	http.HandleFunc("/minutos_msg.cgi", minutos_msg)
+	//http.HandleFunc("/user_admin.cgi", user_admin)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
@@ -121,6 +71,7 @@ func main() {
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
 }
 
+/*
 //MANTENIMIENTO
 func mantenimiento() {
 	loadSettings(serverRoot)
@@ -190,7 +141,7 @@ func mantenimiento() {
 		time.Sleep(20 * time.Second)
 	}
 }
-
+*/
 /*
 loadSettings: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa.
 	filename: ruta completa donde se encuentra nuestro fichero(C:\instore\serverext.reg)

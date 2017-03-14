@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+//Función que actualiza el tiempo de expiración
 func updateExpires(sid string) {
 	expires := time.Now().Unix() + int64(session_timeout)
 	tiempo[sid] = expires
@@ -109,8 +110,8 @@ func horas_msg(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		var str string
 		for i := 1; i <= 24; i++ {
-	        str += fmt.Sprintf("<option value='%d'>%d</option>", i, i)
-	    }
+			str += fmt.Sprintf("<option value='%d'>%d</option>", i, i)
+		}
 		fmt.Fprint(w, str)
 	}
 }
@@ -123,8 +124,8 @@ func minutos_msg(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		var str string
 		for i := 1; i <= 60; i++ {
-	        str += fmt.Sprintf("<option value='%d'>%d</option>", i, i)
-	    }
+			str += fmt.Sprintf("<option value='%d'>%d</option>", i, i)
+		}
 		fmt.Fprint(w, str)
 	}
 

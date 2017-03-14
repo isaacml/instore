@@ -21,7 +21,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	var output string //variable para imprimir los datos hacia JavaScript
-	
+
 	//Muestra por primera vez las Unidades de Disco que tiene el Sistema
 	if r.FormValue("action") == "unidades" {
 		drives, err := exec.Command("cmd", "/c", "fsutil fsinfo drives").Output()
@@ -40,8 +40,8 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		fmt.Fprint(w, output)
-	}	
-	
+	}
+
 	//EXPLORADOR DE DIRECTORIOS --> FORMULARIO 1(testform)
 	if r.FormValue("action") == "dir_unidad" {
 		if r.FormValue("unidades") != "" {
@@ -67,14 +67,14 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			}
 			output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
 			fmt.Fprint(w, output)
-			
+
 		} else {
 			directorio_actual = ""
 			output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
 			fmt.Fprint(w, output)
 		}
 	}
-	
+
 	//EXPLORADOR DE DIRECTORIOS --> FORMULARIO 1(testform)
 	if r.FormValue("action") == "directorios" {
 		if r.FormValue("directory") != "" && r.FormValue("directory") != "..." {
@@ -120,7 +120,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
 			fmt.Fprint(w, output)
 
-		//VOLVER UN DIRECTORIO ATRÁS
+			//VOLVER UN DIRECTORIO ATRÁS
 		} else if r.FormValue("directory") != "" && r.FormValue("directory") == "..." {
 			var contenedor string
 			var contador int
@@ -246,25 +246,26 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 		if f_inicio == "" || f_final == "" {
 			output += ";<span style='color: #FF0303'>Los campos fecha no pueden estar vacíos</span>"
 			fmt.Fprint(w, output)
-		}else{
+		} else {
 			dest := estado_destino
 			timestamp := time.Now().Unix()
+			gap := r.FormValue("gap")
 			//trozeamos las fechas
 			arr_inicio := strings.Split(f_inicio, "/")
 			arr_final := strings.Split(f_final, "/")
 			//establecemos el formato de fechas para la BD --> yyyymmdd
 			fecha_SQL_inc := fmt.Sprintf("%s%s%s", arr_inicio[2], arr_inicio[1], arr_inicio[0])
 			fecha_SQL_fin := fmt.Sprintf("%s%s%s", arr_final[2], arr_final[1], arr_final[0])
-	
+
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "files" {
-						stmt, err0 := db.Prepare("INSERT INTO publi (`ruta`, `fichero`, `fecha_inicio`, `fecha_final`, `destino`, `timestamp`) VALUES (?,?,?,?,?,?)")
+						stmt, err0 := db.Prepare("INSERT INTO publi (`ruta`, `fichero`, `fecha_inicio`, `fecha_final`, `destino`, `timestamp`, `gap`) VALUES (?,?,?,?,?,?,?)")
 						if err0 != nil {
 							Error.Println(err0)
 						}
 						db_mu.Lock()
-						_, err1 := stmt.Exec(directorio_actual, v, fecha_SQL_inc, fecha_SQL_fin, dest, timestamp)
+						_, err1 := stmt.Exec(directorio_actual, v, fecha_SQL_inc, fecha_SQL_fin, dest, timestamp, gap)
 						db_mu.Unlock()
 						if err1 != nil {
 							Error.Println(err1)
@@ -278,21 +279,21 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-	//r.FormValue("type") == "msg", procedemos a insertar los datos en la tabla mensajes
+		//r.FormValue("type") == "msg", procedemos a insertar los datos en la tabla mensajes
 	} else if r.FormValue("action") == "get_ficheros" && r.FormValue("type") == "msg" {
 		//Variables
 		f_inicio := r.FormValue("f_inicio")
 		f_final := r.FormValue("f_fin")
-		
+
 		if f_inicio == "" || f_final == "" {
 			output += ";<span style='color: #FF0303'>Los campos fecha no pueden estar vacíos</span>"
 			fmt.Fprint(w, output)
-		}else{
+		} else {
 			dest := estado_destino
 			timestamp := time.Now().Unix()
 			hora := r.FormValue("hora")
 			min := r.FormValue("minutos")
-			
+
 			//trozeamos las fechas
 			arr_inicio := strings.Split(f_inicio, "/")
 			arr_final := strings.Split(f_final, "/")
@@ -301,7 +302,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			fecha_SQL_fin := fmt.Sprintf("%s%s%s", arr_final[2], arr_final[1], arr_final[0])
 			//formamos el campo playtime
 			playtime := hora + ":" + min
-			
+
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "files" {

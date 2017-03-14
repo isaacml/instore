@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2017-03-13 21:03:19
+Date: 2017-03-14 17:58:35
 */
 
 PRAGMA foreign_keys = OFF;
@@ -26,12 +26,8 @@ CREATE TABLE "mensaje" (
 "fecha_final"  TEXT(10),
 "destino"  TEXT(1024),
 "timestamp"  INTEGER,
-"playtime"  TEXT(5)
+"playtime"  INTEGER
 );
-
--- ----------------------------
--- Records of mensaje
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for publi
@@ -44,21 +40,12 @@ CREATE TABLE "publi" (
 "fecha_inicio"  TEXT(10),
 "fecha_final"  TEXT(10),
 "destino"  TEXT(1024),
-"timestamp"  INTEGER
+"timestamp"  INTEGER,
+"gap"  INTEGER
 );
-
--- ----------------------------
--- Records of publi
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for sqlite_sequence
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."sqlite_sequence";
 CREATE TABLE sqlite_sequence(name,seq);
-
--- ----------------------------
--- Records of sqlite_sequence
--- ----------------------------
-INSERT INTO "main"."sqlite_sequence" VALUES ('publi', 1);
-INSERT INTO "main"."sqlite_sequence" VALUES ('mensaje', 0);

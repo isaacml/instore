@@ -47,8 +47,8 @@ func publi_files(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			db_mu.Lock()
-			_, err1 := db.Exec("INSERT INTO publi (`fichero`, `fecha_inicio`, `fecha_final`, `destino`, `creador_id`, `timestamp`) VALUES (?,?,?,?,?,?)",
-				nameFileServer, r.FormValue("f_inicio"), r.FormValue("f_final"), r.FormValue("destino"), id, timestamp)
+			_, err1 := db.Exec("INSERT INTO publi (`fichero`, `fecha_inicio`, `fecha_final`, `destino`, `creador_id`, `timestamp`, `gap`) VALUES (?,?,?,?,?,?,?)",
+				nameFileServer, r.FormValue("f_inicio"), r.FormValue("f_final"), r.FormValue("destino"), id, timestamp, r.FormValue("gap"))
 			db_mu.Unlock()
 			if err1 != nil {
 				Error.Println(err1)
@@ -93,7 +93,7 @@ func msg_files(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			db_mu.Lock()
-			_, err1 := db.Exec("INSERT INTO publi (`fichero`, `fecha_inicio`, `fecha_final`, `destino`, `creador_id`, `timestamp`, `playtime`) VALUES (?,?,?,?,?,?,?)",
+			_, err1 := db.Exec("INSERT INTO mensaje (`fichero`, `fecha_inicio`, `fecha_final`, `destino`, `creador_id`, `timestamp`, `playtime`) VALUES (?,?,?,?,?,?,?)",
 				nameFileServer, r.FormValue("f_inicio"), r.FormValue("f_final"), r.FormValue("destino"), id, timestamp, r.FormValue("playtime"))
 			db_mu.Unlock()
 			if err1 != nil {

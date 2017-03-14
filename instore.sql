@@ -1,7 +1,7 @@
 /*
 Navicat SQLite Data Transfer
 
-Source Server         : Prueba
+Source Server         : INSTORE
 Source Server Version : 30808
 Source Host           : :0
 
@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2017-03-09 16:28:11
+Date: 2017-03-14 18:07:38
 */
 
 PRAGMA foreign_keys = OFF;
@@ -112,6 +112,7 @@ CREATE TABLE "publi" (
 "destino"  TEXT(1024),
 "creador_id"  INTEGER NOT NULL,
 "timestamp"  INTEGER,
+"gap"  INTEGER,
 CONSTRAINT "fk_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
