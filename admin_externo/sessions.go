@@ -107,7 +107,6 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	sid := r.FormValue("sid")
 	_, ok := user[sid]
 	if ok {
-		updateExpires(sid)
 		for k, _ := range user {
 			delete(user, k)
 			delete(ip, k)

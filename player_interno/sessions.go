@@ -62,10 +62,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 			agente = v[0]
 		}
 	}
-	//SE PASAN LAS VARIABLES POST AL SERVIDOR EXTERNO PARA LA AUTENTICACION
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/login.cgi", "user;"+username, "pass;"+password))
+	//SE PASAN LAS VARIABLES POST AL SERVIDOR INTERNO
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/login_tienda.cgi", "user;"+username, "pass;"+password))
 	//RECOGEMOS LA RESPUESTA
 	if respuesta == "OK" {
+		si := checkFileConfig("index.html")
+		fmt.Println(si)
 		//Cuando se repite autenticacion de usuario
 		for key, _ := range user {
 			//Si el usuario e IP existen pero el navegador es distinto, se abre una nueva sesion para el
@@ -107,7 +109,6 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	sid := r.FormValue("sid")
 	_, ok := user[sid]
 	if ok {
-		updateExpires(sid)
 		for k, _ := range user {
 			delete(user, k)
 			delete(ip, k)

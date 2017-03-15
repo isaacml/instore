@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	//"github.com/isaacml/instore/libs"
 	"io"
 	"net/http"
 	"os"

@@ -51,7 +51,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, html)
 	} else {
 		file := strings.Split(namefile, ".")
-		if (file[1] != "html") || strings.Contains(namefile, "/"+first_page+".html") {
+		if (file[1] != "html") || strings.Contains(namefile, "\\"+first_page+".html") {
 			http.ServeContent(w, r, namefile, fileinfo.ModTime(), fr)
 		} else {
 			//Se comprueba que el link contiene la parte {{sid}}

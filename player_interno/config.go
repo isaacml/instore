@@ -6,7 +6,7 @@ const (
 	session_timeout   = 600                                  // segundos de timeout de una session
 	first_page        = "index"                              // Sería la página de login (siempre es .html)
 	enter_page        = "menu.html"                          // Sería la página de entrada tras el login
-	http_port         = "9898"                               // puerto del server HTTP
+	http_port         = "9119"                               // puerto del server HTTP
 	name_username     = "user"                               // name del input username en la página de login
 	name_password     = "password"                           // name del input password en la página de login
 	CookieName        = "GOSESSID"                           // nombre del cookie que guardamos en el navegador del usuario
@@ -15,6 +15,7 @@ const (
 	session_value_len = 26                                   // longitud en caracteres del Value de la session cookie
 	spanHTMLlogerr    = "<span id='loginerr'></span>"        // <span> donde publicar el mensaje de error de login
 	ErrorText         = "Error de Login"                     // mensaje a mostrar tras un error de login en la pagina de login
-	logFile           = "C:\\instore\\player_interno.log"    //ruta del archivo de errores
-	serverRoot        = "C:\\instore\\serverint.reg"         // fichero que contiene la ruta hacia el servidor interno
+	logFile           = "C:\\instore\\player_interno.log"    // ruta del archivo de errores
+	serverRoot        = "C:\\instore\\playerint.reg"         // fichero que contiene la ruta hacia el servidor interno
+	configShop        = "configshop.reg"                     // fichero que el dominio de la tienda: entidad.almacen.pais.region.provincia.tienda
 )

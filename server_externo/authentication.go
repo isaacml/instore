@@ -32,6 +32,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	usuario := r.FormValue("user")
 	pass := r.FormValue("pass")
+
 	if authentication(usuario, pass) {
 		fmt.Fprintf(w, "OK")
 	} else {
