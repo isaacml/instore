@@ -46,8 +46,9 @@ func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 
-	// handlers del servidor
+	// handlers de la tienda
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
+	http.HandleFunc("/send_user.cgi", send_user)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

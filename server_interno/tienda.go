@@ -6,11 +6,19 @@ import (
 	"net/http"
 )
 
-// funcion q tramita el login correcto o erroneo
+// enviamos user y pass de autenticación al servidor interno
 func login_tienda(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	loadSettings(serverRoot)
-	//SE PASAN LAS VARIABLES POST AL SERVIDOR EXTERNO PARA LA AUTENTICACION
+	//SE PASAN LAS VARIABLES DE AUTENTICACION
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/login.cgi", "user;"+r.FormValue("user"), "pass;"+r.FormValue("pass")))
+	fmt.Fprint(w, respuesta)
+}
+
+// enviamos el username al servidor interno
+func send_user(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	loadSettings(serverRoot)
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "username;"+r.FormValue("user")))
 	fmt.Fprint(w, respuesta)
 }

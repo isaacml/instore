@@ -23,7 +23,7 @@ var (
 	db                *sql.DB
 	db_mu             sync.RWMutex
 	serverint         map[string]string = make(map[string]string) //Mapa que guarda la direccion del servidor interno
-	username, good    string                                      //Variable de usuario y estado global
+	username          string                                      //Variable de usuario y estado global
 	directorio_actual string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 )
 
@@ -57,8 +57,9 @@ func main() {
 	http.HandleFunc("/", root)
 	http.HandleFunc(login_cgi, login)
 	http.HandleFunc(logout_cgi, logout)
-	// handlers del administrador externo
-	//http.HandleFunc("/user_admin.cgi", user_admin)
+	// handler de configuracion de tienda
+	http.HandleFunc("/check_config.cgi", check_config)
+	http.HandleFunc("/entidades.cgi", entidades)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
@@ -92,13 +93,4 @@ func loadSettings(filename string) {
 			}
 		}
 	}
-}
-
-func checkFileConfig(name string) bool {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
 }

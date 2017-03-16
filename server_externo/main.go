@@ -87,13 +87,15 @@ func main() {
 	http.HandleFunc("/get_tienda.cgi", get_tienda)
 	http.HandleFunc("/load_tienda.cgi", load_tienda)
 	http.HandleFunc("/edit_tienda.cgi", edit_tienda)
-	//FUNCION ENCARGADA DE RECOGER LOS FICHEROS
+	//RECOGER LOS FICHEROS
 	http.HandleFunc("/publi_files.cgi", publi_files)
 	http.HandleFunc("/msg_files.cgi", msg_files)
 	http.HandleFunc("/destino.cgi", destino)
-	//FUNCION ENCARGADA DE REVISAR LOS BITMAPS
+	//REVISAR LOS BITMAPS
 	http.HandleFunc("/bitmap_actions.cgi", bitmap_actions)
 	http.HandleFunc("/bitmap_checked.cgi", bitmap_checked)
+	//SELECTS PARA EL PLAYER INTERNO
+	http.HandleFunc("/config_shop.cgi", config_shop)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

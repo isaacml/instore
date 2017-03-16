@@ -66,8 +66,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/login_tienda.cgi", "user;"+username, "pass;"+password))
 	//RECOGEMOS LA RESPUESTA
 	if respuesta == "OK" {
-		si := checkFileConfig("index.html")
-		fmt.Println(si)
 		//Cuando se repite autenticacion de usuario
 		for key, _ := range user {
 			//Si el usuario e IP existen pero el navegador es distinto, se abre una nueva sesion para el
