@@ -39,6 +39,7 @@ func init() {
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
+	loadSettings(serverRoot) // Se carga los valores del fichero serverint.reg
 }
 
 // funcion principal del programa
@@ -48,8 +49,7 @@ func main() {
 
 	// handlers de la tienda
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
-	http.HandleFunc("/send_user.cgi", send_user)
-	http.HandleFunc("/send_ent.cgi", send_ent)
+	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

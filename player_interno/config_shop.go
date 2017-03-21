@@ -21,16 +21,37 @@ func check_config(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, existe)
 }
 
-//Mostrar las entidades para un usuario concreto
-func entidades(w http.ResponseWriter, r *http.Request) {
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_user.cgi", "user;"+username))
-	fmt.Fprint(w, respuesta)
-}
-
-//Mostrar las entidades para un usuario concreto
-func almacenes(w http.ResponseWriter, r *http.Request) {
+//Funcion que va a recoger los valores de los selects y mostrarlos
+func get_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fmt.Println(r.FormValue("entidad"))
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_ent.cgi", "entidad;"+r.FormValue("entidad")))
-	fmt.Fprint(w, respuesta)
+	accion := r.FormValue("action")
+
+	if accion == "entidades" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
+		fmt.Fprint(w, respuesta)
+	}
+	if accion == "almacenes" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
+		fmt.Fprint(w, respuesta)
+	}
+	if accion == "paises" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;pais", "almacen;"+r.FormValue("almacen")))
+		fmt.Fprint(w, respuesta)
+	}
+	if accion == "regiones" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;region", "pais;"+r.FormValue("pais")))
+		fmt.Fprint(w, respuesta)
+	}
+	if accion == "provincias" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;provincia", "region;"+r.FormValue("region")))
+		fmt.Fprint(w, respuesta)
+	}
+	if accion == "tiendas" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;tienda", "provincia;"+r.FormValue("provincia")))
+		fmt.Fprint(w, respuesta)
+	}
+	if accion == "cod_tienda" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
+		fmt.Fprint(w, respuesta)
+	}
 }
