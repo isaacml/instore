@@ -26,3 +26,11 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_user.cgi", "user;"+username))
 	fmt.Fprint(w, respuesta)
 }
+
+//Mostrar las entidades para un usuario concreto
+func almacenes(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	fmt.Println(r.FormValue("entidad"))
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_ent.cgi", "entidad;"+r.FormValue("entidad")))
+	fmt.Fprint(w, respuesta)
+}

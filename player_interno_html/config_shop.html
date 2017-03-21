@@ -95,7 +95,8 @@
                         <div class="panel-body">
                             <form id="testform" action="" >
                                 <fieldset>
-                                    <div class="form-group" id="entidades"></div>   
+                                    <div class="form-group" id="entidades"></div>
+                                    <div class="form-group" id="almacenes"></div>     
                                 </fieldset>
                             </form>
                             <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
@@ -122,6 +123,10 @@
             });
             $.post("/entidades.cgi?sid={{sid}}", function(data, status) {
                 $("#entidades").html(data);
+            });
+            $("#entidad").change(function() {
+                $.post("/almacenes.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
+                });
             });
         });
 	</script>

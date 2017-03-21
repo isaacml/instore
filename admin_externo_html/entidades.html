@@ -136,7 +136,7 @@
                             Añadir o Editar Entidad
                         </div>
                         <div class="panel-body">
-                            <form id="testform" action="" >
+                        <form id="testform" action="" >
                             <fieldset>
                                 <input name="id" type="hidden">
                                 <div class="form-group">
@@ -208,7 +208,7 @@
 	        });
         });
         $("#modificar").click(function(){
-			$.post("/edit_user.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
+			$.post("/edit_entidad.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
 				$("#modificar").hide();
 				$("#enviar").show();
                 $("#stat").show();

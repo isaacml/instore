@@ -49,6 +49,7 @@ func main() {
 	// handlers de la tienda
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
 	http.HandleFunc("/send_user.cgi", send_user)
+	http.HandleFunc("/send_ent.cgi", send_ent)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

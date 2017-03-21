@@ -19,6 +19,15 @@ func login_tienda(w http.ResponseWriter, r *http.Request) {
 func send_user(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	loadSettings(serverRoot)
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "username;"+r.FormValue("user")))
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;entidad", "username;"+r.FormValue("user")))
+	fmt.Fprint(w, respuesta)
+}
+
+// enviamos la entidad al servidor interno
+func send_ent(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	loadSettings(serverRoot)
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
+	fmt.Println(respuesta)
 	fmt.Fprint(w, respuesta)
 }

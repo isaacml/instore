@@ -10,18 +10,18 @@ func load_user(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	edit_id := r.FormValue("edit_id")
 
-	var id, ent_id, dad_id int
+	var id, ent_id int
 	var user, all_name, pass string
 	query, err := db.Query("SELECT id, user, nombre_completo, pass, entidad_id FROM usuarios WHERE id = ?", edit_id)
 	if err != nil {
 		Error.Println(err)
 	}
 	for query.Next() {
-		err = query.Scan(&id, &user, &all_name, &pass, &ent_id, &dad_id)
+		err = query.Scan(&id, &user, &all_name, &pass, &ent_id)
 		if err != nil {
 			Error.Println(err)
 		}
-		fmt.Fprintf(w, "id=%d&user=%s&name_user=%s&pass=%s&entidad=%d", id, user, all_name, pass, ent_id, dad_id)
+		fmt.Fprintf(w, "id=%d&user=%s&name_user=%s&pass=%s&entidad=%d", id, user, all_name, pass, ent_id)
 	}
 }
 
