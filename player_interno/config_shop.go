@@ -55,3 +55,21 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, respuesta)
 	}
 }
+
+//Funcion que que toma los valores del formulario (config_shop.html) tras ser enviados
+func get_config_shop(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	entidad := r.FormValue("entidad")
+	almacen := r.FormValue("almacen")
+	pais := r.FormValue("pais")
+	region := r.FormValue("region")
+	provincia := r.FormValue("provincia")
+	tienda := r.FormValue("tienda")
+	dominio := r.FormValue("dominio")
+	fmt.Println(entidad, almacen, pais, region, provincia, tienda, dominio)
+	if entidad != "" || almacen != "" || pais != "" || region != "" || provincia != "" || tienda != "" {
+		fmt.Println(dominio)
+	} else {
+		fmt.Fprint(w, "<span style='color: #FF0303'>Faltan campos por llenar</span>")
+	}
+}

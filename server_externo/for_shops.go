@@ -11,6 +11,7 @@ var status_dom string
 
 func config_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
+	var domain string
 	accion := r.FormValue("action")
 
 	//Generamos el select de entidades
@@ -79,21 +80,26 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay almacenes</option>"
 			}
 			list += "</select></div>"
+
+			//Zona de Guardado de Dominio
+			errdom := db.QueryRow("SELECT nombre FROM entidades WHERE id = ?", ent).Scan(&entidad)
+			if errdom != nil {
+				Error.Println(errdom)
+			}
+			status_dom = entidad
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		} else {
 			list = "<div class='panel-heading'>Almacen</div><div class='panel-body'><select name='almacen'><option value='' selected>Requiere una entidad</option></select></div>"
+			status_dom = ""
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		}
-		//Zona de Guardado de Dominio
-		err := db.QueryRow("SELECT nombre FROM entidades WHERE id = ?", ent).Scan(&entidad)
-		if err != nil {
-			Error.Println(err)
-		}
-		status_dom = entidad
-		fmt.Fprintf(w, "%s;%s", list, status_dom)
+		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
 	//Generamos el select de paises y guardamos el dominio
 	if accion == "pais" {
 		var list, almacen string
 		alm := r.FormValue("almacen")
+		partir := strings.Split(status_dom, ".") // partimos el estado del dominio, para poder modificarlo
 
 		//Zona donde se genera el select
 		if alm != "" {
@@ -119,25 +125,31 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay paises</option>"
 			}
 			list += "</select></div>"
-		} else {
-			list = "<div class='panel-heading'>País</div><div class='panel-body'><select id='pais' name='pais'><option value='' selected>Requiere un almacen</option></select></div>"
-		}
-		//Zona de Guardado de Dominio
-		err := db.QueryRow("SELECT almacen FROM almacenes WHERE id = ?", alm).Scan(&almacen)
-		if err != nil {
-			Error.Println(err)
-		}
-		partir := strings.Split(status_dom, ".")
-		if partir[1] == "" {
-			status_dom = status_dom + "." + almacen
-		}
 
-		fmt.Fprintf(w, "%s;%s", list, status_dom)
+			//Zona de Guardado de Dominio
+			errdom := db.QueryRow("SELECT almacen FROM almacenes WHERE id = ?", alm).Scan(&almacen)
+			if errdom != nil {
+				Error.Println(errdom)
+			}
+			if strings.Contains(status_dom, ".") {
+				status_dom = partir[0] + "." + almacen
+				domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			} else {
+				status_dom = status_dom + "." + almacen
+				domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			}
+		} else {
+			status_dom = partir[0]
+			list = "<div class='panel-heading'>País</div><div class='panel-body'><select id='pais' name='pais'><option value='' selected>Requiere un almacen</option></select></div>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+		}
+		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
 	//Generamos el select de regiones y guardamos el dominio
 	if accion == "region" {
 		var list, country string
 		pais := r.FormValue("pais")
+		partir := strings.Split(status_dom, ".") // partimos el estado del dominio, para poder modificarlo
 
 		//Zona donde se genera el select
 		if pais != "" {
@@ -163,21 +175,26 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay regiones</option>"
 			}
 			list += "</select></div>"
+
+			//Zona de Guardado de Dominio
+			errdom := db.QueryRow("SELECT pais FROM pais WHERE id = ?", pais).Scan(&country)
+			if errdom != nil {
+				Error.Println(errdom)
+			}
+			status_dom = partir[0] + "." + partir[1] + "." + country
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		} else {
 			list = "<div class='panel-heading'>Región</div><div class='panel-body'><select name='region'><option value='' selected>Requiere un país</option></select></div>"
+			status_dom = partir[0] + "." + partir[1]
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		}
-		//Zona de Guardado de Dominio
-		err := db.QueryRow("SELECT pais FROM pais WHERE id = ?", pais).Scan(&country)
-		if err != nil {
-			Error.Println(err)
-		}
-		status_dom = status_dom + "." + country
-		fmt.Fprintf(w, "%s;%s", list, status_dom)
+		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
 	//Generamos el select de provincias y guardamos el dominio
 	if accion == "provincia" {
 		var list, region string
 		reg := r.FormValue("region")
+		partir := strings.Split(status_dom, ".") // partimos el estado del dominio, para poder modificarlo
 
 		//Zona donde se genera el select
 		if reg != "" {
@@ -203,21 +220,26 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay provincias</option>"
 			}
 			list += "</select></div>"
+
+			//Zona de Guardado de Dominio
+			errdom := db.QueryRow("SELECT region FROM region WHERE id = ?", reg).Scan(&region)
+			if errdom != nil {
+				Error.Println(errdom)
+			}
+			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + region
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		} else {
 			list = "<div class='panel-heading'>Provincia</div><div class='panel-body'><select name='provincia'><option value='' selected>Requiere una región</option></select></div>"
+			status_dom = partir[0] + "." + partir[1] + "." + partir[2]
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		}
-		//Zona de Guardado de Dominio
-		err := db.QueryRow("SELECT region FROM region WHERE id = ?", reg).Scan(&region)
-		if err != nil {
-			Error.Println(err)
-		}
-		status_dom = status_dom + "." + region
-		fmt.Fprintf(w, "%s;%s", list, status_dom)
+		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
 	//Generamos el select de tiendas y guardamos el dominio
 	if accion == "tienda" {
 		var list, provincia string
 		prov := r.FormValue("provincia")
+		partir := strings.Split(status_dom, ".") // partimos el estado del dominio, para poder modificarlo
 
 		//Zona donde se genera el select
 		if prov != "" {
@@ -243,27 +265,38 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay tiendas</option>"
 			}
 			list += "</select></div>"
+
+			//Zona de Guardado de Dominio
+			errdom := db.QueryRow("SELECT provincia FROM provincia WHERE id = ?", prov).Scan(&provincia)
+			if errdom != nil {
+				Error.Println(errdom)
+			}
+			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + provincia
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		} else {
 			list = "<div class='panel-heading'>Tienda</div><div class='panel-body'><select name='tienda'><option value='' selected>Requiere una provincia</option></select></div>"
+			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3]
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		}
-		//Zona de Guardado de Dominio
-		err := db.QueryRow("SELECT provincia FROM provincia WHERE id = ?", prov).Scan(&provincia)
-		if err != nil {
-			Error.Println(err)
-		}
-		status_dom = status_dom + "." + provincia
-		fmt.Fprintf(w, "%s;%s", list, status_dom)
+		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
 	//guardamos el dominio de la tienda
 	if accion == "cod_tienda" {
 		var tienda string
 		shop := r.FormValue("tienda")
-		//Zona de Guardado de Dominio
-		err := db.QueryRow("SELECT tienda FROM tiendas WHERE id = ?", shop).Scan(&tienda)
-		if err != nil {
-			Error.Println(err)
+		partir := strings.Split(status_dom, ".") // partimos el estado del dominio, para poder modificarlo
+		if shop != "" {
+			//Zona de Guardado de Dominio
+			err := db.QueryRow("SELECT tienda FROM tiendas WHERE id = ?", shop).Scan(&tienda)
+			if err != nil {
+				Error.Println(err)
+			}
+			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + partir[4] + "." + tienda
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+		} else {
+			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + partir[4]
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
 		}
-		status_dom = status_dom + "." + tienda
-		fmt.Fprintf(w, ";%s", status_dom)
+		fmt.Fprintf(w, ";%s", domain)
 	}
 }

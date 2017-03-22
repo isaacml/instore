@@ -48,7 +48,7 @@ func transf_orgs(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, respuesta)
 	}
 	//Enviamos la tienda al servidor interno
-	if accion == "tienda" {
+	if accion == "cod_tienda" {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
 		fmt.Fprint(w, respuesta)
 	}

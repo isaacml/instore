@@ -87,12 +87,12 @@
         </nav>
         <div id="page-wrapper"><br>
             <div class="row">
-                <div class="col-md-3 col-md-offset-4">
+                <div class="col-md-4 col-md-offset-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             Configurar Tienda
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body" align="center">
                             <form id="testform" action="" >
                                 <fieldset>
                                     <div id='entidad'></div>
@@ -101,11 +101,12 @@
                                     <div id='region'></div>
                                     <div id='provincia'></div>
                                     <div id='tienda'></div>
+                                    <div class='panel-body' id="dom_container"></div>
+                                    <div class='panel-body' id="err_container"></div>
                                 </fieldset>
-                                <span id="dominio"></span>
                             </form>
                             <br>
-                            <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
+                            <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
                         </div>
                     </div>
                 </div>
@@ -138,7 +139,7 @@
                 $.post("/get_orgs.cgi?sid={{sid}}&action=almacenes", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#almacen").html(res[0]);
-                    $("#dominio").html(res[1]);
+                    $("#dom_container").html(res[1]);
                 });
             });
             $("#almacen").change(function() {
@@ -149,7 +150,7 @@
                 $.post("/get_orgs.cgi?sid={{sid}}&action=paises", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#pais").html(res[0]);
-                    $("#dominio").html(res[1]);
+                    $("#dom_container").html(res[1]);
                 });
             });
             $("#pais").change(function() {
@@ -159,7 +160,7 @@
                 $.post("/get_orgs.cgi?sid={{sid}}&action=regiones", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#region").html(res[0]);
-                    $("#dominio").html(res[1]);
+                    $("#dom_container").html(res[1]);
                 });
             });
             $("#region").change(function() {
@@ -168,7 +169,7 @@
                 $.post("/get_orgs.cgi?sid={{sid}}&action=provincias", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#provincia").html(res[0]);
-                    $("#dominio").html(res[1]);
+                    $("#dom_container").html(res[1]);
                 });
             });
             $("#provincia").change(function() {
@@ -176,14 +177,19 @@
                 $.post("/get_orgs.cgi?sid={{sid}}&action=tiendas", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#tienda").html(res[0]);
-                    $("#dominio").html(res[1]);
+                    $("#dom_container").html(res[1]);
                 });
             });
             $("#tienda").change(function() {
                 $.post("/get_orgs.cgi?sid={{sid}}&action=cod_tienda", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
-                    $("#dominio").html(res[1]);
+                    $("#dom_container").html(res[1]);
                 });
+            });
+            $("#enviar").click(function() {
+                $.post("/get_config_shop.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
+                    $("#err_container").html(data);
+                });    
             });
         });
 	</script>
