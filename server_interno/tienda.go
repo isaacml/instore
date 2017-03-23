@@ -52,4 +52,9 @@ func transf_orgs(w http.ResponseWriter, r *http.Request) {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
 		fmt.Fprint(w, respuesta)
 	}
+	//Accion enviar
+	if accion == "enviar" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;enviar", "entidad;"+r.FormValue("entidad")))
+		fmt.Fprint(w, respuesta)
+	}
 }

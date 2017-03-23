@@ -5,6 +5,7 @@ import (
 	"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
+	"strings"
 )
 
 //Comprueba si el fichero de configuracion de la tienda existe o no
@@ -54,22 +55,22 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
 		fmt.Fprint(w, respuesta)
 	}
-}
-
-//Funcion que que toma los valores del formulario (config_shop.html) tras ser enviados
-func get_config_shop(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	entidad := r.FormValue("entidad")
-	almacen := r.FormValue("almacen")
-	pais := r.FormValue("pais")
-	region := r.FormValue("region")
-	provincia := r.FormValue("provincia")
-	tienda := r.FormValue("tienda")
-	dominio := r.FormValue("dominio")
-	fmt.Println(entidad, almacen, pais, region, provincia, tienda, dominio)
-	if entidad != "" || almacen != "" || pais != "" || region != "" || provincia != "" || tienda != "" {
-		fmt.Println(dominio)
-	} else {
-		fmt.Fprint(w, "<span style='color: #FF0303'>Faltan campos por llenar</span>")
+	if accion == "enviar" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;enviar"))
+		//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
+		gen_domain := strings.Split(respuesta, ";")
+		gen := gen_domain[0]
+		domain := gen_domain[1]
+		if gen == "OK" {
+			config_file, err := os.Create(configShop)
+			if err != nil {
+				Error.Println(err)
+			}
+			config_file.WriteString("shop_domain = " + domain)
+			login(w, r)
+		} else {
+			output := "<span style='color: #FF0303'>Faltan campos por llenar</span>"
+			fmt.Fprint(w, output)
+		}
 	}
 }

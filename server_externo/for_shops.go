@@ -9,6 +9,9 @@ import (
 //Variable que va a guardar el dominio de la tienda
 var status_dom string
 
+//Variable de estado para saber si podemos guardar el dominio de la tienda o NO
+var enviar_estado bool
+
 func config_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var domain string
@@ -87,11 +90,13 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				Error.Println(errdom)
 			}
 			status_dom = entidad
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		} else {
 			list = "<div class='panel-heading'>Almacen</div><div class='panel-body'><select name='almacen'><option value='' selected>Requiere una entidad</option></select></div>"
 			status_dom = ""
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		}
 		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
@@ -133,15 +138,18 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			}
 			if strings.Contains(status_dom, ".") {
 				status_dom = partir[0] + "." + almacen
-				domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+				domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+				enviar_estado = false
 			} else {
 				status_dom = status_dom + "." + almacen
-				domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+				domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+				enviar_estado = false
 			}
 		} else {
 			status_dom = partir[0]
 			list = "<div class='panel-heading'>País</div><div class='panel-body'><select id='pais' name='pais'><option value='' selected>Requiere un almacen</option></select></div>"
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		}
 		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
@@ -182,11 +190,13 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				Error.Println(errdom)
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + country
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		} else {
 			list = "<div class='panel-heading'>Región</div><div class='panel-body'><select name='region'><option value='' selected>Requiere un país</option></select></div>"
 			status_dom = partir[0] + "." + partir[1]
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		}
 		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
@@ -227,11 +237,13 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				Error.Println(errdom)
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + region
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		} else {
 			list = "<div class='panel-heading'>Provincia</div><div class='panel-body'><select name='provincia'><option value='' selected>Requiere una región</option></select></div>"
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2]
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		}
 		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
@@ -272,11 +284,13 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				Error.Println(errdom)
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + provincia
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		} else {
 			list = "<div class='panel-heading'>Tienda</div><div class='panel-body'><select name='tienda'><option value='' selected>Requiere una provincia</option></select></div>"
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3]
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		}
 		fmt.Fprintf(w, "%s;%s", list, domain)
 	}
@@ -292,11 +306,24 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + partir[4] + "." + tienda
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = true
 		} else {
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + partir[4]
-			domain = "<span style='color: #B8860B'>" + status_dom + "</span><input type='hidden' name='dominio' value'" + status_dom + "'>"
+			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
+			enviar_estado = false
 		}
 		fmt.Fprintf(w, ";%s", domain)
+	}
+	//Accion enviar
+	if accion == "enviar" {
+		var output string
+		if enviar_estado == true {
+			//Se envía Ok y enviamos status_dom para generar el fichero (configshop.reg)
+			output = "OK;" + status_dom
+		} else {
+			output = "NOOK;" //No se genera nada
+		}
+		fmt.Fprint(w, output)
 	}
 }
