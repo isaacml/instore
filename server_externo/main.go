@@ -96,6 +96,7 @@ func main() {
 	http.HandleFunc("/bitmap_checked.cgi", bitmap_checked)
 	//SELECTS PARA EL PLAYER INTERNO
 	http.HandleFunc("/config_shop.cgi", config_shop)
+	http.HandleFunc("/send_shop.cgi", send_shop)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

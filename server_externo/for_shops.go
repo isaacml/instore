@@ -17,6 +17,11 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	var domain string
 	accion := r.FormValue("action")
 
+	//enviamos el sid
+	if accion == "enviar_sid" {
+		fmt.Println(r.FormValue("sid_id"))
+		fmt.Fprint(w, "<input type='hidden' name='sid' value='"+r.FormValue("sid_id")+"'>")
+	}
 	//Generamos el select de entidades
 	if accion == "entidad" {
 		user := r.FormValue("username")
@@ -315,15 +320,19 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, ";%s", domain)
 	}
-	//Accion enviar
-	if accion == "enviar" {
-		var output string
-		if enviar_estado == true {
-			//Se envía Ok y enviamos status_dom para generar el fichero (configshop.reg)
-			output = "OK;" + status_dom
-		} else {
-			output = "NOOK;" //No se genera nada
-		}
-		fmt.Fprint(w, output)
+}
+
+//Accion enviar
+func send_shop(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	var output string
+	if enviar_estado == true {
+		//Se envía Ok y enviamos status_dom para generar el fichero (configshop.reg)
+		output = "OK;" + status_dom
+	} else {
+		output = "NOOK;" //No se genera nada
 	}
+	fmt.Fprint(w, output)
+
 }

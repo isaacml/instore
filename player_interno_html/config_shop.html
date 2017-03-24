@@ -93,8 +93,9 @@
                             Configurar Tienda
                         </div>
                         <div class="panel-body" align="center">
-                            <form id="testform" action="" >
+                            <form id="testform" action="/send_orgs.cgi?sid={{sid}}" method="post">
                                 <fieldset>
+                                    <div id='sid_id'></div>
                                     <div id='entidad'></div>
                                     <div id='almacen'></div>
                                     <div id='pais'></div>
@@ -104,9 +105,9 @@
                                     <div class='panel-body' id="dom_container"></div>
                                     <div class='panel-body' id="err_container"></div>
                                 </fieldset>
+                                <input id="enviar" type="submit" class="btn btn-lg btn-success btn-block" value="Enviar"/>
                             </form>
                             <br>
-                            <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
                         </div>
                     </div>
                 </div>
@@ -128,6 +129,9 @@
                     $("#config_shop").hide();
                     $("#config_shop_top").hide();
                 }
+            });
+            $.post("/get_orgs.cgi?sid={{sid}}&action=enviar_sid", function(data, status) {
+                $("#sid_id").html(data);
             });
             $.post("/get_orgs.cgi?sid={{sid}}&action=entidades", function(data, status) {
                 $("#entidad").html(data);
@@ -195,9 +199,6 @@
             });
             $("#enviar").click(function() {
                 $("#err_container").show();
-                $.post("/get_orgs.cgi?sid={{sid}}&action=enviar", $("#testform").serialize(), function(data, status) {
-                    $("#err_container").html(data);
-                });    
             });
         });
 	</script>

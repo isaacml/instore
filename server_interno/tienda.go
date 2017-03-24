@@ -17,6 +17,11 @@ func login_tienda(w http.ResponseWriter, r *http.Request) {
 func transf_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	accion := r.FormValue("action")
+	//Enviamos el sid al formulario
+	if accion == "enviar_sid" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;enviar_sid", "sid_id;"+r.FormValue("sid")))
+		fmt.Fprint(w, respuesta)
+	}
 	//Enviamos el username al servidor interno
 	if accion == "entidad" {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;entidad", "username;"+r.FormValue("user")))
@@ -52,9 +57,12 @@ func transf_orgs(w http.ResponseWriter, r *http.Request) {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
 		fmt.Fprint(w, respuesta)
 	}
-	//Accion enviar
-	if accion == "enviar" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;enviar", "entidad;"+r.FormValue("entidad")))
-		fmt.Fprint(w, respuesta)
-	}
 }
+
+/*
+//Accion enviar
+func send_orgs(w http.ResponseWriter, r *http.Request) {
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/send_shop.cgi"))
+	fmt.Fprint(w, respuesta)
+}
+*/

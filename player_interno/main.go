@@ -60,6 +60,7 @@ func main() {
 	// handler de configuracion de tienda
 	http.HandleFunc("/check_config.cgi", check_config)
 	http.HandleFunc("/get_orgs.cgi", get_orgs)
+	http.HandleFunc("/send_orgs.cgi", send_orgs)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

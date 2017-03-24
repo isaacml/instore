@@ -5,8 +5,10 @@ import (
 	"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
-	"strings"
+	//"strings"
 )
+
+var redirect bool
 
 //Comprueba si el fichero de configuracion de la tienda existe o no
 func check_config(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +29,10 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	accion := r.FormValue("action")
 
+	if accion == "enviar_sid" {
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;enviar_sid", "sid_id;"+r.FormValue("sid")))
+		fmt.Fprint(w, respuesta)
+	}
 	if accion == "entidades" {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
 		fmt.Fprint(w, respuesta)
@@ -55,8 +61,18 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
 		fmt.Fprint(w, respuesta)
 	}
-	if accion == "enviar" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;enviar"))
+}
+
+/*
+//Función que envía todos los campos POST (config_shop.html)
+func send_orgs(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	sid := r.FormValue("sid")
+	fmt.Println(sid)
+	http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusMovedPermanently)
+	fmt.Fprint(w, "Quiero salir de aqui")
+
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
 		//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
 		gen_domain := strings.Split(respuesta, ";")
 		gen := gen_domain[0]
@@ -67,10 +83,28 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			config_file.WriteString("shop_domain = " + domain)
-			login(w, r)
+			http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusFound)
+			fmt.Fprint(w, "Quiero salir de aqui")
 		} else {
-			output := "<span style='color: #FF0303'>Faltan campos por llenar</span>"
-			fmt.Fprint(w, output)
+			//output := "<span style='color: #FF0303'>Faltan campos por llenar</span>"
+			//fmt.Fprint(w, output)
 		}
+
+}
+*/
+
+// función que tramita el logout de la session
+func send_orgs(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	fmt.Println(r.Form)
+	sid := r.FormValue("sid")
+	for k, v := range r.Form {
+		fmt.Println(k, v)
+	}
+	fmt.Println(sid)
+	_, ok := user[sid]
+	fmt.Println(ok)
+	if ok {
+		http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusSeeOther)
 	}
 }
