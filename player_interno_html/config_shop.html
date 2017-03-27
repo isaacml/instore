@@ -95,7 +95,6 @@
                         <div class="panel-body" align="center">
                             <form id="testform" action="/send_orgs.cgi?sid={{sid}}" method="post">
                                 <fieldset>
-                                    <div id='sid_id'></div>
                                     <div id='entidad'></div>
                                     <div id='almacen'></div>
                                     <div id='pais'></div>
@@ -103,11 +102,10 @@
                                     <div id='provincia'></div>
                                     <div id='tienda'></div>
                                     <div class='panel-body' id="dom_container"></div>
-                                    <div class='panel-body' id="err_container"></div>
                                 </fieldset>
-                                <input id="enviar" type="submit" class="btn btn-lg btn-success btn-block" value="Enviar"/>
+                                <br>
+                                <input id="enviar" type="submit" class="btn btn-lg btn-success" value="Enviar"/>
                             </form>
-                            <br>
                         </div>
                     </div>
                 </div>
@@ -116,7 +114,6 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
-            $("#err_container").hide();
             $.post("/check_config.cgi?sid={{sid}}", function(data, status) {
                 if (data == "NOOK"){
                     $("#config_shop").show();
@@ -130,14 +127,10 @@
                     $("#config_shop_top").hide();
                 }
             });
-            $.post("/get_orgs.cgi?sid={{sid}}&action=enviar_sid", function(data, status) {
-                $("#sid_id").html(data);
-            });
             $.post("/get_orgs.cgi?sid={{sid}}&action=entidades", function(data, status) {
                 $("#entidad").html(data);
             });
             $("#entidad").change(function() {
-                $("#err_container").hide();
                 $("#pais").hide();
                 $("#region").hide();
                 $("#provincia").hide();
@@ -149,7 +142,6 @@
                 });
             });
             $("#almacen").change(function() {
-                $("#err_container").hide();
                 $("#pais").show();
                 $("#region").hide();
                 $("#provincia").hide();
@@ -161,7 +153,6 @@
                 });
             });
             $("#pais").change(function() {
-                $("#err_container").hide();
                 $("#region").show();
                 $("#provincia").hide();
                 $("#tienda").hide();
@@ -172,7 +163,6 @@
                 });
             });
             $("#region").change(function() {
-                $("#err_container").hide();
                 $("#provincia").show();
                 $("#tienda").hide();
                 $.post("/get_orgs.cgi?sid={{sid}}&action=provincias", $("#testform").serialize(), function(data, status) {
@@ -182,7 +172,6 @@
                 });
             });
             $("#provincia").change(function() {
-                $("#err_container").hide();
                 $("#tienda").show();
                 $.post("/get_orgs.cgi?sid={{sid}}&action=tiendas", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
@@ -191,14 +180,10 @@
                 });
             });
             $("#tienda").change(function() {
-                $("#err_container").hide();
                 $.post("/get_orgs.cgi?sid={{sid}}&action=cod_tienda", $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#dom_container").html(res[1]);
                 });
-            });
-            $("#enviar").click(function() {
-                $("#err_container").show();
             });
         });
 	</script>

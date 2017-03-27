@@ -5,10 +5,8 @@ import (
 	"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
-	//"strings"
+	"strings"
 )
-
-var redirect bool
 
 //Comprueba si el fichero de configuracion de la tienda existe o no
 func check_config(w http.ResponseWriter, r *http.Request) {
@@ -29,10 +27,6 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	accion := r.FormValue("action")
 
-	if accion == "enviar_sid" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;enviar_sid", "sid_id;"+r.FormValue("sid")))
-		fmt.Fprint(w, respuesta)
-	}
 	if accion == "entidades" {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
 		fmt.Fprint(w, respuesta)
@@ -63,47 +57,46 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-/*
-//Función que envía todos los campos POST (config_shop.html)
+//Función que tramita el submit de formulario para la página(config_shop.html)
 func send_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	sid := r.FormValue("sid")
-	fmt.Println(sid)
-	http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusMovedPermanently)
-	fmt.Fprint(w, "Quiero salir de aqui")
 
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
-		//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
-		gen_domain := strings.Split(respuesta, ";")
-		gen := gen_domain[0]
-		domain := gen_domain[1]
-		if gen == "OK" {
-			config_file, err := os.Create(configShop)
-			if err != nil {
-				Error.Println(err)
-			}
-			config_file.WriteString("shop_domain = " + domain)
-			http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusFound)
-			fmt.Fprint(w, "Quiero salir de aqui")
-		} else {
-			//output := "<span style='color: #FF0303'>Faltan campos por llenar</span>"
-			//fmt.Fprint(w, output)
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
+	//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
+	gen_domain := strings.Split(respuesta, ";")
+	gen := gen_domain[0]
+	domain := gen_domain[1]
+	if gen == "OK" {
+		//OK: dominio de configuración correcto, se genera el fichero de configuración de la tienda
+		config_file, err := os.Create(configShop)
+		if err != nil {
+			Error.Println(err)
 		}
-
-}
-*/
-
-// función que tramita el logout de la session
-func send_orgs(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	for k, v := range r.Form {
-		if k == "sid"{
-			for _, value := range v {
-				_, ok := user[value]
-				if ok {
-					http.Redirect(w, r, "/"+enter_page+"?"+value, http.StatusSeeOther)
+		config_file.WriteString("shop_domain = " + domain)
+		//Aquí tomamos el SID que nos proporciona el formulario (action="/send_orgs.cgi?sid={{sid}}")
+		for k, v := range r.Form {
+			if k == "sid" {
+				for _, sid := range v {
+					//Una vez generado el fichero configuracion de la tienda, redirigimos a menu.html con el SID correspondiente
+					_, ok := user[sid]
+					if ok {
+						http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusSeeOther)
+					}
 				}
 			}
-		} 
+		}
+	} else {
+		//NOOK: el dominio de configuración no está correcto
+		for k, v := range r.Form {
+			if k == "sid" {
+				for _, sid := range v {
+					//Redirigimos a la página de configuración(config_shop.html) con el SID correspondiente
+					_, ok := user[sid]
+					if ok {
+						http.Redirect(w, r, "/"+shop_config_page+"?"+sid, http.StatusSeeOther)
+					}
+				}
+			}
+		}
 	}
 }

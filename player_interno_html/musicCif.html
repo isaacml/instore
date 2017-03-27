@@ -1,0 +1,235 @@
+[[0]]
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+            
+
+    <title>Tienda</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="css/metisMenu.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="css/dataTables.bootstrap.css" rel="stylesheet">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="css/responsive.dataTables.scss" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    <!-- jQuery -->
+    <script src="js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="js/metisMenu.min.js"></script>
+
+    <!-- DataTables JavaScript -->
+    <script src="js/jquery.dataTables.min.js"></script>
+    <script src="js/dataTables.bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="js/sb-admin-2.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <!-- PANEL DE NAVEGACION -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Cambiar Navegacion</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <span class="navbar-brand">Tienda</span>
+            </div>
+            <div id="config_shop_top">
+                <ul class="nav navbar-top-links navbar-right hidden-xs">
+                    <!-- Boton superior de logout -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href='config_shop.html?{{sid}}'><i class="fa fa-gear fa-fw"></i> Configurar Tienda</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div id="action_shop_top">
+                <ul class="nav navbar-top-links navbar-right hidden-xs">
+                    <!-- Boton superior de logout -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
+                            <li><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
+                            <li><a href="msgAuto.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Automatizados</a></li>
+                            <li><a href="msgNormal.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Normales</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="navbar-default sidebar" role="navigation" id="config_shop">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li>
+                            <a href='config_shop.html?{{sid}}'><i class="fa fa-gear fa-fw"></i> Configurar Tienda</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="navbar-default sidebar" role="navigation" id="action_shop">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li>
+                            <a href="#"><i class="fa fa-bars fa-fw"></i>Música<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="musicCif.html?{{sid}}">Cifrada</a>
+                                </li>
+                                <li>
+                                    <a href="musicNoCif.html?{{sid}}">No Cifrada</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-bars fa-fw"></i>Mensajes<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="msgAuto.html?{{sid}}">Automatizados</a>
+                                </li>
+                                <li>
+                                    <a href="msgNormal.html?{{sid}}">Normales</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="visible-xs">
+                            <a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i>Desconectar</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div id="page-wrapper">
+           <br>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Música Cifrada
+                        </div>
+                        <div class="panel-body" align="center">
+                            <form id="testform" action="" method="post">
+                                <fieldset>
+                                    <h5 class="text-muted">Unidades de Disco</h5>
+                                    <br>
+                                    <div class="form-group">
+                                        <select id="unidades" name="unidades" style="width:30%;"></select>
+                                    </div>   
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div class="panel-body" align="center">
+                            <form id="testform1" action="" method="post">
+                                <fieldset>
+                                    <h5 class="text-muted">Directorios</h5>
+                                    <br>
+                                    <div class="form-group">
+                                        <select id="directory" name="directory" style="width:40%;" multiple></select>
+                                    </div>
+                                    <div class="form-group" id="stat">
+                                    </div>
+                                    <br>     
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div class="panel-body" align="center">
+                            <form id="testform2" action="" method="post">
+                                <fieldset>
+                                    <h5 class="text-muted">Ficheros</h5>
+                                    <br>
+                                    <div class="form-group">
+                                        <select id="files" name="files" style="width:100%;height:85px;" multiple></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
+                                    </div> 
+                                    <div class="form-group">
+                                        <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
+                                    </div>
+                                    <div class="form-group">
+                                        <input placeholder="Gap" name="gap" type="text" maxlenght="2" size="3" value="3">
+                                    </div>
+                                    <h5 class="text-muted">Generar un destino</h5>
+                                    <br>
+                                    <div class="form-group">
+                                        <select id="destinos" name="destinos" style="width:75%;height:85px;" multiple></select>
+                                    </div>
+                                    <div class="form-group" id="dest_stat">
+                                    </div>
+                                    <div class="form-group" id="stat2">
+                                    </div>
+                                    <br>     
+                                </fieldset>
+                            </form>
+                            <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+                var res = data.split(";");
+                if (res[0] == 0){
+                    $("#zona_publi").hide();
+                }
+                if (res[2] == 0){
+                    $("#zona_msg").hide();
+                }
+            });
+            $.post("/explorer.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
+                $("#unidades").html(data);
+            });
+            $("#unidades").change(function(){
+                $.post("/explorer.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#directory").html(res[0]);
+                    $("#stat").show();
+                    $("#stat").html(res[1]);
+                    $("#stat2").hide();
+                });
+                $.post("/explorer.cgi?sid={{sid}}&action=ficheros",  function(data, status) {
+                    $("#files").html(data);
+                });
+            });
+        });
+	</script>
+</body>
+</html>

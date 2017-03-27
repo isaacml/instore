@@ -6,6 +6,7 @@ const (
 	session_timeout   = 600                                  // segundos de timeout de una session
 	first_page        = "index"                              // Sería la página de login (siempre es .html)
 	enter_page        = "menu.html"                          // Sería la página de entrada tras el login
+	shop_config_page  = "config_shop.html"                   // Página de configuración de la tienda
 	http_port         = "9119"                               // puerto del server HTTP
 	name_username     = "user"                               // name del input username en la página de login
 	name_password     = "password"                           // name del input password en la página de login
