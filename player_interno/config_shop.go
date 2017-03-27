@@ -96,15 +96,14 @@ func send_orgs(w http.ResponseWriter, r *http.Request) {
 // función que tramita el logout de la session
 func send_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fmt.Println(r.Form)
-	sid := r.FormValue("sid")
 	for k, v := range r.Form {
-		fmt.Println(k, v)
-	}
-	fmt.Println(sid)
-	_, ok := user[sid]
-	fmt.Println(ok)
-	if ok {
-		http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusSeeOther)
+		if k == "sid"{
+			for _, value := range v {
+				_, ok := user[value]
+				if ok {
+					http.Redirect(w, r, "/"+enter_page+"?"+value, http.StatusSeeOther)
+				}
+			}
+		} 
 	}
 }
