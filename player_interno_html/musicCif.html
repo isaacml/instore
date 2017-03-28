@@ -8,8 +8,15 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-            
-
+    <link rel="stylesheet" type="text/css" href="css/epoch_styles.css" />
+	<script type="text/javascript" src="js/epoch_classes.js"></script>
+	<script type="text/javascript">
+	var bas_cal,dp_cal,ms_cal;      
+	window.onload = function () {
+		dp_cal  = new Epoch('epoch_popup','popup',document.getElementById('popup_container'));
+		dp_cal2  = new Epoch('epoch_popup','popup',document.getElementById('popup_container2'));
+	};
+	</script>
     <title>Tienda</title>
 
     <!-- Bootstrap Core CSS -->
@@ -83,8 +90,8 @@
                             <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
-                            <li><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
+                            <li id="zona_mCif_top"><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
+                            <li id="zona_mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
                             <li><a href="msgAuto.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Automatizados</a></li>
                             <li><a href="msgNormal.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Normales</a></li>
                             <li class="divider"></li>
@@ -108,10 +115,10 @@
                         <li>
                             <a href="#"><i class="fa fa-bars fa-fw"></i>Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li>
+                                <li id="zona_mCif">
                                     <a href="musicCif.html?{{sid}}">Cifrada</a>
                                 </li>
-                                <li>
+                                <li id="zona_mNoCif">
                                     <a href="musicNoCif.html?{{sid}}">No Cifrada</a>
                                 </li>
                             </ul>
@@ -161,38 +168,19 @@
                                     <div class="form-group">
                                         <select id="directory" name="directory" style="width:40%;" multiple></select>
                                     </div>
-                                    <div class="form-group" id="stat">
-                                    </div>
-                                    <br>     
-                                </fieldset>
-                            </form>
-                        </div>
-                        <div class="panel-body" align="center">
-                            <form id="testform2" action="" method="post">
-                                <fieldset>
-                                    <h5 class="text-muted">Ficheros</h5>
-                                    <br>
-                                    <div class="form-group">
-                                        <select id="files" name="files" style="width:100%;height:85px;" multiple></select>
-                                    </div>
+                                    <div class="form-group" id="stat"></div>
                                     <div class="form-group">
                                         <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
                                     </div> 
                                     <div class="form-group">
                                         <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
                                     </div>
-                                    <div class="form-group">
-                                        <input placeholder="Gap" name="gap" type="text" maxlenght="2" size="3" value="3">
-                                    </div>
                                     <h5 class="text-muted">Generar un destino</h5>
                                     <br>
                                     <div class="form-group">
                                         <select id="destinos" name="destinos" style="width:75%;height:85px;" multiple></select>
                                     </div>
-                                    <div class="form-group" id="dest_stat">
-                                    </div>
-                                    <div class="form-group" id="stat2">
-                                    </div>
+                                    <div class="form-group" id="dest_stat"></div>
                                     <br>     
                                 </fieldset>
                             </form>
@@ -207,26 +195,38 @@
         $(document).ready(function(){
             $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
                 var res = data.split(";");
-                if (res[0] == 0){
-                    $("#zona_publi").hide();
+                if (res[1] == 0){
+                    $("#zona_mCif").hide();
+                    $("#zona_mCif_top").hide();
                 }
-                if (res[2] == 0){
-                    $("#zona_msg").hide();
+                if (res[3] == 0){
+                    $("#zona_mNoCif").hide();
+                    $("#zona_mNoCif_top").hide();
                 }
             });
-            $.post("/explorer.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
+            $.post("/explorerMusic.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
                 $("#unidades").html(data);
             });
             $("#unidades").change(function(){
-                $.post("/explorer.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
+                $.post("/explorerMusic.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#directory").html(res[0]);
                     $("#stat").show();
                     $("#stat").html(res[1]);
-                    $("#stat2").hide();
                 });
-                $.post("/explorer.cgi?sid={{sid}}&action=ficheros",  function(data, status) {
-                    $("#files").html(data);
+            });
+            $("#directory").dblclick(function(){
+                $.post("/explorerMusic.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#directory").html(res[0]);
+                    $("#stat").show();
+                    $("#stat").html(res[1]);
+                });
+            });
+            $("#enviar").click(function(){
+                $.post("/explorerMusic.cgi?sid={{sid}}&action=get_ficheros", $("#testform1").serialize(), function(data, status) {
+                    $("#popup_container").val("");
+                    $("#popup_container2").val("");
                 });
             });
         });

@@ -61,8 +61,10 @@ func main() {
 	http.HandleFunc("/check_config.cgi", check_config)
 	http.HandleFunc("/get_orgs.cgi", get_orgs)
 	http.HandleFunc("/send_orgs.cgi", send_orgs)
-	//Explorador
-	http.HandleFunc("/explorer.cgi", explorer)
+	//Bitmap Actions
+	http.HandleFunc("/bitmaps.cgi", bitmaps)
+	//Exploradores
+	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 	s := &http.Server{
 		Addr:           ":" + http_port,
 		Handler:        nil,

@@ -83,8 +83,8 @@
                             <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
-                            <li><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
+                            <li id="zona_mCif_top"><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
+                            <li id="zona_mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
                             <li><a href="msgAuto.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Automatizados</a></li>
                             <li><a href="msgNormal.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Normales</a></li>
                             <li class="divider"></li>
@@ -108,10 +108,10 @@
                         <li>
                             <a href="#"><i class="fa fa-bars fa-fw"></i>Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li>
+                                <li id="zona_mCif">
                                     <a href="musicCif.html?{{sid}}">Cifrada</a>
                                 </li>
-                                <li>
+                                <li id="zona_mNoCif">
                                     <a href="musicNoCif.html?{{sid}}">No Cifrada</a>
                                 </li>
                             </ul>
@@ -141,6 +141,17 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
+            $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+                var res = data.split(";");
+                if (res[1] == 0){
+                    $("#zona_mCif").hide();
+                    $("#zona_mCif_top").hide();
+                }
+                if (res[3] == 0){
+                    $("#zona_mNoCif").hide();
+                    $("#zona_mNoCif_top").hide();
+                }
+            });
             $.post("/check_config.cgi?sid={{sid}}", function(data, status) {
                 if (data == "NOOK"){
                     $("#config_shop").show();
