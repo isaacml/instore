@@ -2,13 +2,19 @@ package main
 
 import (
 	"fmt"
-	//"github.com/isaacml/instore/libs"
+	"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
-	//"time"
+	"time"
 )
+
+//Variable que guarda el estado del destino
+var estado_destino string
+
+//Variables para guardar el identificador anterior, en caso de no encontrar datos.
+var last_entidad, last_almacen, last_pais, last_region, last_prov, last_tienda string
 
 //Función principal del explorador windows
 func explorerMusic(w http.ResponseWriter, r *http.Request) {
@@ -210,7 +216,7 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, output)
 		}
 	}
-	if r.FormValue("action") == "get_ficheros" {
+	if r.FormValue("action") == "get_directorys" {
 		//Variables
 		f_inicio := r.FormValue("f_inicio")
 		f_final := r.FormValue("f_fin")
@@ -218,20 +224,328 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 			output += ";<span style='color: #FF0303'>Los campos fecha no pueden estar vacíos</span>"
 			fmt.Fprint(w, output)
 		} else {
-			/*
-				dest := estado_destino
-				timestamp := time.Now().Unix()
-				//trozeamos las fechas
-				arr_inicio := strings.Split(f_inicio, "/")
-				arr_final := strings.Split(f_final, "/")
-				//establecemos el formato de fechas para la BD --> yyyymmdd
-				fecha_SQL_inc := fmt.Sprintf("%s%s%s", arr_inicio[2], arr_inicio[1], arr_inicio[0])
-				fecha_SQL_fin := fmt.Sprintf("%s%s%s", arr_final[2], arr_final[1], arr_final[0])
-			*/
+			dest := estado_destino
+			timestamp := time.Now().Unix()
+			//trozeamos las fechas
+			arr_inicio := strings.Split(f_inicio, "/")
+			arr_final := strings.Split(f_final, "/")
+			//establecemos el formato de fechas para la BD --> yyyymmdd
+			fecha_SQL_inc := fmt.Sprintf("%s%s%s", arr_inicio[2], arr_inicio[1], arr_inicio[0])
+			fecha_SQL_fin := fmt.Sprintf("%s%s%s", arr_final[2], arr_final[1], arr_final[0])
+
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "directory" {
 						fmt.Println(v)
+						stmt, err0 := db.Prepare("INSERT INTO musica (`carpetas`, `fecha_inicio`, `fecha_final`, `destino`, `timestamp`) VALUES (?,?,?,?,?)")
+						if err0 != nil {
+							Error.Println(err0)
+						}
+						db_mu.Lock()
+						_, err1 := stmt.Exec(v, fecha_SQL_inc, fecha_SQL_fin, dest, timestamp)
+						db_mu.Unlock()
+						if err1 != nil {
+							Error.Println(err1)
+							output += ";<span style='color: #FF0303'>Fallo al subir los directorios</span>"
+							fmt.Fprint(w, output)
+						} else {
+							output += ";<span style='color: #2E8B57'>Directorio/os subido/os correctamente</span>"
+							fmt.Fprint(w, output)
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+//Funcion que muestra los datos en los respectivos selects de destino
+func recoger_destinos(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	sid := r.FormValue("sid")
+	_, ok := user[sid]
+	if ok {
+		var output string
+		loadSettings(serverRoot)
+		updateExpires(sid) //Actualizamos el tiempo de expiración de la clave
+		if r.FormValue("action") == "destinos" {
+			var arr_entidad []string
+			//Enviamos nombre de usuario recogido en el formulario hacia el server para generar los destinos
+			resultado := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;destinos", "userAdmin;"+username)
+			arr := strings.Split(resultado, "::")
+			for _, val := range arr {
+				if val != "" {
+					arr_entidad = strings.Split(val, ";")
+					output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
+				}
+			}
+			estado_destino = "*"
+			output += ";<span style='color: #1A5276'>" + estado_destino + "</span>"
+			fmt.Fprint(w, output)
+		}
+		// Recogemos los datos al hacer ONCLICK en formulario de destinos en publi.html
+		if r.FormValue("action") == "recoger_id" {
+			valores := strings.Split(r.FormValue("destinos"), ":.:")
+			destino := valores[0]
+			ident := valores[1]
+
+			if destino == "entidad" {
+				var st_entidad string //variable que va a contener el estado de la entidad
+				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos
+				resultado := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;entidades", "userAdmin;"+username, "id_entidad;"+ident)
+				if resultado != "" {
+					output, st_entidad = libs.GenerateSelectOrg(resultado, "almacen")
+					//Se guarda el identificador, para poder volver atrás
+					last_entidad = ident
+					//Se forma el nuevo estado
+					estado_destino = st_entidad + ".*"
+					output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+					fmt.Fprint(w, output)
+				} else {
+					//Si no hay resultado, volvemos a cargar las entidades
+					var arr_entidad []string
+					resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;destinos", "userAdmin;"+username)
+					if resultado2 != "" {
+						arr := strings.Split(resultado2, "::")
+						for _, val := range arr {
+							if val != "" {
+								arr_entidad = strings.Split(val, ";")
+								output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
+							}
+						}
+						estado_destino = "*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
+						fmt.Fprint(w, output)
+					}
+				}
+			}
+			if destino == "almacen" {
+				var st_almacen string //variable que va a contener el estado del almacen
+				if ident == "0" {
+					//Si no hay resultado, volvemos a cargar las entidades
+					var arr_entidad []string
+					resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;destinos", "userAdmin;"+username)
+					if resultado2 != "" {
+						arr := strings.Split(resultado2, "::")
+						for _, val := range arr {
+							if val != "" {
+								arr_entidad = strings.Split(val, ";")
+								output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
+							}
+						}
+						estado_destino = "*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					}
+				} else {
+					//Enviamos nombre de usuario e id_almacen recogido en el formulario hacia el server para generar los destinos
+					resultado := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;almacenes", "userAdmin;"+username, "id_almacen;"+ident)
+					if resultado != "" {
+						output, st_almacen = libs.GenerateSelectOrg(resultado, "pais")
+						//Se guarda el identificador, para poder volver atrás
+						last_almacen = ident
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						//Se forma el nuevo estado
+						estado_destino = res + st_almacen + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					} else {
+						//Si no hay resultado, volvemos a cargar los almacenes
+						resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
+						if resultado2 != "" {
+							output, st_almacen = libs.GenerateSelectOrg(resultado2, "almacen")
+							//Se forma el nuevo estado
+							estado_destino = st_almacen + ".*"
+							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
+							fmt.Fprint(w, output)
+						}
+					}
+				}
+			}
+			if destino == "pais" {
+				var st_pais string //variable que va a contener el estado del pais
+				if ident == "0" {
+					//Si no hay resultado, volvemos a cargar los almacenes
+					resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "userAdmin;"+username, "id_entidad;"+last_entidad)
+					if resultado2 != "" {
+						output, st_pais = libs.GenerateSelectOrg(resultado2, "almacen")
+						estado_destino = st_pais + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					}
+				} else {
+					//Enviamos nombre de usuario e id_pais recogido en el formulario hacia el server para generar los destinos
+					resultado := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;paises", "userAdmin;"+username, "id_pais;"+ident)
+					if resultado != "" {
+						output, st_pais = libs.GenerateSelectOrg(resultado, "region")
+						//Se guarda el identificador, para poder volver atrás
+						last_pais = ident
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						//Se forma el nuevo estado
+						estado_destino = res + st_pais + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					} else {
+						//Si no hay resultado, volvemos a cargar los paises
+						resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
+						if resultado2 != "" {
+							output, st_pais = libs.GenerateSelectOrg(resultado2, "pais")
+							//Se borra el asterisco(*) y se retrocede en una ORG.
+							res := libs.BackDestOrg(estado_destino, 2)
+							//Se forma el nuevo estado
+							estado_destino = res + st_pais + ".*"
+							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
+							fmt.Fprint(w, output)
+						}
+					}
+				}
+			}
+			if destino == "region" {
+				var st_region string //variable que va a contener el estado de la región
+				if ident == "0" {
+					//Si no hay resultado, volvemos a cargar los paises
+					resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
+					if resultado2 != "" {
+						output, st_region = libs.GenerateSelectOrg(resultado2, "pais")
+						res := libs.BackDestOrg(estado_destino, 2)
+						//Se forma el nuevo estado
+						estado_destino = res + st_region + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					}
+				} else {
+					//Enviamos nombre de usuario e id_region recogido en el formulario hacia el server para generar los destinos
+					resultado := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;regiones", "userAdmin;"+username, "id_region;"+ident)
+					if resultado != "" {
+						output, st_region = libs.GenerateSelectOrg(resultado, "provincia")
+						//Se guarda el identificador, para poder volver atrás
+						last_region = ident
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						estado_destino = res + st_region + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					} else {
+						//Si no hay resultado, volvemos a cargar las regiones
+						resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
+						if resultado2 != "" {
+							output, st_region = libs.GenerateSelectOrg(resultado, "provincia")
+							//Se borra el asterisco(*) y se retrocede en una ORG.
+							res := libs.BackDestOrg(estado_destino, 2)
+							estado_destino = res + st_region + ".*"
+							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
+							fmt.Fprint(w, output)
+						}
+					}
+				}
+			}
+			if destino == "provincia" {
+				var st_provincia string //variable que va a contener el estado de la provincia
+				if ident == "0" {
+					//Si no hay resultado, volvemos a cargar las regiones
+					resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
+					if resultado2 != "" {
+						output, st_provincia = libs.GenerateSelectOrg(resultado2, "region")
+						res := libs.BackDestOrg(estado_destino, 3)
+						//Se forma el nuevo estado
+						estado_destino = res + st_provincia + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					}
+				} else {
+					//Enviamos nombre de usuario e id_provincia recogido en el formulario hacia el server para generar los destinos
+					resultado := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+ident)
+					if resultado != "" {
+						output, st_provincia = libs.GenerateSelectOrg(resultado, "tienda")
+						//Se guarda el identificador, para poder volver atrás
+						last_prov = ident
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						//Se forma el nuevo estado
+						estado_destino = res + st_provincia + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					} else {
+						//Si no hay resultado, volvemos a cargar las regiones
+						resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;regiones", "userAdmin;"+username, "id_region;"+last_region)
+						if resultado2 != "" {
+							output, st_provincia = libs.GenerateSelectOrg(resultado2, "provincia")
+							//Se borra el asterisco(*) y se retrocede en una ORG.
+							res := libs.BackDestOrg(estado_destino, 2)
+							//Se forma el nuevo estado
+							estado_destino = res + st_provincia + ".*"
+							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
+							fmt.Fprint(w, output)
+						}
+					}
+				}
+			}
+			if destino == "tienda" {
+				var st_tienda string //variable que va a contener el estado de la tienda
+				if ident == "0" {
+					//Si no hay resultado, volvemos a cargar las regiones
+					resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;regiones", "userAdmin;"+username, "id_region;"+last_region)
+					if resultado2 != "" {
+						output, st_tienda = libs.GenerateSelectOrg(resultado2, "provincia")
+						res := libs.BackDestOrg(estado_destino, 3)
+						//Se forma el nuevo estado
+						estado_destino = res + st_tienda + ".*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					}
+				} else {
+					//Enviamos nombre de usuario e id_provincia recogido en el formulario hacia el server para generar los destinos
+					resultado := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;tiendas", "userAdmin;"+username, "id_tienda;"+ident)
+					if resultado != "" {
+						output = "<option value='destino_final:.:0'>...</option>"
+						//Se guarda el identificador, para poder volver atrás
+						last_tienda = ident
+						//Se borra el asterisco(*)
+						res := libs.BackDestOrg(estado_destino, 1)
+						estado_destino = res + resultado
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
+					} else {
+						//Si no hay resultado, volvemos a cargar las provincias
+						var arr_tienda []string
+						resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+last_tienda)
+						if resultado2 != "" {
+							output = "<option value='tienda:.:0'>...</option>"
+							arr := strings.Split(resultado2, "::")
+							for _, val := range arr {
+								if val != "" {
+									arr_tienda = strings.Split(val, ";")
+									output += fmt.Sprintf("<option value='tienda:.:%s'>%s</option>", arr_tienda[0], arr_tienda[1])
+								}
+							}
+							res := libs.BackDestOrg(estado_destino, 1)
+							estado_destino = res + "*"
+							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
+							fmt.Fprint(w, output)
+						}
+					}
+				}
+			}
+			if destino == "destino_final" {
+				if ident == "0" {
+					//Si no hay resultado, volvemos a cargar las provincias
+					var arr_tienda []string
+					resultado2 := libs.GenerateFORM(serverint["serverinterno"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
+					if resultado2 != "" {
+						output = "<option value='tienda:.:0'>...</option>"
+						arr := strings.Split(resultado2, "::")
+						for _, val := range arr {
+							if val != "" {
+								arr_tienda = strings.Split(val, ";")
+								output += fmt.Sprintf("<option value='tienda:.:%s'>%s</option>", arr_tienda[0], arr_tienda[1])
+							}
+						}
+						res := libs.BackDestOrg(estado_destino, 1)
+						estado_destino = res + "*"
+						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+						fmt.Fprint(w, output)
 					}
 				}
 			}

@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2017-03-14 18:07:38
+Date: 2017-03-29 12:11:04
 */
 
 PRAGMA foreign_keys = OFF;
@@ -54,21 +54,6 @@ CREATE TABLE "mensaje" (
 "creador_id"  INTEGER NOT NULL,
 "timestamp"  INTEGER,
 "playtime"  TEXT(5),
-CONSTRAINT "fk_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- ----------------------------
--- Table structure for musica
--- ----------------------------
-DROP TABLE IF EXISTS "main"."musica";
-CREATE TABLE "musica" (
-"id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-"carpetas"  TEXT(4096),
-"fecha_inicio"  TEXT(10),
-"fecha_final"  TEXT(10),
-"destino"  TEXT(1024),
-"creador_id"  INTEGER NOT NULL,
-"timestamp"  INTEGER,
 CONSTRAINT "fk_user" FOREIGN KEY ("creador_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 

@@ -53,6 +53,7 @@ func main() {
 	http.HandleFunc("/send_orgs.cgi", send_orgs)
 	//Bitmap Actions
 	http.HandleFunc("/bitmaps.cgi", bitmaps)
+	http.HandleFunc("/destino.cgi", destino)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
