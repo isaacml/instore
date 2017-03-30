@@ -168,13 +168,14 @@
                                     <div class="form-group">
                                         <select id="directory" name="directory" style="width:40%;" multiple></select>
                                     </div>
-                                    <div class="form-group" id="stat"></div>
+                                    <div class="form-group" id="statdir"></div>
                                     <div class="form-group">
                                         <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
                                     </div> 
                                     <div class="form-group">
                                         <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
                                     </div>
+                                    <div class="form-group" id="statsend"></div>
                                     <br>     
                                 </fieldset>
                             </form>
@@ -187,7 +188,8 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
-            $("#stat").hide();
+            $("#statdir").hide();
+            $("#statsend").hide();
             $("#dest_stat").hide();
             $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
                 var res = data.split(";");
@@ -207,22 +209,24 @@
                 $.post("/explorerMusic.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#directory").html(res[0]);
-                    $("#stat").show();
-                    $("#stat").html(res[1]);
+                    $("#statdir").show();
+                    $("#statdir").html(res[1]);
                 });
             });
             $("#directory").dblclick(function(){
                 $.post("/explorerMusic.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
                     var res = data.split(";");
                     $("#directory").html(res[0]);
-                    $("#stat").show();
-                    $("#stat").html(res[1]);
+                    $("#statdir").show();
+                    $("#statdir").html(res[1]);
                 });
             });
             $("#enviar").click(function(){
                 $.post("/explorerMusic.cgi?sid={{sid}}&action=get_directorys", $("#testform1").serialize(), function(data, status) {
                     $("#popup_container").val("");
                     $("#popup_container2").val("");
+                    $("#statsend").show();
+                    $("#statsend").html(data);
                 });
             });
         });

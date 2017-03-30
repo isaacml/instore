@@ -217,9 +217,10 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 		f_inicio := r.FormValue("f_inicio")
 		f_final := r.FormValue("f_fin")
 		if f_inicio == "" || f_final == "" {
-			output += ";<span style='color: #FF0303'>Los campos fecha no pueden estar vacíos</span>"
+			output += "<span style='color: #FF0303'>Los campos fecha no pueden estar vacíos</span>"
 			fmt.Fprint(w, output)
 		} else {
+			var genDir string
 			timestamp := time.Now().Unix()
 			//trozeamos las fechas
 			arr_inicio := strings.Split(f_inicio, "/")
@@ -227,28 +228,29 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 			//establecemos el formato de fechas para la BD --> yyyymmdd
 			fecha_SQL_inc := fmt.Sprintf("%s%s%s", arr_inicio[2], arr_inicio[1], arr_inicio[0])
 			fecha_SQL_fin := fmt.Sprintf("%s%s%s", arr_final[2], arr_final[1], arr_final[0])
-
+			//Generamos los directorios
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "directory" {
-						fmt.Println(v)
-						stmt, err0 := db.Prepare("INSERT INTO musica (`carpetas`, `fecha_inicio`, `fecha_final`, `timestamp`) VALUES (?,?,?,?)")
-						if err0 != nil {
-							Error.Println(err0)
-						}
-						db_mu.Lock()
-						_, err1 := stmt.Exec(v, fecha_SQL_inc, fecha_SQL_fin, timestamp)
-						db_mu.Unlock()
-						if err1 != nil {
-							Error.Println(err1)
-							output += ";<span style='color: #FF0303'>Fallo al subir los directorios</span>"
-							fmt.Fprint(w, output)
-						} else {
-							output += ";<span style='color: #2E8B57'>Directorio/os subido/os correctamente</span>"
-							fmt.Fprint(w, output)
-						}
+						genDir += v + ";"
 					}
 				}
+			}
+			directorios := strings.TrimSuffix(genDir, ";") // Se borra el punto y coma del final
+			stmt, err0 := db.Prepare("INSERT INTO musica (`carpetas`, `fecha_inicio`, `fecha_final`, `timestamp`) VALUES (?,?,?,?)")
+			if err0 != nil {
+				Error.Println(err0)
+			}
+			db_mu.Lock()
+			_, err1 := stmt.Exec(directorios, fecha_SQL_inc, fecha_SQL_fin, timestamp)
+			db_mu.Unlock()
+			if err1 != nil {
+				Error.Println(err1)
+				output += "<span style='color: #FF0303'>Fallo al subir los directorios</span>"
+				fmt.Fprint(w, output)
+			} else {
+				output += "<span style='color: #2E8B57'>Directorio/os subido/os correctamente</span>"
+				fmt.Fprint(w, output)
 			}
 		}
 	}

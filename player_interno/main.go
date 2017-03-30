@@ -38,7 +38,7 @@ func init() {
 	Warning = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(io.MultiWriter(file, os.Stderr), "ERROR :", log.Ldate|log.Ltime|log.Lshortfile)
 	//Base de datos del admin externo
-	db, err_db = sql.Open("sqlite3", "C:\\instore\\programaciones.db") //WINDB: C:\\instore\\programaciones.db
+	db, err_db = sql.Open("sqlite3", "C:\\instore\\music.db") //WINDB: C:\\instore\\music.db
 	if err_db != nil {
 		Error.Println(err_db)
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
@@ -65,7 +65,7 @@ func main() {
 	http.HandleFunc("/bitmaps.cgi", bitmaps)
 	//Exploradores
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
-	
+
 	s := &http.Server{
 		Addr:           ":" + http_port,
 		Handler:        nil,
