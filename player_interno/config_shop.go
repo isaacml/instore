@@ -72,7 +72,7 @@ func send_orgs(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
-		config_file.WriteString("shop_domain = " + domain)
+		config_file.WriteString("shopdomain = " + domain + "\n")
 		//Aquí tomamos el SID que nos proporciona el formulario (action="/send_orgs.cgi?sid={{sid}}")
 		for k, v := range r.Form {
 			if k == "sid" {

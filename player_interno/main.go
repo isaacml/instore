@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
-	//"github.com/isaacml/instore/libs"
+	"github.com/isaacml/instore/libs"
 	_ "github.com/mattn/go-sqlite3"
 	"io"
 	"log"
@@ -23,6 +23,7 @@ var (
 	db                *sql.DB
 	db_mu             sync.RWMutex
 	serverint         map[string]string = make(map[string]string) //Mapa que guarda la direccion del servidor interno
+	domainint         map[string]string = make(map[string]string) //Mapa que guarda el dominio de la tienda
 	username          string                                      //Variable de usuario y estado global
 	directorio_actual string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 )
@@ -44,6 +45,8 @@ func init() {
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
+	loadSettings(serverRoot, serverint) // Se carga los valores del fichero playerint.reg
+
 }
 
 // funcion principal del programa
@@ -51,7 +54,7 @@ func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
-	//go mantenimiento()
+	go enviar_dominio_tienda()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
@@ -77,11 +80,31 @@ func main() {
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
 }
 
+func enviar_dominio_tienda() {
+	for {
+		var existe bool
+		_, err := os.Stat(configShop)
+		if err != nil {
+			if os.IsNotExist(err) {
+				existe = false
+			}
+		} else {
+			existe = true
+		}
+
+		if existe == true {
+			loadSettings(configShop, domainint)
+			fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
+		}
+		time.Sleep(1 * time.Minute)
+	}
+}
+
 /*
 loadSettings: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa.
 	filename: ruta completa donde se encuentra nuestro fichero(C:\instore\serverext.reg)
 */
-func loadSettings(filename string) {
+func loadSettings(filename string, arr map[string]string) {
 	fr, err := os.Open(filename)
 	defer fr.Close()
 	if err == nil {
@@ -94,7 +117,7 @@ func loadSettings(filename string) {
 			linea = strings.TrimRight(linea, "\n")
 			item := strings.Split(linea, " = ")
 			if len(item) == 2 {
-				serverint[item[0]] = item[1]
+				arr[item[0]] = item[1]
 			}
 		}
 	}

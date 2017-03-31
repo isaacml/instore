@@ -97,6 +97,7 @@ func main() {
 	//SELECTS PARA EL PLAYER INTERNO
 	http.HandleFunc("/config_shop.cgi", config_shop)
 	http.HandleFunc("/send_shop.cgi", send_shop)
+	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

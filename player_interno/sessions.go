@@ -49,7 +49,6 @@ func sessionid(r *rand.Rand, n int) string {
 // funcion q tramita el login correcto o erroneo
 func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
-	loadSettings(serverRoot)
 	var agente string
 	username = r.FormValue(name_username)
 	password := r.FormValue(name_password)

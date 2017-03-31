@@ -51,8 +51,9 @@ func main() {
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
 	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
 	http.HandleFunc("/send_orgs.cgi", send_orgs)
-	//Bitmap Actions
+	//Actions
 	http.HandleFunc("/bitmaps.cgi", bitmaps)
+	http.HandleFunc("/send_domain.cgi", send_domain)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
