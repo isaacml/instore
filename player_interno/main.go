@@ -94,7 +94,8 @@ func enviar_dominio_tienda() {
 
 		if existe == true {
 			loadSettings(configShop, domainint)
-			fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
+			fmt.Println(respuesta)
 		}
 		time.Sleep(1 * time.Minute)
 	}

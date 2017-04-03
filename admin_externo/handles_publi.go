@@ -354,10 +354,14 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 		}
 		// Recogemos los datos al hacer ONCLICK en formulario de destinos en publi.html
 		if r.FormValue("action") == "recoger_id" {
+			var destino, ident string
 			valores := strings.Split(r.FormValue("destinos"), ":.:")
-			destino := valores[0]
-			ident := valores[1]
-
+			fmt.Println(len(valores))
+			//Revisamos que el array tenga más de un valor, sino da un panic
+			if len(valores) > 1 {
+				destino = valores[0]
+				ident = valores[1]
+			}
 			if destino == "entidad" {
 				var st_entidad string //variable que va a contener el estado de la entidad
 				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos
