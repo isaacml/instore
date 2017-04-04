@@ -272,3 +272,55 @@ func BitmapParsing(bitmap_hex string, mascara int64) (res int64) {
 	res = bitmap_parsed & mascara
 	return
 }
+
+/*
+DomainGenerator: genera los dominios necesarios a partir del dominio de la tienda.
+	dom_tienda: entidad.almacen.pais.region.provincia.tienda.
+Devuelve: un array de strings con todos los dominios.
+*/
+func DomainGenerator(dom_tienda string) []string {
+	var dom_provincia, dom_region, dom_pais, dom_almacen, dom_entidad string
+	var asterisco = "*"
+	var list_dom []string
+
+	sep := strings.Split(dom_tienda, ".")
+	//entidad.almacen.pais.region.provincia.tienda
+	list_dom = append(list_dom, dom_tienda)
+	//entidad.almacen.pais.region.provincia.*
+	borrado1 := sep[:len(sep)-1]
+	for _, v1 := range borrado1 {
+		dom_provincia += v1 + "."
+	}
+	dom_provincia += asterisco
+	list_dom = append(list_dom, dom_provincia)
+	//entidad.almacen.pais.region.*
+	borrado2 := sep[:len(sep)-2]
+	for _, v2 := range borrado2 {
+		dom_region += v2 + "."
+	}
+	dom_region += asterisco
+	list_dom = append(list_dom, dom_region)
+	//entidad.almacen.pais.*
+	borrado3 := sep[:len(sep)-3]
+	for _, v3 := range borrado3 {
+		dom_pais += v3 + "."
+	}
+	dom_pais += asterisco
+	list_dom = append(list_dom, dom_pais)
+	//entidad.almacen.*
+	borrado4 := sep[:len(sep)-4]
+	for _, v4 := range borrado4 {
+		dom_almacen += v4 + "."
+	}
+	dom_almacen += asterisco
+	list_dom = append(list_dom, dom_almacen)
+	//entidad.*
+	borrado5 := sep[:len(sep)-5]
+	for _, v5 := range borrado5 {
+		dom_entidad += v5 + "."
+	}
+	dom_entidad += asterisco
+	list_dom = append(list_dom, dom_entidad)
+
+	return list_dom
+}
