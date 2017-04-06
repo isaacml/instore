@@ -46,7 +46,7 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 			}
 			output += "[mensaje]" + f_msg + "<=>" + playtime
 			for mensajes.Next() {
-				err = mensajes.Scan(&f_msg)
+				err = mensajes.Scan(&f_msg, &playtime)
 				if err != nil {
 					Error.Println(err)
 				}

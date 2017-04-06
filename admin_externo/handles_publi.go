@@ -94,7 +94,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 					return
 				}
-				output = "<option value='' selected>[Selecciona un directorio]</option>"
+				output = "<option value='' selected>[Selecciona un directorio]</option></option><option value='...'>...</option>"
 				for _, val := range directorios {
 					if val.IsDir() {
 						output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
