@@ -54,6 +54,7 @@ func main() {
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go guardarListado()
+	go bajadoDeFicheros()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
@@ -95,7 +96,6 @@ func guardarListado() {
 		if existe == true {
 			loadSettings(configShop, domainint)
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
-			fmt.Println("La respuesta: " + respuesta)
 			if respuesta != "" {
 				//De la respuesta tomamos el listado de mensajes y publicidad
 				separar_publi := strings.Split(respuesta, "[publi]")
@@ -203,19 +203,21 @@ func guardarListado() {
 }
 
 func bajadoDeFicheros() {
-	publiQ, err := db.Query("SELECT fichero, existe FROM publi")
-	if err != nil {
-		Error.Println(err)
-	}
-	for publiQ.Next() {
-		var fichero, exist string
-		err = publiQ.Scan(&fichero, &exist)
+	for {
+		publiQ, err := db.Query("SELECT fichero, existe FROM publi")
 		if err != nil {
 			Error.Println(err)
 		}
-
+		for publiQ.Next() {
+			var fichero, exist string
+			err = publiQ.Scan(&fichero, &exist)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Println(fichero, exist)
+		}
+		time.Sleep(1 * time.Minute)
 	}
-	time.Sleep(1 * time.Minute)
 }
 
 /*
