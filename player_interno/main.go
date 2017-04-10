@@ -204,7 +204,7 @@ func guardarListado() {
 
 func bajadoDeFicheros() {
 	for {
-		publiQ, err := db.Query("SELECT fichero, existe FROM publi")
+		publiQ, err := db.Query("SELECT fichero, existe FROM publi WHERE fecha=?")
 		if err != nil {
 			Error.Println(err)
 		}
