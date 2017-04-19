@@ -100,102 +100,154 @@ func guardarListado() {
 				fmt.Println(respuesta)
 				//De la respuesta tomamos el listado de mensajes y publicidad
 				separar_publi := strings.Split(respuesta, "[publi]")
-				fmt.Println("publicidad: " + 
-				separar_publi[1])
-				separar_msg := strings.Split(separar_publi[1], "[mensaje]")
-				fmt.Println(separar_msg)
-				if len(separar_msg) > 1 {
-					//Tomamos del listado de nombres de mensajes, publicidad y los almacenamos
-					f_publicidad := strings.Split(separar_msg[0], ";")
-					f_mensajes := strings.Split(separar_msg[1], ";")
-					//Comprobamos si dichos ficheros existen
-					for _, publi := range f_publicidad {
-						var cont int
-						var fichero, fech string
-						publicidad, errS := db.Query("SELECT fichero, fecha FROM publi WHERE fichero=?", publi)
-						if errS != nil {
-							Error.Println(errS)
-						}
-						for publicidad.Next() {
-							err = publicidad.Scan(&fichero, &fech)
-							if err != nil {
-								Error.Println(err)
+				if len(separar_publi) > 1 {
+					separar_msg := strings.Split(separar_publi[1], "[mensaje]")
+					fmt.Println(separar_msg)
+					if len(separar_msg) > 1 {
+						//Tomamos del listado de nombres de mensajes, publicidad y los almacenamos
+						f_publicidad := strings.Split(separar_msg[0], ";")
+						f_mensajes := strings.Split(separar_msg[1], ";")
+						//Comprobamos si dichos ficheros existen
+						for _, publi := range f_publicidad {
+							var cont int
+							var fichero, fech string
+							publicidad, errS := db.Query("SELECT fichero, fecha FROM publi WHERE fichero=?", publi)
+							if errS != nil {
+								Error.Println(errS)
 							}
-							cont++
-						}
-						fmt.Println(fichero, fech)
-						if cont == 0 {
-							_, err := os.Stat(publi_files_location + publi)
-							if err != nil {
-								if os.IsNotExist(err) {
-									nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
+							for publicidad.Next() {
+								err = publicidad.Scan(&fichero, &fech)
+								if err != nil {
+									Error.Println(err)
+								}
+								cont++
+							}
+							fmt.Println(fichero, fech)
+							if cont == 0 {
+								_, err := os.Stat(publi_files_location + publi)
+								if err != nil {
+									if os.IsNotExist(err) {
+										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
+										if err != nil {
+											Error.Println(err)
+										}
+										db_mu.Lock()
+										_, err1 := nook.Exec(publi, "N", fech)
+										db_mu.Unlock()
+										if err1 != nil {
+											Error.Println(err1)
+										}
+									}
+								} else {
+									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := nook.Exec(publi, "N", fech)
+									_, err1 := ok.Exec(publi, "Y", fech)
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)
 									}
 								}
-							} else {
-								ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
+							}
+						}
+						for _, msg := range f_mensajes {
+							//Separamos entre nombre de mensaje y playtime del mensaje
+							separar := strings.Split(msg, "<=>")
+							msgname := separar[0]
+							playtime := separar[1]
+							var cont int
+							mensajes, errS := db.Query("SELECT fichero FROM mensaje WHERE fichero=?", msgname)
+							if errS != nil {
+								Error.Println(errS)
+							}
+							for mensajes.Next() {
+								var fichero string
+								err = mensajes.Scan(&fichero)
 								if err != nil {
 									Error.Println(err)
 								}
-								db_mu.Lock()
-								_, err1 := ok.Exec(publi, "Y", fech)
-								db_mu.Unlock()
-								if err1 != nil {
-									Error.Println(err1)
+								cont++
+							}
+							if cont == 0 {
+								_, err := os.Stat(msg_files_location + msgname)
+								if err != nil {
+									if os.IsNotExist(err) {
+										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+										if err != nil {
+											Error.Println(err)
+										}
+										db_mu.Lock()
+										_, err1 := nook.Exec(msgname, playtime, "N")
+										db_mu.Unlock()
+										if err1 != nil {
+											Error.Println(err1)
+										}
+									}
+								} else {
+									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+									if err != nil {
+										Error.Println(err)
+									}
+									db_mu.Lock()
+									_, err1 := ok.Exec(msgname, playtime, "Y")
+									db_mu.Unlock()
+									if err1 != nil {
+										Error.Println(err1)
+									}
 								}
 							}
 						}
 					}
-					for _, msg := range f_mensajes {
-						//Separamos entre nombre de mensaje y playtime del mensaje
-						separar := strings.Split(msg, "<=>")
-						msgname := separar[0]
-						playtime := separar[1]
-						var cont int
-						mensajes, errS := db.Query("SELECT fichero FROM mensaje WHERE fichero=?", msgname)
-						if errS != nil {
-							Error.Println(errS)
-						}
-						for mensajes.Next() {
-							var fichero string
-							err = mensajes.Scan(&fichero)
-							if err != nil {
-								Error.Println(err)
+				} else {
+					separar_mensaje := strings.Split(respuesta, "[mensaje]")
+					if len(separar_mensaje) > 1 {
+						mensajes := strings.Split(separar_mensaje[1], ";")
+						for _, msg := range mensajes {
+							//Separamos entre nombre de mensaje y playtime del mensaje
+							separar := strings.Split(msg, "<=>")
+							msgname := separar[0]
+							playtime := separar[1]
+							var cont int
+							mensajes, errS := db.Query("SELECT fichero FROM mensaje WHERE fichero=?", msgname)
+							if errS != nil {
+								Error.Println(errS)
 							}
-							cont++
-						}
-						if cont == 0 {
-							_, err := os.Stat(msg_files_location + msgname)
-							if err != nil {
-								if os.IsNotExist(err) {
-									nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+							for mensajes.Next() {
+								var fichero string
+								err = mensajes.Scan(&fichero)
+								if err != nil {
+									Error.Println(err)
+								}
+								cont++
+							}
+							if cont == 0 {
+								_, err := os.Stat(msg_files_location + msgname)
+								if err != nil {
+									if os.IsNotExist(err) {
+										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+										if err != nil {
+											Error.Println(err)
+										}
+										db_mu.Lock()
+										_, err1 := nook.Exec(msgname, playtime, "N")
+										db_mu.Unlock()
+										if err1 != nil {
+											Error.Println(err1)
+										}
+									}
+								} else {
+									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := nook.Exec(msgname, playtime, "N")
+									_, err1 := ok.Exec(msgname, playtime, "Y")
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)
 									}
-								}
-							} else {
-								ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
-								if err != nil {
-									Error.Println(err)
-								}
-								db_mu.Lock()
-								_, err1 := ok.Exec(msgname, playtime, "Y")
-								db_mu.Unlock()
-								if err1 != nil {
-									Error.Println(err1)
 								}
 							}
 						}
