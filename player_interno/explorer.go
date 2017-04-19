@@ -81,6 +81,7 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 				//Volvemos a tomar el archivo anterior y lo abrimos
 				old := strings.Split(directorio_actual, r.FormValue("directory")+"\\")
 				directorio_actual = old[0]
+				fmt.Println(directorio_actual)
 				file2, err := os.Open(old[0])
 				defer file.Close()
 				directorios, err := file2.Readdir(0)
@@ -88,7 +89,7 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 					return
 				}
-				output = "<option value='' selected>[Selecciona un directorio]</option>"
+				output = "<option value='' selected>[Selecciona un directorio]</option></option><option value='...'>...</option>"
 				for _, val := range directorios {
 					if val.IsDir() {
 						output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
@@ -232,6 +233,12 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "directory" {
+						fmt.Println(v)
+						if v == "" {
+							output += "<span style='color: #FF0303'>Debes seleccionar mínimo un directorio</span>"
+							fmt.Fprint(w, output)
+							return
+						}
 						genDir += v + ";"
 					}
 				}

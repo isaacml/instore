@@ -97,9 +97,13 @@ func guardarListado() {
 			loadSettings(configShop, domainint)
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
 			if respuesta != "" {
+				fmt.Println(respuesta)
 				//De la respuesta tomamos el listado de mensajes y publicidad
 				separar_publi := strings.Split(respuesta, "[publi]")
+				fmt.Println("publicidad: " + 
+				separar_publi[1])
 				separar_msg := strings.Split(separar_publi[1], "[mensaje]")
+				fmt.Println(separar_msg)
 				if len(separar_msg) > 1 {
 					//Tomamos del listado de nombres de mensajes, publicidad y los almacenamos
 					f_publicidad := strings.Split(separar_msg[0], ";")
@@ -107,40 +111,41 @@ func guardarListado() {
 					//Comprobamos si dichos ficheros existen
 					for _, publi := range f_publicidad {
 						var cont int
-						publicidad, errS := db.Query("SELECT fichero FROM publi WHERE fichero=?", publi)
+						var fichero, fech string
+						publicidad, errS := db.Query("SELECT fichero, fecha FROM publi WHERE fichero=?", publi)
 						if errS != nil {
 							Error.Println(errS)
 						}
 						for publicidad.Next() {
-							var fichero string
-							err = publicidad.Scan(&fichero)
+							err = publicidad.Scan(&fichero, &fech)
 							if err != nil {
 								Error.Println(err)
 							}
 							cont++
 						}
+						fmt.Println(fichero, fech)
 						if cont == 0 {
 							_, err := os.Stat(publi_files_location + publi)
 							if err != nil {
 								if os.IsNotExist(err) {
-									nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`) VALUES (?,?)")
+									nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := nook.Exec(publi, "N")
+									_, err1 := nook.Exec(publi, "N", fech)
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)
 									}
 								}
 							} else {
-								ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`) VALUES (?,?)")
+								ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
 								if err != nil {
 									Error.Println(err)
 								}
 								db_mu.Lock()
-								_, err1 := ok.Exec(publi, "Y")
+								_, err1 := ok.Exec(publi, "Y", fech)
 								db_mu.Unlock()
 								if err1 != nil {
 									Error.Println(err1)
@@ -204,7 +209,11 @@ func guardarListado() {
 
 func bajadoDeFicheros() {
 	for {
-		publiQ, err := db.Query("SELECT fichero, existe FROM publi WHERE fecha=?")
+		//Sacamos la fecha actual
+		y, m, d := time.Now().Date()
+		fecha := fmt.Sprintf("%s%s%s", y, int(m), d)
+		//Busqueda fichero de publicidad y existencia del mismo por fecha actual
+		publiQ, err := db.Query("SELECT fichero, existe FROM publi WHERE fecha=?", fecha)
 		if err != nil {
 			Error.Println(err)
 		}
