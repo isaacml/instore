@@ -53,7 +53,7 @@ func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
-	go guardarListado()
+	go saveListInBD()
 	go bajadoDeFicheros()
 
 	// handlers del servidor HTTP
@@ -80,7 +80,8 @@ func main() {
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
 }
 
-func guardarListado() {
+//Comprueba cada 5 min listados nuevos y los guarda en la base de datos interna
+func saveListInBD() {
 	for {
 		//Comprobar que existe el fichero de configuracion de la tienda
 		var existe bool
@@ -96,25 +97,34 @@ func guardarListado() {
 		if existe == true {
 			loadSettings(configShop, domainint)
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
+			//Si la respuesta NO está vacía, comprobamos la respuesta.
 			if respuesta != "" {
-				fmt.Println(respuesta)
-				//De la respuesta tomamos el listado de mensajes y publicidad
+				//De la respuesta obtenemos el listado de mensajes y publicidad
 				separar_publi := strings.Split(respuesta, "[publi]")
+				//Hay ficheros de publicidad
 				if len(separar_publi) > 1 {
 					separar_msg := strings.Split(separar_publi[1], "[mensaje]")
 					fmt.Println(separar_msg)
+					fmt.Println(len(separar_msg))
+					//Hay ficheros de mensaje
 					if len(separar_msg) > 1 {
-						//Tomamos del listado de nombres de mensajes, publicidad y los almacenamos
+						//Tomamos listados de mensajes, publicidad y los almacenamos
 						f_publicidad := strings.Split(separar_msg[0], ";")
 						f_mensajes := strings.Split(separar_msg[1], ";")
-						//Comprobamos si dichos ficheros existen
+						fmt.Println("Publicidad --> ")
+						fmt.Println(f_publicidad)
+						fmt.Println("Mensajes --> ")
+						fmt.Println(f_mensajes)
+						//FICHEROS de PUBLICIDAD
 						for _, publi := range f_publicidad {
 							var cont int
 							var fichero, fech string
+							//Comprobamos si existen los ficheros de publi en la BD interna
 							publicidad, errS := db.Query("SELECT fichero, fecha FROM publi WHERE fichero=?", publi)
 							if errS != nil {
 								Error.Println(errS)
 							}
+							//Si existe, el contador incrementará
 							for publicidad.Next() {
 								err = publicidad.Scan(&fichero, &fech)
 								if err != nil {
@@ -123,9 +133,12 @@ func guardarListado() {
 								cont++
 							}
 							fmt.Println(fichero, fech)
+							//Contador = 0 --> La BD interna no tiene el fichero publi
 							if cont == 0 {
+								//Se comprueba si el player_interno tiene el fichero publi.
 								_, err := os.Stat(publi_files_location + publi)
 								if err != nil {
+									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
 										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
 										if err != nil {
@@ -139,6 +152,7 @@ func guardarListado() {
 										}
 									}
 								} else {
+									//SI lo tiene, se guarda en la BD de player con el estado en Y.
 									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
@@ -152,16 +166,19 @@ func guardarListado() {
 								}
 							}
 						}
+						//FICHEROS de MENSAJES
 						for _, msg := range f_mensajes {
-							//Separamos entre nombre de mensaje y playtime del mensaje
+							var cont int
+							//Separamos entre nombre y playtime de los mensajes
 							separar := strings.Split(msg, "<=>")
 							msgname := separar[0]
 							playtime := separar[1]
-							var cont int
+							//Comprobamos si existen los mensajes en la BD interna
 							mensajes, errS := db.Query("SELECT fichero FROM mensaje WHERE fichero=?", msgname)
 							if errS != nil {
 								Error.Println(errS)
 							}
+							//Si existe, el contador incrementará
 							for mensajes.Next() {
 								var fichero string
 								err = mensajes.Scan(&fichero)
@@ -170,9 +187,12 @@ func guardarListado() {
 								}
 								cont++
 							}
+							//Contador = 0 --> La BD interna no tiene el mensaje
 							if cont == 0 {
+								//Se comprueba si el player_interno tiene el fichero mensaje.
 								_, err := os.Stat(msg_files_location + msgname)
 								if err != nil {
+									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
 										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
 										if err != nil {
@@ -186,6 +206,7 @@ func guardarListado() {
 										}
 									}
 								} else {
+									//SI lo tiene, se guarda en la BD de player con el estado en Y.
 									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
@@ -201,19 +222,22 @@ func guardarListado() {
 						}
 					}
 				} else {
+					//No hay ficheros de publicidad, por tanto vamos a comprobar si hay mensajes
 					separar_mensaje := strings.Split(respuesta, "[mensaje]")
 					if len(separar_mensaje) > 1 {
+						//Hay mensajes, vamos a obtenerlos uno a uno
 						mensajes := strings.Split(separar_mensaje[1], ";")
 						for _, msg := range mensajes {
+							var cont int
 							//Separamos entre nombre de mensaje y playtime del mensaje
 							separar := strings.Split(msg, "<=>")
 							msgname := separar[0]
 							playtime := separar[1]
-							var cont int
 							mensajes, errS := db.Query("SELECT fichero FROM mensaje WHERE fichero=?", msgname)
 							if errS != nil {
 								Error.Println(errS)
 							}
+							//Si el mensaje existe, el contador se incrementará
 							for mensajes.Next() {
 								var fichero string
 								err = mensajes.Scan(&fichero)
@@ -222,8 +246,11 @@ func guardarListado() {
 								}
 								cont++
 							}
+							//contador = 0 --> no existe el mensaje en BD, por lo tanto vamos a añadirlo.
 							if cont == 0 {
+								//Se comprueba si el player_interno tiene el fichero mensaje.
 								_, err := os.Stat(msg_files_location + msgname)
+								//NO lo tiene, se guarda en la BD de player con el estado en N.
 								if err != nil {
 									if os.IsNotExist(err) {
 										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
@@ -238,6 +265,7 @@ func guardarListado() {
 										}
 									}
 								} else {
+									//SI lo tiene, se guarda en la BD de player con el estado en Y.
 									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
