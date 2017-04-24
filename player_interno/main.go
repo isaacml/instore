@@ -103,18 +103,68 @@ func saveListInBD() {
 				separar_publi := strings.Split(respuesta, "[publi]")
 				//Hay ficheros de publicidad
 				if len(separar_publi) > 1 {
+					//Se comprueba si el listado contiene mensajes
+					tiene_msg := strings.Contains(separar_publi[1], "[mensaje]")
+					if tiene_msg != true {
+						//SOLO ARCHIVOS DE PUBLICIDAD
+						arch_publi := strings.Split(separar_publi[1], ";")
+						for _, publi := range arch_publi {
+							var cont int
+							var fichero, fech string
+							//Comprobamos si existen los ficheros de publi en la BD interna
+							publicidad, errS := db.Query("SELECT fichero, fecha FROM publi WHERE fichero=?", publi)
+							if errS != nil {
+								Error.Println(errS)
+							}
+							//Si existe, el contador incrementará
+							for publicidad.Next() {
+								err = publicidad.Scan(&fichero, &fech)
+								if err != nil {
+									Error.Println(err)
+								}
+								cont++
+							}
+							fmt.Println(fichero, fech)
+							//Contador = 0 --> La BD interna no tiene el fichero publi
+							if cont == 0 {
+								//Se comprueba si el player_interno tiene el fichero publi.
+								_, err := os.Stat(publi_files_location + publi)
+								if err != nil {
+									//NO lo tiene, se guarda en la BD de player con el estado en N.
+									if os.IsNotExist(err) {
+										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
+										if err != nil {
+											Error.Println(err)
+										}
+										db_mu.Lock()
+										_, err1 := nook.Exec(publi, "N", fech)
+										db_mu.Unlock()
+										if err1 != nil {
+											Error.Println(err1)
+										}
+									}
+								} else {
+									//SI lo tiene, se guarda en la BD de player con el estado en Y.
+									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`) VALUES (?,?,?)")
+									if err != nil {
+										Error.Println(err)
+									}
+									db_mu.Lock()
+									_, err1 := ok.Exec(publi, "Y", fech)
+									db_mu.Unlock()
+									if err1 != nil {
+										Error.Println(err1)
+									}
+								}
+							}
+						}
+					}
 					separar_msg := strings.Split(separar_publi[1], "[mensaje]")
-					fmt.Println(separar_msg)
-					fmt.Println(len(separar_msg))
 					//Hay ficheros de mensaje
 					if len(separar_msg) > 1 {
 						//Tomamos listados de mensajes, publicidad y los almacenamos
 						f_publicidad := strings.Split(separar_msg[0], ";")
 						f_mensajes := strings.Split(separar_msg[1], ";")
-						fmt.Println("Publicidad --> ")
-						fmt.Println(f_publicidad)
-						fmt.Println("Mensajes --> ")
-						fmt.Println(f_mensajes)
 						//FICHEROS de PUBLICIDAD
 						for _, publi := range f_publicidad {
 							var cont int
