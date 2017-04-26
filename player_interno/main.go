@@ -93,6 +93,9 @@ func saveListInBD() {
 		} else {
 			existe = true
 		}
+		fecha_actual := time.Now()
+		//Formato de la fecha actual --> 20070405
+		string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 		//Si el fichero de configuracion existe, enviamos el dominio de la tienda
 		if existe == true {
 			loadSettings(configShop, domainint)
@@ -110,21 +113,15 @@ func saveListInBD() {
 						arch_publi := strings.Split(separar_publi[1], ";")
 						for _, publi := range arch_publi {
 							var cont int
-							var fichero, fech string
 							//Comprobamos si existen los ficheros de publi en la BD interna
-							publicidad, errS := db.Query("SELECT fichero, fecha FROM publi WHERE fichero=?", publi)
+							publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", publi)
 							if errS != nil {
 								Error.Println(errS)
 							}
 							//Si existe, el contador incrementará
 							for publicidad.Next() {
-								err = publicidad.Scan(&fichero, &fech)
-								if err != nil {
-									Error.Println(err)
-								}
 								cont++
 							}
-							fmt.Println(fichero, fech)
 							//Contador = 0 --> La BD interna no tiene el fichero publi
 							if cont == 0 {
 								//Se comprueba si el player_interno tiene el fichero publi.
@@ -137,7 +134,7 @@ func saveListInBD() {
 											Error.Println(err)
 										}
 										db_mu.Lock()
-										_, err1 := nook.Exec(publi, "N", fech)
+										_, err1 := nook.Exec(publi, "N", string_fecha)
 										db_mu.Unlock()
 										if err1 != nil {
 											Error.Println(err1)
@@ -150,7 +147,7 @@ func saveListInBD() {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := ok.Exec(publi, "Y", fech)
+									_, err1 := ok.Exec(publi, "Y", string_fecha)
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)
@@ -244,7 +241,7 @@ func saveListInBD() {
 								if err != nil {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
-										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`, `fecha`) VALUES (?,?,?)")
 										if err != nil {
 											Error.Println(err)
 										}
@@ -257,7 +254,7 @@ func saveListInBD() {
 									}
 								} else {
 									//SI lo tiene, se guarda en la BD de player con el estado en Y.
-									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`, `fecha`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
@@ -283,17 +280,12 @@ func saveListInBD() {
 							separar := strings.Split(msg, "<=>")
 							msgname := separar[0]
 							playtime := separar[1]
-							mensajes, errS := db.Query("SELECT fichero FROM mensaje WHERE fichero=?", msgname)
+							mensajes, errS := db.Query("SELECT * FROM mensaje WHERE fichero=?", msgname)
 							if errS != nil {
 								Error.Println(errS)
 							}
 							//Si el mensaje existe, el contador se incrementará
 							for mensajes.Next() {
-								var fichero string
-								err = mensajes.Scan(&fichero)
-								if err != nil {
-									Error.Println(err)
-								}
 								cont++
 							}
 							//contador = 0 --> no existe el mensaje en BD, por lo tanto vamos a añadirlo.
@@ -303,7 +295,7 @@ func saveListInBD() {
 								//NO lo tiene, se guarda en la BD de player con el estado en N.
 								if err != nil {
 									if os.IsNotExist(err) {
-										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+										nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`, `fecha`) VALUES (?,?,?)")
 										if err != nil {
 											Error.Println(err)
 										}
@@ -316,7 +308,7 @@ func saveListInBD() {
 									}
 								} else {
 									//SI lo tiene, se guarda en la BD de player con el estado en Y.
-									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`) VALUES (?,?,?)")
+									ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `estado`, `fecha`) VALUES (?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
@@ -341,7 +333,7 @@ func bajadoDeFicheros() {
 	for {
 		//Sacamos la fecha actual
 		y, m, d := time.Now().Date()
-		fecha := fmt.Sprintf("%s%s%s", y, int(m), d)
+		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
 		//Busqueda fichero de publicidad y existencia del mismo por fecha actual
 		publiQ, err := db.Query("SELECT fichero, existe FROM publi WHERE fecha=?", fecha)
 		if err != nil {
@@ -349,9 +341,13 @@ func bajadoDeFicheros() {
 		}
 		for publiQ.Next() {
 			var fichero, exist string
+			//Tomamos el nombre del fichero de publicidad y su existencia
 			err = publiQ.Scan(&fichero, &exist)
 			if err != nil {
 				Error.Println(err)
+			}
+			if exist == "N" {
+				fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "existencia;NONE"))
 			}
 			fmt.Println(fichero, exist)
 		}
