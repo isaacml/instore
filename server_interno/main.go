@@ -55,6 +55,7 @@ func main() {
 	http.HandleFunc("/bitmaps.cgi", bitmaps)
 	http.HandleFunc("/send_domain.cgi", send_domain)
 	http.HandleFunc("/downloadPubliFile.cgi", downloadPubliFile)
+	http.HandleFunc("/downloadMsgFile.cgi", downloadMsgFile)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

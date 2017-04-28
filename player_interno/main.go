@@ -100,6 +100,7 @@ func saveListInBD() {
 		if existe == true {
 			loadSettings(configShop, domainint)
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
+			fmt.Println(respuesta)
 			//Si la respuesta NO está vacía, comprobamos la respuesta.
 			if respuesta != "" {
 				//De la respuesta obtenemos el listado de mensajes y publicidad
@@ -346,7 +347,7 @@ func bajadoDeFicheros() {
 		for msgQ.Next() {
 			var fichero, exist string
 			//Tomamos el nombre del fichero mensaje y su existencia
-			err = publiQ.Scan(&fichero, &exist)
+			err = msgQ.Scan(&fichero, &exist)
 			if err != nil {
 				Error.Println(err)
 			}
