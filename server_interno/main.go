@@ -68,6 +68,26 @@ func main() {
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
 }
 
+func checkNewFiles() {
+	for {
+		//Buscamos todos lo ficheros de publicidad que no tenemos en la BD
+		publicidad, errS := db.Query("SELECT fichero FROM publi WHERE existe='N'")
+		if errS != nil {
+			Error.Println(errS)
+		}
+		for publicidad.Next() {
+			var fichero string
+			//Tomamos el nombre del fichero mensaje y su existencia
+			err := publicidad.Scan(&fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Println(fichero)
+		}
+		time.Sleep(2 * time.Minute)
+	}
+}
+
 /*
 loadSettings: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa.
 	filename: ruta completa donde se encuentra nuestro fichero(C:\instore\serverext.reg)

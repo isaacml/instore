@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/isaacml/instore/libs"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -28,50 +27,24 @@ func downloadMsgFile(w http.ResponseWriter, r *http.Request) {
 	nombre_fichero := r.FormValue("fichero")
 	timestamp := time.Now().Unix()
 	if r.FormValue("existencia") == "N" {
-		var existe bool
 		var cont int
-		//Comprobar que existe el fichero en el directorio de publicidad del server interno
-		_, err := os.Stat(msg_files_location + nombre_fichero)
-		if err != nil {
-			if os.IsNotExist(err) {
-				existe = false
-			}
-		} else {
-			existe = true
-		}
-		//Comprobamos si el fichero está insertado en BD. cont = 0 --> No ha sido insertado nunca
-		err = db.QueryRow("SELECT count(id) FROM mensaje WHERE fichero=?", nombre_fichero).Scan(&cont)
+		//Comprobamos si el fichero está insertado en BD.
+		err := db.QueryRow("SELECT count(id) FROM mensaje WHERE fichero=?", nombre_fichero).Scan(&cont)
 		if err != nil {
 			Error.Println(err)
 		}
-		//Fichero de publicidad no existe en directorio del server interno
-		if existe == false {
-			if cont == 0 {
-				//Lo insertamos con el existe en N
-				publi, err := db.Prepare("INSERT INTO mensaje (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
-				if err != nil {
-					Error.Println(err)
-				}
-				db_mu.Lock()
-				_, err1 := publi.Exec(nombre_fichero, "N", timestamp)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-				}
+		//cont = 0 --> No ha sido insertado nunca
+		if cont == 0 {
+			//Lo insertamos con el existe en N
+			publi, err := db.Prepare("INSERT INTO mensaje (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
+			if err != nil {
+				Error.Println(err)
 			}
-		} else { //Fichero de publicidad existe en directorio del server interno
-			if cont == 0 {
-				//Lo insertamos con el existe en Y
-				publi, err := db.Prepare("INSERT INTO mensaje (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
-				if err != nil {
-					Error.Println(err)
-				}
-				db_mu.Lock()
-				_, err1 := publi.Exec(nombre_fichero, "Y", timestamp)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-				}
+			db_mu.Lock()
+			_, err1 := publi.Exec(nombre_fichero, "N", timestamp)
+			db_mu.Unlock()
+			if err1 != nil {
+				Error.Println(err1)
 			}
 		}
 	}
@@ -82,51 +55,25 @@ func downloadPubliFile(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	nombre_fichero := r.FormValue("fichero")
 	timestamp := time.Now().Unix()
-	if r.FormValue("existencia") == "N" {
-		var existe bool
+	if r.FormValue("existencia") == "N" { //existencia del fichero publi, mandado por el player_interno
 		var cont int
-		//Comprobar que existe el fichero en el directorio de publicidad del server interno
-		_, err := os.Stat(publi_files_location + nombre_fichero)
-		if err != nil {
-			if os.IsNotExist(err) {
-				existe = false
-			}
-		} else {
-			existe = true
-		}
-		//Comprobamos si el fichero está insertado en BD. cont = 0 --> No ha sido insertado nunca
-		err = db.QueryRow("SELECT count(id) FROM publi WHERE fichero=?", nombre_fichero).Scan(&cont)
+		//Comprobamos si el fichero está insertado en BD.
+		err := db.QueryRow("SELECT count(id) FROM publi WHERE fichero=?", nombre_fichero).Scan(&cont)
 		if err != nil {
 			Error.Println(err)
 		}
-		//Fichero de publicidad no existe en directorio del server interno
-		if existe == false {
-			if cont == 0 {
-				//Lo insertamos con el existe en N
-				publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
-				if err != nil {
-					Error.Println(err)
-				}
-				db_mu.Lock()
-				_, err1 := publi.Exec(nombre_fichero, "N", timestamp)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-				}
+		//cont = 0 --> No ha sido insertado nunca
+		if cont == 0 {
+			//Lo insertamos con el existe en N
+			publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
+			if err != nil {
+				Error.Println(err)
 			}
-		} else { //Fichero de publicidad existe en directorio del server interno
-			if cont == 0 {
-				//Lo insertamos con el existe en Y
-				publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
-				if err != nil {
-					Error.Println(err)
-				}
-				db_mu.Lock()
-				_, err1 := publi.Exec(nombre_fichero, "Y", timestamp)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-				}
+			db_mu.Lock()
+			_, err1 := publi.Exec(nombre_fichero, "N", timestamp)
+			db_mu.Unlock()
+			if err1 != nil {
+				Error.Println(err1)
 			}
 		}
 	}
