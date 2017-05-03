@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
+	"github.com/isaacml/instore/libs"
 	_ "github.com/mattn/go-sqlite3"
 	"io"
 	"log"
@@ -46,6 +47,7 @@ func init() {
 func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
+	go checkNewFiles()
 
 	// handlers de la tienda
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
@@ -82,9 +84,10 @@ func checkNewFiles() {
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Println(fichero)
+			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"\\instore\\"+fichero, publi_files_location+fichero, 2, 1000)
+			fmt.Println(bytes, err)
 		}
-		time.Sleep(2 * time.Minute)
+		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg)
 	}
 }
 

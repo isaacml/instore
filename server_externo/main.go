@@ -45,6 +45,7 @@ func main() {
 
 	// handlers del servidor
 	http.HandleFunc("/login.cgi", login)
+	http.HandleFunc("/", root)
 	//USUARIO
 	http.HandleFunc("/edit_own_user.cgi", edit_own_user)
 	http.HandleFunc("/alta_users.cgi", alta_users)

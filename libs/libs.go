@@ -23,7 +23,8 @@ DownloadFile: función que se encarga de descargar un fichero desde una URL espe
 	timeout: segundos que tiene para descargarse el fichero, 2sec
 	bitrate: velocidad de bajada del fichero, 100Kb
 
-La función devuelve el número de bytes y un error, si el proceso ha ido mal, los resultados devueltos serán 0, err(nombre del error).
+La función devuelve el número de bytes y un error.
+Si el proceso ha ido mal, los resultados devueltos serán 0, err(nombre del error).
 */
 func DownloadFile(url, rutaFichero string, timeout time.Duration, bitrate float64) (bytes int64, err error) {
 	var errR error
