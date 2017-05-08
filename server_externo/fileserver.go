@@ -1,14 +1,9 @@
 package main
 
 import (
-	//"fmt"
-	//"github.com/todostreaming/realip"
-	//"io/ioutil"
-	//"mime"
 	"net/http"
 	"os"
 	"strings"
-	//"time"
 )
 
 // sirve todos los ficheros estáticos de la web html,css,js,graficos,etc

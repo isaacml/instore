@@ -34,7 +34,7 @@ func init() {
 	Info = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Warning = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(io.MultiWriter(file, os.Stderr), "ERROR :", log.Ldate|log.Ltime|log.Lshortfile)
-	db, err_db = sql.Open("sqlite3", "C:\\instore\\servint.db")
+	db, err_db = sql.Open("sqlite3", "/home/isaac/INSTORE_SQL/pruebas/servint.db")
 	if err_db != nil {
 		Error.Println(err_db)
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
