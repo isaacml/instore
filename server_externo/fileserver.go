@@ -15,7 +15,7 @@ import (
 func root(w http.ResponseWriter, r *http.Request) {
 	var namefile string
 	namefile = strings.TrimRight(publi_files_location+r.URL.Path[1:], "/")
-	fmt.Println("... Buscando fichero: ", namefile)
+	//fmt.Println("... Buscando fichero: ", namefile)
 	fileinfo, err := os.Stat(namefile)
 	if err != nil {
 		http.NotFound(w, r)
@@ -34,5 +34,13 @@ func root(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	http.ServeFile(w, r, namefile)
+	defer fr.Close()
+	fmt.Println("Nombre de fichero: " + namefile +":")
+	if namefile != publi_files_location {
+		file := strings.Split(namefile, ".")
+		if (file[1] == "mp3") {
+			http.ServeContent(w, r, namefile, fileinfo.ModTime(), fr)
+		}
+	}
+	
 }
