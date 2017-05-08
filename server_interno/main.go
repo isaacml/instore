@@ -84,8 +84,12 @@ func checkNewFiles() {
 			if err != nil {
 				Error.Println(err)
 			}
-			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"\\instore\\"+fichero, publi_files_location+fichero, 2, 1000)
-			fmt.Println(bytes, err)
+			if strings.Contains(fichero, ".mp3") == true {
+				_, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero, publi_files_location+fichero, 0, 1000)
+				if err != nil {
+					Error.Println(err)
+				}
+			}
 		}
 		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg)
 	}

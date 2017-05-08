@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	//"github.com/todostreaming/realip"
 	//"io/ioutil"
 	//"mime"
@@ -35,12 +35,11 @@ func root(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer fr.Close()
-	fmt.Println("Nombre de fichero: " + namefile +":")
 	if namefile != publi_files_location {
 		file := strings.Split(namefile, ".")
-		if (file[1] == "mp3") {
+		if file[1] == "mp3" {
 			http.ServeContent(w, r, namefile, fileinfo.ModTime(), fr)
 		}
 	}
-	
+
 }
