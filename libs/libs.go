@@ -28,6 +28,7 @@ Si el proceso ha ido mal, los resultados devueltos serán 0, err(nombre del erro
 */
 func DownloadFile(url, rutaFichero string, timeout time.Duration, bitrate float64) (bytes int64, err error) {
 	var errR error
+	fmt.Println(rutaFichero)
 	escritor, err := os.Create(rutaFichero)
 	if err != nil {
 		errR = fmt.Errorf("OpenFile: No puedo abrir el fichero")
