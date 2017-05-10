@@ -28,44 +28,61 @@ Si el proceso ha ido mal, los resultados devueltos serán 0, err(nombre del erro
 */
 func DownloadFile(url, rutaFichero string, timeout time.Duration, bitrate float64) (bytes int64, err error) {
 	var errR error
-	fmt.Println(rutaFichero)
-	escritor, err := os.Create(rutaFichero)
-	if err != nil {
-		errR = fmt.Errorf("OpenFile: No puedo abrir el fichero")
-		return 0, errR
-	}
-	client := &http.Client{
-		Timeout: timeout * time.Second,
-	}
-	resp, err := client.Get(url)
-	if err != nil {
-		errR = fmt.Errorf("URL: No puedo bajar la URL")
-		return 0, errR
-	}
-	size := resp.Header.Get("Content-Length")
-	tamanio, err := strconv.Atoi(size) // tamaño del fichero cogido del Header()
-	if err != nil {
-		errR = fmt.Errorf("StringToInt: No se ha realizado la conversion")
-		return 0, errR
-	}
-	bucket := ratelimit.NewBucketWithRate(bitrate*1024, 1*1024) // inicializando el bucket
-	_, err = io.Copy(escritor, ratelimit.Reader(resp.Body, bucket))
-	if err != nil {
-		errR = fmt.Errorf("Copy: No puedo copiar el fichero")
-		return 0, errR
-	}
-	defer resp.Body.Close()
-	imagen, err := os.Stat(rutaFichero) // tomamos la informacion del fichero recientemente bajado
-	if err != nil {
-		errR = fmt.Errorf("Stat: Error al acceder al estado")
-		return 0, errR
-	}
-	if imagen.Size() != int64(tamanio) { // comparamos tamaños
-		errR = fmt.Errorf("CompareSize: Se ha producido un error en la copia del fichero")
-		return 0, errR
+	var existe bool
+	//Comprobar que existe el fichero(publicidad/mensaje) en el server externo
+	_, err0 := os.Stat(url)
+	if err0 != nil {
+		if os.IsNotExist(err0) {
+			existe = false
+		}
 	} else {
-		bytes = imagen.Size()
-		return bytes, nil
+		existe = true
+	}
+	//Si existe procedemos a la descarga del fichero
+	if existe == true {
+		escritor, err := os.Create(rutaFichero)
+		if err != nil {
+			errR = fmt.Errorf("CreateFile: No puedo crear el fichero")
+			return 0, errR
+		}
+		client := &http.Client{
+			Timeout: timeout * time.Second,
+		}
+		resp, err := client.Get(url)
+		if err != nil {
+			errR = fmt.Errorf("URL: No puedo bajar la URL")
+			return 0, errR
+		}
+
+		size := resp.Header.Get("Content-Length")
+		tamanio, err := strconv.Atoi(size) // tamaño del fichero cogido del Header()
+		fmt.Println(tamanio)
+		if err != nil {
+			errR = fmt.Errorf("StringToInt: No se ha realizado la conversion")
+			return 0, errR
+		}
+		bucket := ratelimit.NewBucketWithRate(bitrate*1024, 1*1024) // inicializando el bucket
+		_, err = io.Copy(escritor, ratelimit.Reader(resp.Body, bucket))
+		if err != nil {
+			errR = fmt.Errorf("Copy: No puedo copiar el fichero")
+			return 0, errR
+		}
+		defer resp.Body.Close()
+		imagen, err := os.Stat(rutaFichero) // tomamos la informacion del fichero recientemente bajado
+		if err != nil {
+			errR = fmt.Errorf("Stat: Error al acceder al estado")
+			return 0, errR
+		}
+		if imagen.Size() != int64(tamanio) { // comparamos tamaños
+			errR = fmt.Errorf("CompareSize: Se ha producido un error en la copia del fichero")
+			return 0, errR
+		} else {
+			bytes = imagen.Size()
+			return bytes, nil
+		}
+	} else {
+		errR = fmt.Errorf("FileExt: El servidor externo no tiene ese fichero")
+		return 0, errR
 	}
 }
 

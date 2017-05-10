@@ -30,11 +30,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer fr.Close()
+	//Publicidad
 	if namefile != publi_files_location {
-		file := strings.Split(namefile, ".")
-		if file[1] == "mp3" {
-			http.ServeContent(w, r, namefile, fileinfo.ModTime(), fr)
-		}
+		//Se sirven todos los ficheros de publicidad
+		http.ServeContent(w, r, namefile, fileinfo.ModTime(), fr)
 	}
-
 }

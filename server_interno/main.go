@@ -84,10 +84,24 @@ func checkNewFiles() {
 			if err != nil {
 				Error.Println(err)
 			}
-			if strings.Contains(fichero, ".mp3") == true {
-				_, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero, publi_files_location+fichero, 0, 1000)
+			//Descargamos el fichero del servidor externo
+			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero, publi_files_location+fichero, 0, 1000)
+			//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
+			if err != nil || bytes == 0 {
+				Error.Println(err)
+			}
+			//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
+			if bytes != 0 || err == nil {
+				//Cambiamos el estado del fichero de publicidad en BD, a existe.
+				ok, err := db.Prepare("UPDATE publi SET existe=? WHERE fichero = ?")
 				if err != nil {
 					Error.Println(err)
+				}
+				db_mu.Lock()
+				_, err1 := ok.Exec("Y", fichero)
+				db_mu.Unlock()
+				if err1 != nil {
+					Error.Println(err1)
 				}
 			}
 		}
