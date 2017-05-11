@@ -47,7 +47,7 @@ func init() {
 func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
-	go checkNewFiles()
+	go BuscarNuevosFicheros()
 
 	// handlers de la tienda
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
@@ -70,16 +70,16 @@ func main() {
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
 }
 
-func checkNewFiles() {
+func BuscarNuevosFicheros() {
 	for {
 		//Buscamos todos lo ficheros de publicidad que no tenemos en la BD
-		publicidad, errS := db.Query("SELECT fichero FROM publi WHERE existe='N'")
-		if errS != nil {
-			Error.Println(errS)
+		publicidad, errP := db.Query("SELECT fichero FROM publi WHERE existe='N'")
+		if errP != nil {
+			Error.Println(errP)
 		}
 		for publicidad.Next() {
 			var fichero string
-			//Tomamos el nombre del fichero mensaje y su existencia
+			//Tomamos el nombre del fichero publicidad
 			err := publicidad.Scan(&fichero)
 			if err != nil {
 				Error.Println(err)
@@ -94,6 +94,39 @@ func checkNewFiles() {
 			if bytes != 0 || err == nil {
 				//Cambiamos el estado del fichero de publicidad en BD, a existe.
 				ok, err := db.Prepare("UPDATE publi SET existe=? WHERE fichero = ?")
+				if err != nil {
+					Error.Println(err)
+				}
+				db_mu.Lock()
+				_, err1 := ok.Exec("Y", fichero)
+				db_mu.Unlock()
+				if err1 != nil {
+					Error.Println(err1)
+				}
+			}
+		}
+		//Buscamos todos lo ficheros de mensajes que no tenemos en la BD
+		mensajes, errM := db.Query("SELECT fichero FROM mensaje WHERE existe='N'")
+		if errM != nil {
+			Error.Println(errM)
+		}
+		for mensajes.Next() {
+			var fichero string
+			//Tomamos el nombre del fichero mensaje
+			err := mensajes.Scan(&fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Descargamos el fichero del servidor externo
+			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero, msg_files_location+fichero, 0, 1000)
+			//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
+			if err != nil || bytes == 0 {
+				Error.Println(err)
+			}
+			//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
+			if bytes != 0 || err == nil {
+				//Cambiamos el estado del fichero de publicidad en BD, a existe.
+				ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE fichero = ?")
 				if err != nil {
 					Error.Println(err)
 				}

@@ -26,37 +26,35 @@ DownloadFile: función que se encarga de descargar un fichero desde una URL espe
 La función devuelve el número de bytes y un error.
 Si el proceso ha ido mal, los resultados devueltos serán 0, err(nombre del error).
 */
-func DownloadFile(url, rutaFichero string, timeout time.Duration, bitrate float64) (bytes int64, err error) {
+func DownloadFile(link, rutaFichero string, timeout time.Duration, bitrate float64) (bytes int64, err error) {
 	var errR error
 	var existe bool
-	//Comprobar que existe el fichero(publicidad/mensaje) en el server externo
-	_, err0 := os.Stat(url)
-	if err0 != nil {
-		if os.IsNotExist(err0) {
-			existe = false
-		}
+	//Comprobar que existe el fichero(publicidad/mensaje)
+	client := &http.Client{
+		Timeout: timeout * time.Second,
+	}
+	resp, err := client.Get(link)
+	if err != nil {
+		errR = fmt.Errorf("URL: No puedo bajar la URL")
+		return 0, errR
+	}
+	cod_status := resp.Status //Obtenemos el código de estado de la petición (404 Not Found / 202 OK)
+	//Guardamos en una variable de estado si se encuenta o no el fichero
+	if cod_status == "404 Not Found" {
+		existe = false
 	} else {
 		existe = true
 	}
 	//Si existe procedemos a la descarga del fichero
 	if existe == true {
+		//Creamos un nuevo fichero en la ruta especificada
 		escritor, err := os.Create(rutaFichero)
 		if err != nil {
 			errR = fmt.Errorf("CreateFile: No puedo crear el fichero")
 			return 0, errR
 		}
-		client := &http.Client{
-			Timeout: timeout * time.Second,
-		}
-		resp, err := client.Get(url)
-		if err != nil {
-			errR = fmt.Errorf("URL: No puedo bajar la URL")
-			return 0, errR
-		}
-
 		size := resp.Header.Get("Content-Length")
 		tamanio, err := strconv.Atoi(size) // tamaño del fichero cogido del Header()
-		fmt.Println(tamanio)
 		if err != nil {
 			errR = fmt.Errorf("StringToInt: No se ha realizado la conversion")
 			return 0, errR
