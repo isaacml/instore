@@ -85,7 +85,7 @@ func BuscarNuevosFicheros() {
 				Error.Println(err)
 			}
 			//Descargamos el fichero del servidor externo
-			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero, publi_files_location+fichero, 0, 1000)
+			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
 			//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
 			if err != nil || bytes == 0 {
 				Error.Println(err)
@@ -118,7 +118,7 @@ func BuscarNuevosFicheros() {
 				Error.Println(err)
 			}
 			//Descargamos el fichero del servidor externo
-			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero, msg_files_location+fichero, 0, 1000)
+			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
 			//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
 			if err != nil || bytes == 0 {
 				Error.Println(err)

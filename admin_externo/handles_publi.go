@@ -260,6 +260,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "files" {
+						//Insertamos datos en la tabla interna del admininistrador (programaciones.sql)
 						stmt, err0 := db.Prepare("INSERT INTO publi (`ruta`, `fichero`, `fecha_inicio`, `fecha_final`, `destino`, `timestamp`, `gap`) VALUES (?,?,?,?,?,?,?)")
 						if err0 != nil {
 							Error.Println(err0)
@@ -278,9 +279,10 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
-		}
-		//r.FormValue("type") == "msg", procedemos a insertar los datos en la tabla mensajes
-	} else if r.FormValue("action") == "get_ficheros" && r.FormValue("type") == "msg" {
+		}	
+	}
+	//r.FormValue("type") == "msg", procedemos a insertar los datos en la tabla mensajes
+	if r.FormValue("action") == "get_ficheros" && r.FormValue("type") == "msg" {
 		//Variables
 		f_inicio := r.FormValue("f_inicio")
 		f_final := r.FormValue("f_fin")
@@ -306,6 +308,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "files" {
+						//Insertamos datos en la tabla interna del admininistrador (programaciones.sql)
 						stmt, err0 := db.Prepare("INSERT INTO mensaje (`ruta`, `fichero`, `fecha_inicio`, `fecha_final`, `destino`, `timestamp`, `playtime`) VALUES (?,?,?,?,?,?,?)")
 						if err0 != nil {
 							Error.Println(err0)

@@ -54,7 +54,7 @@ func main() {
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go saveListInBD()
-	go bajadoDeFicheros()
+	go solicitudDeFicheros()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
@@ -318,8 +318,8 @@ func saveListInBD() {
 		time.Sleep(5 * time.Minute)
 	}
 }
-
-func bajadoDeFicheros() {
+//Se mandan hacia el servidor interno una solicitud de los archivos publi/msg que se tiene que bajar.
+func solicitudDeFicheros() {
 	for {
 		//Sacamos la fecha actual
 		y, m, d := time.Now().Date()

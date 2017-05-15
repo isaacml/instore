@@ -24,9 +24,16 @@ func send_domain(w http.ResponseWriter, r *http.Request) {
 //Recibe la peticion de mensaje por parte del player_interno(tienda)
 func downloadMsgFile(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	var existe string
 	nombre_fichero := r.FormValue("fichero")
 	timestamp := time.Now().Unix()
-	if r.FormValue("existencia") == "N" {
+	//Se comprueba que la existencia en la tienda se corresponde con la existencia en el server interno
+	err := db.QueryRow("SELECT existe FROM mensaje WHERE fichero=?", nombre_fichero).Scan(&existe)
+	if err != nil {
+		Error.Println(err)
+	}
+	//No existe
+	if existe == r.FormValue("existencia"){
 		var cont int
 		//Comprobamos si el fichero está insertado en BD.
 		err := db.QueryRow("SELECT count(id) FROM mensaje WHERE fichero=?", nombre_fichero).Scan(&cont)
@@ -47,6 +54,8 @@ func downloadMsgFile(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err1)
 			}
 		}
+	}else{
+		fmt.Println("Pasamos a la descarga")
 	}
 }
 
