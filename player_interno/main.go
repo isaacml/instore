@@ -318,6 +318,7 @@ func saveListInBD() {
 		time.Sleep(5 * time.Minute)
 	}
 }
+
 //Se mandan hacia el servidor interno una solicitud de los archivos publi/msg que se tiene que bajar.
 func solicitudDeFicheros() {
 	for {
@@ -336,8 +337,29 @@ func solicitudDeFicheros() {
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "fichero;"+fichero, "existencia;"+exist))
-			fmt.Println(fichero, exist)
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "fichero;"+fichero, "existencia;"+exist))
+			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
+			if respuesta == "Descarga" {
+				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
+				//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
+				if err != nil || b == 0 {
+					Error.Println(err)
+				}
+				//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
+				if b != 0 || err == nil {
+					//Cambiamos el estado del fichero de publicidad en BD, a existe.
+					ok, err := db.Prepare("UPDATE publi SET existe=? WHERE fichero = ?")
+					if err != nil {
+						Error.Println(err)
+					}
+					db_mu.Lock()
+					_, err1 := ok.Exec("Y", fichero)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+					}
+				}
+			}
 		}
 		//Busqueda fichero de mensaje y existencia del mismo por fecha actual
 		msgQ, err := db.Query("SELECT fichero, existe FROM mensaje WHERE fecha=?", fecha)
@@ -352,8 +374,27 @@ func solicitudDeFicheros() {
 				Error.Println(err)
 			}
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadMsgFile.cgi", "fichero;"+fichero, "existencia;"+exist))
+			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 			if respuesta == "Descarga" {
-				libs.DownloadFile(serverint["serverinterno"]+"/"+fichero, msg_files_location+fichero, 0, 1000)
+				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensajes", msg_files_location+fichero, 0, 1000)
+				//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
+				if err != nil || b == 0 {
+					Error.Println(err)
+				}
+				//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
+				if b != 0 || err == nil {
+					//Cambiamos el estado del fichero de mensaje en BD, a existe.
+					ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE fichero = ?")
+					if err != nil {
+						Error.Println(err)
+					}
+					db_mu.Lock()
+					_, err1 := ok.Exec("Y", fichero)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+					}
+				}
 			}
 		}
 		time.Sleep(1 * time.Minute)

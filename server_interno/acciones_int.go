@@ -52,28 +52,26 @@ func downloadMsgFile(w http.ResponseWriter, r *http.Request) {
 //Recibe la peticion de publicidad por parte del player_interno(tienda)
 func downloadPubliFile(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	var existe string
 	nombre_fichero := r.FormValue("fichero")
 	timestamp := time.Now().Unix()
-	if r.FormValue("existencia") == "N" { //existencia del fichero publi, mandado por el player_interno
-		var cont int
-		//Comprobamos si el fichero está insertado en BD.
-		err := db.QueryRow("SELECT count(id) FROM publi WHERE fichero=?", nombre_fichero).Scan(&cont)
+	//Se comprueba que la existencia en la tienda se corresponde con la existencia en el server interno
+	db.QueryRow("SELECT existe FROM publi WHERE fichero=?", nombre_fichero).Scan(&existe)
+	if existe == "" {
+		//Lo insertamos con el existe en N
+		publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
 		if err != nil {
 			Error.Println(err)
 		}
-		//cont = 0 --> No ha sido insertado nunca
-		if cont == 0 {
-			//Lo insertamos con el existe en N
-			publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
-			if err != nil {
-				Error.Println(err)
-			}
-			db_mu.Lock()
-			_, err1 := publi.Exec(nombre_fichero, "N", timestamp)
-			db_mu.Unlock()
-			if err1 != nil {
-				Error.Println(err1)
-			}
+		db_mu.Lock()
+		_, err1 := publi.Exec(nombre_fichero, "N", timestamp)
+		db_mu.Unlock()
+		if err1 != nil {
+			Error.Println(err1)
+		}
+	} else {
+		if existe != r.FormValue("existencia") {
+			fmt.Fprint(w, "Descarga")
 		}
 	}
 }

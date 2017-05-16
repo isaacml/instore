@@ -48,7 +48,8 @@ func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go BuscarNuevosFicheros()
-
+	//servidor de ficheros
+	http.HandleFunc("/", root)
 	// handlers de la tienda
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
 	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
