@@ -351,8 +351,10 @@ func solicitudDeFicheros() {
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadMsgFile.cgi", "fichero;"+fichero, "existencia;"+exist))
-			fmt.Println(fichero, exist)
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadMsgFile.cgi", "fichero;"+fichero, "existencia;"+exist))
+			if respuesta == "Descarga" {
+				libs.DownloadFile(serverint["serverinterno"]+"/"+fichero, msg_files_location+fichero, 0, 1000)
+			}
 		}
 		time.Sleep(1 * time.Minute)
 	}

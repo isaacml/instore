@@ -43,8 +43,8 @@ func downloadMsgFile(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err1)
 		}
 	} else {
-		if existencia != r.FormValue("existencia") {
-			fmt.Println("Pasamos a la descarga")
+		if existe != r.FormValue("existencia") {
+			fmt.Fprint(w, "Descarga")
 		}
 	}
 }
