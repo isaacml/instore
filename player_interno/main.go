@@ -104,7 +104,7 @@ func saveListInBD() {
 			//Si la respuesta NO está vacía, comprobamos la respuesta.
 			if respuesta != "" {
 				//De la respuesta obtenemos el listado de mensajes y publicidad
-				separar_publi := strings.Split(respuesta, "[publi]")
+				separar_publi := strings.Split(respuesta, "[publi];")
 				//Hay ficheros de publicidad
 				if len(separar_publi) > 1 {
 					//Se comprueba si el listado contiene mensajes
@@ -157,7 +157,7 @@ func saveListInBD() {
 							}
 						}
 					}
-					separar_msg := strings.Split(separar_publi[1], "[mensaje]")
+					separar_msg := strings.Split(separar_publi[1], "[mensaje];")
 					//Hay ficheros de mensaje
 					if len(separar_msg) > 1 {
 						//Tomamos listados de mensajes, publicidad y los almacenamos
@@ -260,7 +260,7 @@ func saveListInBD() {
 					}
 				} else {
 					//No hay ficheros de publicidad, por tanto vamos a comprobar si hay mensajes
-					separar_mensaje := strings.Split(respuesta, "[mensaje]")
+					separar_mensaje := strings.Split(respuesta, "[mensaje];")
 					if len(separar_mensaje) > 1 {
 						//Hay mensajes, vamos a obtenerlos uno a uno
 						mensajes := strings.Split(separar_mensaje[1], ";")
