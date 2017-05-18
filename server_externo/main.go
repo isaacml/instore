@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	//"strings"
 	"sync"
 	"time"
 )
@@ -42,7 +43,7 @@ func init() {
 func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
-
+	go BorrarFicherosAntiguos()
 	// handlers del servidor
 	http.HandleFunc("/login.cgi", login)
 	http.HandleFunc("/", root)
@@ -109,4 +110,31 @@ func main() {
 	}
 
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
+}
+
+//Borrado de ficheros de publicidad y mensajes
+func BorrarFicherosAntiguos() {
+	for {
+		//fecha de ahora
+		yy, mm, dd := time.Now().Date()
+		fmt.Printf("%4d%2d%2d\n", yy, int(mm), dd)
+		//tiempo limite = 1 mes
+		limit_time := time.Now().Unix() - 300
+		//PUBLICIDAD
+		publi, errP := db.Query("SELECT fichero, fecha_final FROM publi WHERE timestamp < ?", limit_time)
+		if errP != nil {
+			Error.Println(errP)
+		}
+		for publi.Next() {
+			var fichero, f_final string
+			//Tomamos el nombre del fichero mensaje
+			err := publi.Scan(&fichero, &f_final)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Println(fichero, f_final)
+
+		}
+		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
+	}
 }

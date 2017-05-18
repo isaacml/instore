@@ -48,6 +48,7 @@ func main() {
 
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go BuscarNuevosFicheros()
+	go BorrarFicherosAntiguos()
 	//servidor de ficheros
 	http.HandleFunc("/", root)
 	// handlers de la tienda
@@ -140,6 +141,60 @@ func BuscarNuevosFicheros() {
 			}
 		}
 		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg)
+	}
+}
+
+//Borrado de ficheros de publicidad y mensajes
+func BorrarFicherosAntiguos() {
+	for {
+		//tiempo limite = 1 mes
+		limit_time := time.Now().Unix() - 2592000
+		//PUBLICIDAD
+		publi, errP := db.Query("SELECT fichero FROM publi WHERE timestamp < ?", limit_time)
+		if errP != nil {
+			Error.Println(errP)
+		}
+		for publi.Next() {
+			var fichero string
+			//Tomamos el nombre del fichero mensaje
+			err := publi.Scan(&fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Borramos el fichero desde la ruta interna
+			err = os.Remove(publi_files_location + fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+		}
+		//Borramos de la base de datos los ficheros de publicidad
+		db_mu.Lock()
+		db.Exec("DELETE FROM publi WHERE timestamp < ?", limit_time)
+		db_mu.Unlock()
+		//MENSAJES
+		msg, errM := db.Query("SELECT fichero FROM mensaje WHERE timestamp < ?", limit_time)
+		if errM != nil {
+			Error.Println(errM)
+		}
+		for msg.Next() {
+			var fichero string
+			//Tomamos el nombre del fichero mensaje
+			err := msg.Scan(&fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Borramos el fichero desde la ruta interna
+			err = os.Remove(msg_files_location + fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+		}
+		//Borramos de la base de datos los ficheros de mensajes
+		db_mu.Lock()
+		db.Exec("DELETE FROM mensaje WHERE timestamp < ?", limit_time)
+		db_mu.Unlock()
+
+		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
 	}
 }
 
