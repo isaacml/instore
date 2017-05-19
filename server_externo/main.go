@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	//"strings"
 	"sync"
 	"time"
 )
@@ -117,23 +116,54 @@ func BorrarFicherosAntiguos() {
 	for {
 		//fecha de ahora
 		yy, mm, dd := time.Now().Date()
-		fmt.Printf("%4d%2d%2d\n", yy, int(mm), dd)
+		now := fmt.Sprintf("%4d%02d%2d", yy, int(mm), dd)
 		//tiempo limite = 1 mes
-		limit_time := time.Now().Unix() - 300
+		limit_time := time.Now().Unix() - 2592000
 		//PUBLICIDAD
-		publi, errP := db.Query("SELECT fichero, fecha_final FROM publi WHERE timestamp < ?", limit_time)
+		publi, errP := db.Query("SELECT id, fichero FROM publi WHERE fecha_final < ? AND timestamp < ? ", now, limit_time)
 		if errP != nil {
 			Error.Println(errP)
 		}
 		for publi.Next() {
-			var fichero, f_final string
-			//Tomamos el nombre del fichero mensaje
-			err := publi.Scan(&fichero, &f_final)
+			var id int
+			var fichero string
+			//Tomamos el nombre del fichero publicidad
+			err := publi.Scan(&id, &fichero)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Println(fichero, f_final)
-
+			//Borramos id y fichero desde la ruta interna para el borrado
+			err = os.Remove(publi_files_location + fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Borramos de la base de datos los ficheros de publicidad
+			db_mu.Lock()
+			db.Exec("DELETE FROM publi WHERE id = ?", id)
+			db_mu.Unlock()
+		}
+		//MENSAJES
+		msg, errM := db.Query("SELECT id, fichero FROM mensaje WHERE fecha_final < ? AND timestamp < ? ", now, limit_time)
+		if errM != nil {
+			Error.Println(errM)
+		}
+		for msg.Next() {
+			var id int
+			var fichero string
+			//Tomamos id y nombre del fichero mensaje para el borrado
+			err := msg.Scan(&id, &fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Borramos el fichero desde la ruta interna
+			err = os.Remove(msg_files_location + fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Borramos de la base de datos los ficheros de mensajes
+			db_mu.Lock()
+			db.Exec("DELETE FROM mensaje WHERE id = ?", id)
+			db_mu.Unlock()
 		}
 		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
 	}
