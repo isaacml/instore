@@ -117,8 +117,8 @@ func BorrarFicherosAntiguos() {
 		//fecha de ahora
 		yy, mm, dd := time.Now().Date()
 		now := fmt.Sprintf("%4d%02d%2d", yy, int(mm), dd)
-		//tiempo limite = 1 mes
-		limit_time := time.Now().Unix() - 2592000
+		//tiempo limite = 1 mes 2592000
+		limit_time := time.Now().Unix() - 86400
 		//PUBLICIDAD
 		publi, errP := db.Query("SELECT id, fichero FROM publi WHERE fecha_final < ? AND timestamp < ? ", now, limit_time)
 		if errP != nil {

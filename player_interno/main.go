@@ -68,6 +68,7 @@ func main() {
 	http.HandleFunc("/bitmaps.cgi", bitmaps)
 	//Exploradores
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
+	http.HandleFunc("/reproduccion.cgi", reproduccion)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
