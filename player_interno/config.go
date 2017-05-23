@@ -21,4 +21,5 @@ const (
 	configShop           = "configshop.reg"                     // fichero que el dominio de la tienda: entidad.almacen.pais.region.provincia.tienda
 	publi_files_location = "C:\\instore\\PubliShop\\"           // ruta donde se van a alojar la publicidad de la tienda
 	msg_files_location   = "C:\\instore\\MessagesShop\\"        // ruta donde se van a alojar los mensajes de la tienda
+	music_files          = "C:\\instore\\Music\\"               // ruta donde se van a alojar la música de la tienda
 )

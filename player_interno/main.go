@@ -55,6 +55,7 @@ func main() {
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go saveListInBD()
 	go solicitudDeFicheros()
+	go reproduccion()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
@@ -68,7 +69,6 @@ func main() {
 	http.HandleFunc("/bitmaps.cgi", bitmaps)
 	//Exploradores
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
-	http.HandleFunc("/reproduccion.cgi", reproduccion)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
