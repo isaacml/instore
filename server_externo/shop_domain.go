@@ -16,17 +16,18 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 
 	output += "[publi]"
 	for _, val := range arr_domain {
-		publicidad, err := db.Query("SELECT fichero FROM publi WHERE destino = ? AND fecha_inicio = ?", val, string_fecha)
+		publicidad, err := db.Query("SELECT fichero, gap FROM publi WHERE destino = ? AND fecha_inicio = ?", val, string_fecha)
 		if err != nil {
 			Error.Println(err)
 		}
 		for publicidad.Next() {
 			var f_publi string
-			err = publicidad.Scan(&f_publi)
+			var gap int
+			err = publicidad.Scan(&f_publi, &gap)
 			if err != nil {
 				Error.Println(err)
 			}
-			output += ";" + f_publi
+			output += ";" + f_publi + "<=>" + f_publi
 		}
 	}
 	output += "[mensaje]"

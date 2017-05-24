@@ -63,8 +63,13 @@ func reproduccion() {
 	fmt.Println(shuffle2)
 	//creamos la playlist mezclando audio + pub con el gap correspondiente
 	//a, p, i := 0, 0, 0
-	for _, _ = range shuffle {
-		//fmt.Println(audio[v])
+
+	for k, v := range shuffle {
+		fmt.Println(k, audio[v])
+		if k == 3 {
+			fmt.Println("meto publicidad")
+		}
+		fmt.Println(i % len(pub))
 		//fmt.Println(pub[i%len(pub)])
 	}
 	for _, _ = range shuffle2 {
