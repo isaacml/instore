@@ -109,17 +109,21 @@ func saveListInBD() {
 				//Hay ficheros de publicidad
 				if len(separar_publi) > 1 {
 					//Se comprueba si el listado contiene mensajes
-					tiene_msg := strings.Contains(separar_publi[1], "[mensaje]")
+					tiene_msg := strings.Contains(separar_publi[1], "[mensaje];")
 					if tiene_msg != true {
 						//SOLO ARCHIVOS DE PUBLICIDAD
+						var publi string
 						arch_publi := strings.Split(separar_publi[1], ";")
-						for _, publi := range arch_publi {
+						for _, publi = range arch_publi {
 							var cont int
+							if strings.Contains(publi, "[mensaje]") {
+								publi = strings.TrimRight(publi, "[mensaje]")
+							}
 							separar := strings.Split(publi, "<=>")
 							f_pub := separar[0]
 							gap := separar[1]
 							//Comprobamos si existen los ficheros de publi en la BD interna
-							publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", publi)
+							publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
 							if errS != nil {
 								Error.Println(errS)
 							}
@@ -130,7 +134,7 @@ func saveListInBD() {
 							//Contador = 0 --> La BD interna no tiene el fichero publi
 							if cont == 0 {
 								//Se comprueba si el player_interno tiene el fichero publi.
-								_, err := os.Stat(publi_files_location + publi)
+								_, err := os.Stat(publi_files_location + f_pub)
 								if err != nil {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
@@ -174,7 +178,7 @@ func saveListInBD() {
 							f_pub := separar[0]
 							gap := separar[1]
 							//Comprobamos si existen los ficheros de publi en la BD interna
-							publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", publi)
+							publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
 							if errS != nil {
 								Error.Println(errS)
 							}
@@ -185,7 +189,7 @@ func saveListInBD() {
 							//Contador = 0 --> La BD interna no tiene el fichero publi
 							if cont == 0 {
 								//Se comprueba si el player_interno tiene el fichero publi.
-								_, err := os.Stat(publi_files_location + publi)
+								_, err := os.Stat(publi_files_location + f_pub)
 								if err != nil {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
@@ -344,7 +348,7 @@ func solicitudDeFicheros() {
 			if err != nil {
 				Error.Println(err)
 			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "fichero;"+fichero, "existencia;"+exist, "gap"+gap))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "fichero;"+fichero, "existencia;"+exist, "gap;"+gap))
 			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 			if respuesta == "Descarga" {
 				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)

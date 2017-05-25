@@ -21,13 +21,12 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		for publicidad.Next() {
-			var f_publi string
-			var gap int
+			var f_publi, gap string
 			err = publicidad.Scan(&f_publi, &gap)
 			if err != nil {
 				Error.Println(err)
 			}
-			output += ";" + f_publi + "<=>" + f_publi
+			output += ";" + f_publi + "<=>" + gap
 		}
 	}
 	output += "[mensaje]"
