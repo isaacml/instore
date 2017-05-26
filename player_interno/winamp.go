@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"math/rand"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -13,6 +14,9 @@ import (
 func reproduccion() {
 	audio := make(map[int]string)
 	pub := make(map[int]string)
+	//Sacamos la fecha actual
+	y, m, d := time.Now().Date()
+	fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
 	i := 0
 	/*
 		var win winamp.Winamp
@@ -63,18 +67,52 @@ func reproduccion() {
 	fmt.Println(shuffle2)
 	//creamos la playlist mezclando audio + pub con el gap correspondiente
 	//a, p, i := 0, 0, 0
-
-	for k, v := range shuffle {
-		fmt.Println(k, audio[v])
-		if k == 3 {
-			fmt.Println("meto publicidad")
+	publi, errP := db.Query("SELECT fichero, gap FROM publi WHERE fichero LIKE ?", fecha+"%")
+	if errP != nil {
+		Error.Println(errP)
+	}
+	for publi.Next() {
+		var fichero, gap string
+		var gap_int int
+		//Tomamos el nombre del fichero mensaje
+		err := publi.Scan(&fichero, &gap)
+		if err != nil {
+			Error.Println(err)
 		}
-		fmt.Println(i % len(pub))
-		//fmt.Println(pub[i%len(pub)])
-	}
-	for _, _ = range shuffle2 {
-		//fmt.Println(pub[v])
-		//fmt.Println(pub[i%len(pub)])
-	}
+		gap_int, err = strconv.Atoi(gap)
+		if err != nil {
+			Error.Println(err)
+		}
+		for k, v := range shuffle {
+			fmt.Println(k, audio[v])
+			if gap_int-1 == k {
+				fmt.Println("meto publicidad")
+			}
+		}
+	} /*
+		for _, v := range shuffle {
 
+			fmt.Println(a, audio[v])
+			if a == gap_int {
+				fmt.Println("meto publicidad")
+			}
+			//fmt.Println(i % len(pub))
+			//fmt.Println(pub[i%len(pub)])
+			a++
+		}
+	*/
+	/*
+		for k, v := range shuffle {
+			fmt.Println(k, audio[v])
+			if k == 3 {
+				fmt.Println("meto publicidad")
+			}
+			fmt.Println(i % len(pub))
+			//fmt.Println(pub[i%len(pub)])
+		}
+		for _, _ = range shuffle2 {
+			//fmt.Println(pub[v])
+			//fmt.Println(pub[i%len(pub)])
+		}
+	*/
 }
