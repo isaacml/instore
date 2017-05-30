@@ -1,22 +1,99 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	//"github.com/isaacml/instore/winamp"
-	"github.com/isaacml/instore/playlist"
-	//"strconv"
-	//"time"
+	"math/rand"
+	"os/exec"
+	"strings"
+	//"sync"
+	"time"
 )
 
 func reproduccion() {
-	var list playlist.PlayList
-	//var err error
-	//var gap_int int
+	i := 0
+	music := make(map[int]string)
+	publi := make(map[int]string)
 	//Sacamos la fecha actual
-	//y, m, d := time.Now().Date()
-	//fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
-	fmt.Println(list.MusicMap())
-	fmt.Println(list.PubliMap())
+	y, m, d := time.Now().Date()
+	fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+	cmd := exec.Command("cmd", "/c", "dir /s /b "+music_files+"*.mp3 & dir /s /b "+music_files+"*.xxx")
+	// comienza la ejecucion del pipe
+	stdoutRead, _ := cmd.StdoutPipe()
+	reader := bufio.NewReader(stdoutRead)
+	cmd.Start()
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+		//fmt.Printf("%s", line)
+		music[i] = strings.TrimRight(line, "\n")
+		i++
+	}
+	cmd.Wait()
+	rand.Seed(time.Now().UnixNano())
+	shuffle := rand.Perm(len(music))
+	fmt.Println(shuffle) /*
+		i = 0
+		cmd = exec.Command("cmd", "/c", "dir /s /b "+publi_files_location+"*.mp3")
+		// comienza la ejecucion del pipe
+		stdoutRead, _ = cmd.StdoutPipe()
+		reader = bufio.NewReader(stdoutRead)
+		cmd.Start()
+		for {
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				break
+			}
+			//fmt.Printf("%s", line)
+			publi[i] = strings.TrimRight(line, "\n")
+			i++
+		}
+		cmd.Wait()
+		rand.Perm(len(publi))
+	*/
+
+	var gap int
+	publicidad, errP := db.Query("SELECT fichero, gap FROM publi WHERE fichero LIKE ?", fecha+"%")
+	if errP != nil {
+		Error.Println(errP)
+		gap = 0
+	}
+	for publicidad.Next() {
+		var fichero string
+		//Tomamos el nombre del fichero mensaje
+		err := publicidad.Scan(&fichero, &gap)
+		if err != nil {
+			Error.Println(err)
+		}
+		publi[i] = fichero
+		i++
+	}
+	shuffle2 := rand.Perm(len(publi))
+	fmt.Println(shuffle2)
+	for _, v2 := range shuffle2 {
+		for k, v := range shuffle {
+
+			fmt.Println(music[v])
+			if gap-1 == k {
+				fmt.Println(publi[v2])
+			}
+		}
+	}
+	/*
+		for k, v := range shuffle {
+			fmt.Println(k, music[v])
+			if k == gap-1 {
+				for _, v := range shuffle2 {
+					fmt.Println(publi[v])
+				}
+				gap = gap + 4
+			}
+			//fmt.Println(i % len(pub))
+			//fmt.Println(pub[i%len(pub)])
+		}
+	*/
 	//creamos la playlist mezclando audio + pub con el gap correspondiente
 	//a, p, i := 0, 0, 0
 	/*
@@ -35,24 +112,7 @@ func reproduccion() {
 				Error.Println(err)
 			}
 		}
-		publi, errP := db.Query("SELECT fichero FROM publi WHERE fichero LIKE ?", fecha+"%")
-		if errP != nil {
-			Error.Println(errP)
-		}
-		for k, v := range list.PubliMap() {
-			fmt.Println(k, audio[v])
-			if gap_int-1 == k {
-				fmt.Println("meto publicidad")
-			}
-		}
-		for publi.Next() {
-			var fichero string
-			//Tomamos el nombre del fichero mensaje
-			err := publi.Scan(&fichero)
-			if err != nil {
-				Error.Println(err)
-			}
-		}
+
 	*/
 	/*
 		for _, v := range shuffle {
