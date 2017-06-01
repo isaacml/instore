@@ -66,7 +66,7 @@ func (w *Winamp) Status() *Status {
 //Función que arranca Winamp, si no está arrancado y establece el volumen a 250
 func (w *Winamp) RunWinamp() {
 	if w.run == false {
-		exec.Command("cmd", "/c", "/Program Files/Winamp/winamp.exe").Start()
+		exec.Command("cmd", "/c", "/instore/Winamp/winamp.exe").Start()
 		w.mu.Lock()
 		w.volume = volMax
 		w.run = true
@@ -87,12 +87,12 @@ func (w *Winamp) WinampClose() {
 func (w *Winamp) Load(file string) error {
 	var err error
 	if w.run == true {
-		load := fmt.Sprintf("/instore/clever loadnew %s", file)
+		load := fmt.Sprintf("/instore/clever.exe loadnew %s", file)
 		err = exec.Command("cmd", "/c", load).Run()
 		if err != nil {
 			err = fmt.Errorf("load: CANNOT_LOAD_PLAYLIST")
 		}
-		vol := fmt.Sprintf("/instore/clever volume %d", w.volume)
+		vol := fmt.Sprintf("/instore/clever.exe volume %d", w.volume)
 		exec.Command("cmd", "/c", vol).Run()
 	} else {
 		err = fmt.Errorf("winamp: WINAMP_IS_NOT_RUNNING")
@@ -105,7 +105,7 @@ func (w *Winamp) Play() {
 	w.pause = false
 	w.stop = false
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "/instore/clever play").Run()
+	exec.Command("cmd", "/c", "/instore/clever.exe play").Run()
 }
 func (w *Winamp) Stop() {
 	w.mu.Lock()
@@ -205,12 +205,12 @@ func (w *Winamp) SongLenght() int {
 func (w *Winamp) PlayFFplay(publi string) {
 	w.ffplay = true
 	//Bajo el volumen del reproductor Winamp a 0
-	exec.Command("cmd", "/c", "/instore/clever volume 0").Run()
+	exec.Command("cmd", "/c", "/instore/clever.exe volume 0").Run()
 	//Reproduzco la publicidad del ffplay
 	play := fmt.Sprintf("/instore/ffplay -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
 	w.ffplay = false
 	//Vuelvo a subir el volumen a como estaba
-	inc := fmt.Sprintf("/instore/clever volume %d", w.volume)
+	inc := fmt.Sprintf("/instore/clever.exe volume %d", w.volume)
 	exec.Command("cmd", "/c", inc).Run()
 }

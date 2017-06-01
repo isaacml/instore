@@ -8,11 +8,11 @@ import (
 )
 
 func main() {
-	cifrado("/home/isaac/Música/Alejandro.mp3", "/home/isaac/Música/Alejandro.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
-	cifrado("/home/isaac/Música/Tentandome.mp3", "/home/isaac/Música/Tentandome.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
-	cifrado("/home/isaac/Música/La Nina.mp3", "/home/isaac/Música/La Nina.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
-	cifrado("/home/isaac/Música/Mysterious.mp3", "/home/isaac/Música/Mysterious.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
-	cifrado("/home/isaac/Música/J Alvarez.mp3", "/home/isaac/Música/J Alvarez.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	cifrado("/home/isaac/Música/JR/Alejandro.xxx", "/home/isaac/Música/JR/Alejandro.mp3", []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	//cifrado("/home/isaac/Música/Tentandome.mp3", "/home/isaac/Música/Tentandome.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	//cifrado("/home/isaac/Música/La Nina.mp3", "/home/isaac/Música/La Nina.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	//cifrado("/home/isaac/Música/Mysterious.mp3", "/home/isaac/Música/Mysterious.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	//cifrado("/home/isaac/Música/J Alvarez.mp3", "/home/isaac/Música/J Alvarez.xxx", []byte{11, 22, 33, 44, 55, 66, 77, 88})
 }
 
 func cifrado(origen, destino string, key []byte) error {

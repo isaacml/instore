@@ -8,6 +8,8 @@ import (
 	"strings"
 	//"sync"
 	"github.com/isaacml/instore/winamp"
+	"io/ioutil"
+	"os"
 	"time"
 )
 
@@ -28,13 +30,14 @@ func reproduccion() {
 			break
 		}
 		//fmt.Printf("%s", line)
-		music[i] = strings.TrimRight(line, "\n")
+		music[i] = "\"" + strings.TrimRight(line, "\r\n") + "\n"
 		i++
 	}
 	cmd.Wait()
 	rand.Seed(time.Now().UnixNano())
 	shuffle := rand.Perm(len(music))
 	fmt.Println(shuffle)
+
 	var gap int
 	publicidad, errP := db.Query("SELECT fichero, gap FROM publi WHERE fichero LIKE ?", fecha+"%")
 	if errP != nil {
@@ -49,18 +52,38 @@ func reproduccion() {
 			Error.Println(err)
 		}
 	}
+	var win winamp.Winamp
+	win.RunWinamp()
 	a := 1
 	for _, v := range shuffle {
-		var win winamp.Winamp
-		win.RunWinamp()
-		win.Load(music[v])
-		win.Play()
-		time.Sleep(15 * time.Second)
-		//fmt.Println(win.SongLenght())
-		//fmt.Println(win.SongPlay())
-		if a == gap {
-			fmt.Println("Meto publicidad")
-			a = 0
+
+		fmt.Println(music[v])
+		// .xxx = musica cifrada; Hay que descifrarla
+		if strings.Contains(music[v], ".xxx") {
+			del_ext := strings.Split(music[v], ".xxx")
+			descifrada := del_ext[0] + ".mp3"
+			fmt.Printf("%s---%s\n", music[v], descifrada)
+			/*
+				err := cifrado(music[v], descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+
+				if err != nil {
+					Error.Println(err)
+				} else {
+					win.Load(descifrada)
+					win.Play()
+					time.Sleep(10 * time.Second)
+				}
+			*/
+		} else {
+			win.Load(music[v])
+			win.Play()
+			time.Sleep(50 * time.Second)
+			//fmt.Println(win.SongLenght())
+			//fmt.Println(win.SongPlay())
+			if a == gap {
+				fmt.Println("Meto publicidad")
+				a = 0
+			}
 		}
 		a++
 	}
@@ -159,4 +182,32 @@ func reproduccion() {
 		}
 	*/
 
+}
+
+func cifrado(origen, destino string, key []byte) error {
+	var fail error
+	p := make([]byte, 8) //Va a contener el archivo origen en bloques de 8 bytes
+	var container []byte //Va almacenar los datos del fichero de destino
+
+	file, err := os.OpenFile(origen, os.O_RDONLY, 0666)
+	if err != nil {
+		fail = fmt.Errorf("Error en la apertura")
+	}
+	lector := bufio.NewReader(file)
+	for {
+		num, err := lector.Read(p)
+		if err != nil {
+			fail = fmt.Errorf("Fin de lectura")
+			break
+		}
+		if num <= 0 {
+			break
+		} else {
+			for i := 0; i < num; i++ {
+				container = append(container, p[i]^key[i])
+			}
+		}
+	}
+	ioutil.WriteFile(destino, container, 0666)
+	return fail
 }
