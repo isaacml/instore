@@ -30,7 +30,7 @@ func reproduccion() {
 			break
 		}
 		//fmt.Printf("%s", line)
-		music[i] = "\"" + strings.TrimRight(line, "\r\n") + "\n"
+		music[i] = "\"" + strings.TrimRight(line, "\r\n") + "\""
 		i++
 	}
 	cmd.Wait()
