@@ -2,12 +2,12 @@ package winamp
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"os"
 )
 
 var (
@@ -94,7 +94,8 @@ func (w *Winamp) Load(file string) error {
 			err = fmt.Errorf("bat: CANNOT CREATE BAT FILE")
 		}
 		defer bat.Close()
-		gen_fich += `@echo off`+"\r\nC:\\instore\\Winamp\\CLEvER.exe loadnew "+file
+		fmt.Println(file)
+		gen_fich = `@echo off` + "\r\n C:\\instore\\Winamp\\CLEvER.exe loadnew " + file
 		bat.WriteString(gen_fich)
 		err = exec.Command("cmd", "/c", "song.bat").Run()
 		if err != nil {
@@ -202,11 +203,9 @@ func (w *Winamp) SongLenght() int {
 	//formato de SongLenght -> 05:02
 	song := strings.Split(fmt.Sprintf("%s", string(lector)), ":")
 	//hago un split para sacar los minutos y los segundos
-	
 	min, _ = strconv.Atoi(song[0])
 	sec, _ = strconv.Atoi(song[1])
-	salida := fmt.Sprintf("%d<-->%d\n", min, sec)
-	fmt.Println(salida)
+	fmt.Println(min, sec)
 	totalsec := (min * 60) + sec
 
 	return totalsec
