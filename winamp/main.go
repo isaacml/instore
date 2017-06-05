@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"os"
 )
 
 var (
@@ -66,7 +67,7 @@ func (w *Winamp) Status() *Status {
 //Función que arranca Winamp, si no está arrancado y establece el volumen a 250
 func (w *Winamp) RunWinamp() {
 	if w.run == false {
-		exec.Command("cmd", "/c", "%WINAMP%").Start()
+		exec.Command("cmd", "/c", "%winamp%").Start()
 		w.mu.Lock()
 		w.volume = volMax
 		w.run = true
@@ -87,9 +88,15 @@ func (w *Winamp) WinampClose() {
 func (w *Winamp) Load(file string) error {
 	var err error
 	if w.run == true {
-		fmt.Println(file)
-		load := fmt.Sprintf("loadnew %s", file)
-		err = exec.Command("cmd", "/k", "%CLEVER%", load).Run()
+		var gen_fich string
+		bat, err := os.OpenFile("song.bat", os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			err = fmt.Errorf("bat: CANNOT CREATE BAT FILE")
+		}
+		defer bat.Close()
+		gen_fich += `@echo off`+"\r\nC:\\instore\\Winamp\\CLEvER.exe loadnew "+file
+		bat.WriteString(gen_fich)
+		err = exec.Command("cmd", "/c", "song.bat").Run()
 		if err != nil {
 			err = fmt.Errorf("load: CANNOT_LOAD_PLAYLIST")
 		}
@@ -106,7 +113,7 @@ func (w *Winamp) Play() {
 	w.pause = false
 	w.stop = false
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "/instore/clever.exe play").Run()
+	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe play").Run()
 }
 func (w *Winamp) Stop() {
 	w.mu.Lock()
@@ -114,7 +121,7 @@ func (w *Winamp) Stop() {
 	w.pause = false
 	w.stop = true
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "/instore/clever.exe stop").Run()
+	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe stop").Run()
 }
 func (w *Winamp) Pause() {
 	w.mu.Lock()
@@ -128,7 +135,7 @@ func (w *Winamp) Pause() {
 //Muestra el tiempo de reproducción (en seg) de la canción
 func (w *Winamp) SongPlay() int {
 	var min, sec int
-	lector, _ := exec.Command("cmd", "/c", "/instore/clever.exe position").CombinedOutput()
+	lector, _ := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe position").CombinedOutput()
 	//formato de timeplay -> 02:12
 	timeplay := strings.Split(fmt.Sprintf("%s", string(lector)), ":")
 	//hago un split para sacar los minutos y los segundos
@@ -142,7 +149,7 @@ func (w *Winamp) SongPlay() int {
 //Muestra el tiempo(en seg) que queda para acabar la cancion
 func (w *Winamp) SongEnd() int {
 	var min, sec int
-	lector, _ := exec.Command("cmd", "/c", "/instore/clever.exe timeleft").CombinedOutput()
+	lector, _ := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe timeleft").CombinedOutput()
 	//formato de timend -> 05:02
 	timend := strings.Split(fmt.Sprintf("%s", string(lector)), ":")
 	//hago un split para sacar los minutos y los segundos
@@ -155,7 +162,7 @@ func (w *Winamp) SongEnd() int {
 func (w *Winamp) VolumeUp() {
 	var cont int
 	for i := 1; i <= volMax; i += 25 {
-		exec.Command("cmd", "/c", "/instore/clever.exe volup").Run()
+		exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe volup").Run()
 		cont++
 	}
 	if w.volume >= volMax {
@@ -173,7 +180,7 @@ func (w *Winamp) VolumeUp() {
 func (w *Winamp) VolumeDown() {
 	var cont int
 	for i := 1; i <= volMax; i += 25 {
-		exec.Command("cmd", "/c", "/instore/clever.exe voldn").Run()
+		exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe voldn").Run()
 		cont++
 	}
 	if w.volume < 10 {
@@ -191,12 +198,15 @@ func (w *Winamp) VolumeDown() {
 
 func (w *Winamp) SongLenght() int {
 	var min, sec int
-	lector, _ := exec.Command("cmd", "/c", "/instore/clever.exe songlength").CombinedOutput()
+	lector, _ := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe songlength").CombinedOutput()
 	//formato de SongLenght -> 05:02
 	song := strings.Split(fmt.Sprintf("%s", string(lector)), ":")
 	//hago un split para sacar los minutos y los segundos
+	
 	min, _ = strconv.Atoi(song[0])
 	sec, _ = strconv.Atoi(song[1])
+	salida := fmt.Sprintf("%d<-->%d\n", min, sec)
+	fmt.Println(salida)
 	totalsec := (min * 60) + sec
 
 	return totalsec
@@ -206,12 +216,12 @@ func (w *Winamp) SongLenght() int {
 func (w *Winamp) PlayFFplay(publi string) {
 	w.ffplay = true
 	//Bajo el volumen del reproductor Winamp a 0
-	exec.Command("cmd", "/c", "/instore/clever.exe volume 0").Run()
+	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe volume 0").Run()
 	//Reproduzco la publicidad del ffplay
-	play := fmt.Sprintf("/instore/ffplay -nodisp %s -autoexit", publi)
+	play := fmt.Sprintf("C:\\instore\\ffplay -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
 	w.ffplay = false
 	//Vuelvo a subir el volumen a como estaba
-	inc := fmt.Sprintf("/instore/clever.exe volume %d", w.volume)
+	inc := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", w.volume)
 	exec.Command("cmd", "/c", inc).Run()
 }

@@ -30,7 +30,7 @@ func reproduccion() {
 			break
 		}
 		//fmt.Printf("%s", line)
-		music[i] = "\"" + strings.TrimRight(line, "\r\n") + "\""
+		music[i] = strings.TrimRight(line, "\r\n")
 		i++
 	}
 	cmd.Wait()
@@ -62,24 +62,20 @@ func reproduccion() {
 		if strings.Contains(music[v], ".xxx") {
 			del_ext := strings.Split(music[v], ".xxx")
 			descifrada := del_ext[0] + ".mp3"
-			fmt.Printf("%s---%s\n", music[v], descifrada)
-			/*
 				err := cifrado(music[v], descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-
 				if err != nil {
 					Error.Println(err)
 				} else {
-					win.Load(descifrada)
+					win.Load("\"" + descifrada + "\"")
 					win.Play()
-					time.Sleep(10 * time.Second)
+					fmt.Println(win.SongLenght())
+					time.Sleep(50 * time.Second)
 				}
-			*/
 		} else {
-			win.Load(music[v])
+			win.Load("\"" + music[v] + "\"")
 			win.Play()
+			fmt.Println(win.SongLenght())
 			time.Sleep(50 * time.Second)
-			//fmt.Println(win.SongLenght())
-			//fmt.Println(win.SongPlay())
 			if a == gap {
 				fmt.Println("Meto publicidad")
 				a = 0
