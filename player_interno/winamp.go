@@ -55,25 +55,27 @@ func reproduccion() {
 	var win winamp.Winamp
 	win.RunWinamp()
 	a := 1
+	var song string
 	for _, v := range shuffle {
-
-		fmt.Println(music[v])
+		song = music[v]
 		// .xxx = musica cifrada; Hay que descifrarla
-		if strings.Contains(music[v], ".xxx") {
-			del_ext := strings.Split(music[v], ".xxx")
+		if strings.Contains(song, ".xxx") {
+			del_ext := strings.Split(song, ".xxx")
 			descifrada := del_ext[0] + ".mp3"
-			err := cifrado(music[v], descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+			//Proceso de descifrado de la cancion
+			err := cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+			time.Sleep(2 * time.Second)
 			if err != nil {
 				Error.Println(err)
 			} else {
 				win.Load("\"" + descifrada + "\"")
 				win.Play()
-				fmt.Println(win.SongLenght())
+				fmt.Println(win.SongLenght(descifrada))
 			}
 		} else {
-			win.Load("\"" + music[v] + "\"")
+			win.Load("\"" + song + "\"")
 			win.Play()
-			fmt.Println(win.SongLenght())
+			fmt.Println(win.SongLenght(song))
 
 			if a == gap {
 				fmt.Println("Meto publicidad")
@@ -184,7 +186,6 @@ func cifrado(origen, destino string, key []byte) error {
 	var fail error
 	p := make([]byte, 8) //Va a contener el archivo origen en bloques de 8 bytes
 	var container []byte //Va almacenar los datos del fichero de destino
-
 	file, err := os.OpenFile(origen, os.O_RDONLY, 0666)
 	if err != nil {
 		fail = fmt.Errorf("Error en la apertura")

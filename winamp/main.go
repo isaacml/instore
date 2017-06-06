@@ -89,13 +89,12 @@ func (w *Winamp) Load(file string) error {
 	var err error
 	if w.run == true {
 		var gen_fich string
-		bat, err := os.OpenFile("song.bat", os.O_WRONLY|os.O_CREATE, 0666)
+		bat, err := os.Create("song.bat")
 		if err != nil {
 			err = fmt.Errorf("bat: CANNOT CREATE BAT FILE")
 		}
 		defer bat.Close()
-		fmt.Println(file)
-		gen_fich = `@echo off` + "\r\n C:\\instore\\Winamp\\CLEvER.exe loadnew " + file
+		gen_fich = "@echo off\r\nC:\\instore\\Winamp\\CLEvER.exe clear\r\nC:\\instore\\Winamp\\CLEvER.exe loadnew " + file
 		bat.WriteString(gen_fich)
 		err = exec.Command("cmd", "/c", "song.bat").Run()
 		if err != nil {
@@ -197,18 +196,28 @@ func (w *Winamp) VolumeDown() {
 	fmt.Println(w.volume)
 }
 
-func (w *Winamp) SongLenght() int {
-	var min, sec int
-	lector, _ := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe songlength").CombinedOutput()
-	//formato de SongLenght -> 05:02
-	song := strings.Split(fmt.Sprintf("%s", string(lector)), ":")
-	//hago un split para sacar los minutos y los segundos
-	min, _ = strconv.Atoi(song[0])
-	sec, _ = strconv.Atoi(song[1])
-	fmt.Println(min, sec)
-	totalsec := (min * 60) + sec
-
-	return totalsec
+func (w *Winamp) SongLenght(file string) int {
+	var total_sec int
+	var song_lenght_bat *os.File
+	var err error
+	var gen_bat string
+	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
+	song_lenght_bat, err = os.Create("song_lenght.bat")
+	if err != nil {
+		err = fmt.Errorf("lenght_bat: CANNOT CREATE BAT FILE")
+	}
+	defer song_lenght_bat.Close()
+	gen_bat = "@echo off\r\nC:\\instore\\ffprobe.exe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"" + file + "\""
+	song_lenght_bat.WriteString(gen_bat)
+	//Una vez creado el fichero, lo ejecutamos y tomamos su salida
+	seg, _ := exec.Command("cmd", "/c", "song_lenght.bat").CombinedOutput()
+	//formato de SongLenght -> 201.91234 seg
+	song := strings.Split(fmt.Sprintf("%s", string(seg)), ".")
+	total_sec, err = strconv.Atoi(song[0])
+	if err != nil {
+		err = fmt.Errorf("conv: CANNOT_CONVERSION")
+	}
+	return total_sec
 }
 
 // Metodo que introduce la publicidad por ffplay
