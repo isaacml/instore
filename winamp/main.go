@@ -94,7 +94,7 @@ func (w *Winamp) Load(file string) error {
 			err = fmt.Errorf("bat: CANNOT CREATE BAT FILE")
 		}
 		defer bat.Close()
-		gen_fich = "@echo off\r\nC:\\instore\\Winamp\\CLEvER.exe clear\r\nC:\\instore\\Winamp\\CLEvER.exe loadnew " + file
+		gen_fich = "@echo off\r\nC:\\instore\\Winamp\\CLEvER.exe loadnew " + file
 		bat.WriteString(gen_fich)
 		err = exec.Command("cmd", "/c", "song.bat").Run()
 		if err != nil {

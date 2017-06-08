@@ -57,32 +57,32 @@ func reproduccion() {
 	a := 1
 	var song string
 	for _, v := range shuffle {
+		var song_duration int
 		song = music[v]
 		// .xxx = musica cifrada; Hay que descifrarla
 		if strings.Contains(song, ".xxx") {
 			del_ext := strings.Split(song, ".xxx")
 			descifrada := del_ext[0] + ".mp3"
+			fmt.Println("parte1: " + descifrada, song)
 			//Proceso de descifrado de la cancion
-			err := cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-			time.Sleep(2 * time.Second)
-			if err != nil {
-				Error.Println(err)
-			} else {
-				win.Load("\"" + descifrada + "\"")
-				win.Play()
-				fmt.Println(win.SongLenght(descifrada))
-			}
+			cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+			time.Sleep(3 * time.Second)
+			win.Load("\"" + descifrada + "\"")
+			win.Play()
+			song_duration = win.SongLenght(descifrada)
 		} else {
+			fmt.Println("parte0: ", song)
 			win.Load("\"" + song + "\"")
 			win.Play()
-			fmt.Println(win.SongLenght(song))
+			song_duration = win.SongLenght(song)
 
 			if a == gap {
 				fmt.Println("Meto publicidad")
 				a = 0
 			}
 		}
-		time.Sleep(50 * time.Second)
+		fmt.Println(time.Duration(song_duration))
+		time.Sleep(time.Duration(song_duration) * time.Second)
 		a++
 	}
 	/*
