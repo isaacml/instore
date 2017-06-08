@@ -46,3 +46,18 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, output)
 }
+
+func get_fechas(w http.ResponseWriter, r *http.Request) {
+	publicidad, err := db.Query("SELECT fecha_inicio, fecha_fin FROM publi")
+	if err != nil {
+		Error.Println(err)
+	}
+	for publicidad.Next() {
+		var fini, fend int
+		err = publicidad.Scan(&fini, &fend)
+		if err != nil {
+			Error.Println(err)
+		}
+		fmt.Println(fini, fend)
+	}
+}

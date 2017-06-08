@@ -14,98 +14,34 @@ import (
 )
 
 func reproduccion() {
-	i := 0
-	music := make(map[int]string)
-	//Sacamos la fecha actual
-	y, m, d := time.Now().Date()
-	fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
-	cmd := exec.Command("cmd", "/c", "dir /s /b "+music_files+"*.mp3 & dir /s /b "+music_files+"*.xxx")
-	// comienza la ejecucion del pipe
-	stdoutRead, _ := cmd.StdoutPipe()
-	reader := bufio.NewReader(stdoutRead)
-	cmd.Start()
 	for {
-		line, err := reader.ReadString('\n')
-		if err != nil {
-			break
-		}
-		//fmt.Printf("%s", line)
-		music[i] = strings.TrimRight(line, "\r\n")
-		i++
-	}
-	cmd.Wait()
-	rand.Seed(time.Now().UnixNano())
-	shuffle := rand.Perm(len(music))
-	fmt.Println(shuffle)
-
-	var gap int
-	publicidad, errP := db.Query("SELECT fichero, gap FROM publi WHERE fichero LIKE ?", fecha+"%")
-	if errP != nil {
-		Error.Println(errP)
-		gap = 0
-	}
-	for publicidad.Next() {
-		var fichero string
-		//Tomamos el nombre del fichero mensaje
-		err := publicidad.Scan(&fichero, &gap)
-		if err != nil {
-			Error.Println(err)
-		}
-	}
-	var win winamp.Winamp
-	win.RunWinamp()
-	a := 1
-	var song string
-	for _, v := range shuffle {
-		var song_duration int
-		song = music[v]
-		// .xxx = musica cifrada; Hay que descifrarla
-		if strings.Contains(song, ".xxx") {
-			del_ext := strings.Split(song, ".xxx")
-			descifrada := del_ext[0] + ".mp3"
-			fmt.Println("parte1: " + descifrada, song)
-			//Proceso de descifrado de la cancion
-			cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-			time.Sleep(3 * time.Second)
-			win.Load("\"" + descifrada + "\"")
-			win.Play()
-			song_duration = win.SongLenght(descifrada)
-		} else {
-			fmt.Println("parte0: ", song)
-			win.Load("\"" + song + "\"")
-			win.Play()
-			song_duration = win.SongLenght(song)
-
-			if a == gap {
-				fmt.Println("Meto publicidad")
-				a = 0
-			}
-		}
-		fmt.Println(time.Duration(song_duration))
-		time.Sleep(time.Duration(song_duration) * time.Second)
-		a++
-	}
-	/*
-			i = 0
-			cmd = exec.Command("cmd", "/c", "dir /s /b "+publi_files_location+"*.mp3")
-			// comienza la ejecucion del pipe
-			stdoutRead, _ = cmd.StdoutPipe()
-			reader = bufio.NewReader(stdoutRead)
-			cmd.Start()
-			for {
-				line, err := reader.ReadString('\n')
-				if err != nil {
-					break
-				}
-				//fmt.Printf("%s", line)
-				publi[i] = strings.TrimRight(line, "\n")
-				i++
-			}
-			cmd.Wait()
-			rand.Perm(len(publi))
-
-
+		i, a := 0, 1
 		var gap int
+		var song string
+		var win winamp.Winamp
+		music := make(map[int]string)
+		publi := make(map[int]string)
+		//Sacamos la fecha actual
+		y, m, d := time.Now().Date()
+		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+		cmd := exec.Command("cmd", "/c", "dir /s /b "+music_files+"*.mp3 & dir /s /b "+music_files+"*.xxx")
+		// comienza la ejecucion del pipe
+		stdoutRead, _ := cmd.StdoutPipe()
+		reader := bufio.NewReader(stdoutRead)
+		cmd.Start()
+		for {
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				break
+			}
+			//fmt.Printf("%s", line)
+			music[i] = strings.TrimRight(line, "\r\n")
+			i++
+		}
+		cmd.Wait()
+		rand.Seed(time.Now().UnixNano())
+		shuffle := rand.Perm(len(music))
+		//Obtenemos el GAP
 		publicidad, errP := db.Query("SELECT fichero, gap FROM publi WHERE fichero LIKE ?", fecha+"%")
 		if errP != nil {
 			Error.Println(errP)
@@ -118,68 +54,44 @@ func reproduccion() {
 			if err != nil {
 				Error.Println(err)
 			}
+			fmt.Printf("%s", fichero)
 			publi[i] = fichero
 			i++
 		}
-		shuffle2 := rand.Perm(len(publi))
-		fmt.Println(shuffle2)
-		for _, v2 := range shuffle2 {
-			for k, v := range shuffle {
-
-				fmt.Println(music[v])
-				if gap-1 == k {
-					fmt.Println(publi[v2])
-				}
-			}
-		}
-	*/
-	//creamos la playlist mezclando audio + pub con el gap correspondiente
-	//a, p, i := 0, 0, 0
-	/*
-		getGap, errG := db.Query("SELECT gap FROM publi WHERE fichero LIKE ?", fecha+"%")
-		if errG != nil {
-			Error.Println(errG)
-		}
-		if getGap.Next() {
-			var gap string
-			err = getGap.Scan(&gap)
-			if err != nil {
-				Error.Println(err)
-			}
-			gap_int, err = strconv.Atoi(gap)
-			if err != nil {
-				Error.Println(err)
-			}
-		}
-
-	*/
-	/*
+		//Rulamos el Winamp
+		win.RunWinamp()
+		//Este bucle va a mezclar la musica con la publicidad segun el GAP
 		for _, v := range shuffle {
-
-			fmt.Println(a, audio[v])
-			if a == gap_int {
-				fmt.Println("meto publicidad")
+			var song_duration int
+			song = music[v]
+			// .xxx = musica cifrada; Hay que descifrarla
+			if strings.Contains(song, ".xxx") {
+				del_ext := strings.Split(song, ".xxx")
+				descifrada := del_ext[0] + ".mp3"
+				//Proceso de descifrado de la cancion
+				cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+				//Carga de cancion y reproduccion de la cancion
+				win.Load("\"" + descifrada + "\"")
+				win.Play()
+				//Guardamos la duracion total de la cancion
+				song_duration = win.SongLenght(descifrada)
+			} else {
+				//Carga de cancion y reproduccion de la cancion
+				win.Load("\"" + song + "\"")
+				win.Play()
+				//Guardamos la duracion total de la cancion
+				song_duration = win.SongLenght(song)
 			}
-			//fmt.Println(i % len(pub))
-			//fmt.Println(pub[i%len(pub)])
+			//Cuando el contador de canciones es igual al número de gap, metemos publicidad
+			//Un gap = 0, significa que no hay publicidad
+			if a == gap {
+				win.PlayFFplay("C:\\instore\\PubliShop\\20170608-admin-publi41.mp3")
+				a = 0
+			}
+			time.Sleep(time.Duration(song_duration) * time.Second)
 			a++
 		}
-	*/
-	/*
-		for k, v := range shuffle {
-			fmt.Println(k, audio[v])
-			if k == 3 {
-				fmt.Println("meto publicidad")
-			}
-			fmt.Println(i % len(pub))
-			//fmt.Println(pub[i%len(pub)])
-		}
-		for _, _ = range shuffle2 {
-			//fmt.Println(pub[v])
-			//fmt.Println(pub[i%len(pub)])
-		}
-	*/
-
+	}
 }
 
 func cifrado(origen, destino string, key []byte) error {
