@@ -121,7 +121,9 @@ func saveListInBD() {
 							}
 							separar := strings.Split(publi, "<=>")
 							f_pub := separar[0]
-							gap := separar[1]
+							fecha_ini := separar[1]
+							fecha_fin := separar[2]
+							gap := separar[3]
 							//Comprobamos si existen los ficheros de publi en la BD interna
 							publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
 							if errS != nil {
@@ -138,12 +140,12 @@ func saveListInBD() {
 								if err != nil {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
-										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`, `gap`) VALUES (?,?,?,?)")
+										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
 										if err != nil {
 											Error.Println(err)
 										}
 										db_mu.Lock()
-										_, err1 := nook.Exec(f_pub, "N", string_fecha, gap)
+										_, err1 := nook.Exec(f_pub, "N", fecha_ini, fecha_fin, gap)
 										db_mu.Unlock()
 										if err1 != nil {
 											Error.Println(err1)
@@ -151,12 +153,12 @@ func saveListInBD() {
 									}
 								} else {
 									//SI lo tiene, se guarda en la BD de player con el estado en Y.
-									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`, `gap`) VALUES (?,?,?,?)")
+									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := ok.Exec(f_pub, "Y", string_fecha, gap)
+									_, err1 := ok.Exec(f_pub, "Y", fecha_ini, fecha_fin, gap)
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)
@@ -176,7 +178,9 @@ func saveListInBD() {
 							var cont int
 							separar := strings.Split(publi, "<=>")
 							f_pub := separar[0]
-							gap := separar[1]
+							fecha_ini := separar[1]
+							fecha_fin := separar[2]
+							gap := separar[3]
 							//Comprobamos si existen los ficheros de publi en la BD interna
 							publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
 							if errS != nil {
@@ -193,12 +197,12 @@ func saveListInBD() {
 								if err != nil {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
-										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`, `gap`) VALUES (?,?,?,?)")
+										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
 										if err != nil {
 											Error.Println(err)
 										}
 										db_mu.Lock()
-										_, err1 := nook.Exec(f_pub, "N", string_fecha, gap)
+										_, err1 := nook.Exec(f_pub, "N", fecha_ini, fecha_fin, gap)
 										db_mu.Unlock()
 										if err1 != nil {
 											Error.Println(err1)
@@ -206,12 +210,12 @@ func saveListInBD() {
 									}
 								} else {
 									//SI lo tiene, se guarda en la BD de player con el estado en Y.
-									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha`, `gap`) VALUES (?,?,?,?)")
+									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := ok.Exec(f_pub, "Y", string_fecha, gap)
+									_, err1 := ok.Exec(f_pub, "Y", fecha_ini, fecha_fin, gap)
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)

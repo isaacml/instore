@@ -16,17 +16,17 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 
 	output += "[publi]"
 	for _, val := range arr_domain {
-		publicidad, err := db.Query("SELECT fichero, gap FROM publi WHERE destino = ? AND fecha_inicio = ?", val, string_fecha)
+		publicidad, err := db.Query("SELECT fichero, fecha_inicio, fecha_final, gap FROM publi WHERE destino = ? AND fecha_inicio = ?", val, string_fecha)
 		if err != nil {
 			Error.Println(err)
 		}
 		for publicidad.Next() {
-			var f_publi, gap string
+			var f_publi, fecha_ini, fecha_fin, gap string
 			err = publicidad.Scan(&f_publi, &gap)
 			if err != nil {
 				Error.Println(err)
 			}
-			output += ";" + f_publi + "<=>" + gap
+			output += ";" + f_publi + "<=>" + fecha_ini + "<=>" + fecha_fin + "<=>" + gap
 		}
 	}
 	output += "[mensaje]"
@@ -45,19 +45,4 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Fprint(w, output)
-}
-
-func get_fechas(w http.ResponseWriter, r *http.Request) {
-	publicidad, err := db.Query("SELECT fecha_inicio, fecha_fin FROM publi")
-	if err != nil {
-		Error.Println(err)
-	}
-	for publicidad.Next() {
-		var fini, fend int
-		err = publicidad.Scan(&fini, &fend)
-		if err != nil {
-			Error.Println(err)
-		}
-		fmt.Println(fini, fend)
-	}
 }
