@@ -140,7 +140,7 @@ func saveListInBD() {
 								if err != nil {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
-										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
+										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?)")
 										if err != nil {
 											Error.Println(err)
 										}
@@ -153,7 +153,7 @@ func saveListInBD() {
 									}
 								} else {
 									//SI lo tiene, se guarda en la BD de player con el estado en Y.
-									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
+									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
@@ -197,7 +197,7 @@ func saveListInBD() {
 								if err != nil {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if os.IsNotExist(err) {
-										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
+										nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?)")
 										if err != nil {
 											Error.Println(err)
 										}
@@ -210,7 +210,7 @@ func saveListInBD() {
 									}
 								} else {
 									//SI lo tiene, se guarda en la BD de player con el estado en Y.
-									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `timestamp`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?,?)")
+									ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?)")
 									if err != nil {
 										Error.Println(err)
 									}
@@ -341,18 +341,18 @@ func solicitudDeFicheros() {
 		y, m, d := time.Now().Date()
 		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
 		//Busqueda fichero de publicidad y existencia del mismo por fecha actual
-		publiQ, err := db.Query("SELECT fichero, existe, gap FROM publi WHERE fecha=?", fecha)
+		publiQ, err := db.Query("SELECT fichero, existe, fecha_ini, fecha_fin, gap FROM publi WHERE fecha_ini=?", fecha)
 		if err != nil {
 			Error.Println(err)
 		}
 		for publiQ.Next() {
-			var fichero, exist, gap string
+			var fichero, exist, fecha_ini, fecha_fin, gap string
 			//Tomamos el nombre del fichero de publicidad y su existencia
-			err = publiQ.Scan(&fichero, &exist, &gap)
+			err = publiQ.Scan(&fichero, &exist, &fecha_ini, &fecha_fin, &gap)
 			if err != nil {
 				Error.Println(err)
 			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "fichero;"+fichero, "existencia;"+exist, "gap;"+gap))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "fecha_fin;"+fecha_fin, "gap;"+gap))
 			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 			if respuesta == "Descarga" {
 				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)

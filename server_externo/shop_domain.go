@@ -22,7 +22,7 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 		}
 		for publicidad.Next() {
 			var f_publi, fecha_ini, fecha_fin, gap string
-			err = publicidad.Scan(&f_publi, &gap)
+			err = publicidad.Scan(&f_publi, &fecha_ini, &fecha_fin, &gap)
 			if err != nil {
 				Error.Println(err)
 			}

@@ -99,7 +99,6 @@ func main() {
 	http.HandleFunc("/config_shop.cgi", config_shop)
 	http.HandleFunc("/send_shop.cgi", send_shop)
 	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
-	http.HandleFunc("/get_fechas.cgi", get_fechas)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

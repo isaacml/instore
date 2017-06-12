@@ -84,11 +84,14 @@ func reproduccion() {
 			}
 			//Cuando el contador de canciones es igual al número de gap, metemos publicidad
 			//Un gap = 0, significa que no hay publicidad
+			fmt.Println(a, gap)
 			if a == gap {
-				win.PlayFFplay("C:\\instore\\PubliShop\\20170608-admin-publi41.mp3")
+				win.PlayFFplay("C:\\instore\\PubliShop\\20170612-admin-Supersol_Andalucia_1.mp3")
 				a = 0
 			}
-			time.Sleep(time.Duration(song_duration) * time.Second)
+			fmt.Println(song_duration)
+			//time.Duration(song_duration)
+			time.Sleep(10 * time.Second)
 			a++
 		}
 	}
