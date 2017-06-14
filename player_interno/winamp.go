@@ -15,7 +15,7 @@ import (
 
 func reproduccion() {
 	for {
-		i, a, cont := 0, 1, 0
+		a, p, pl := 0, 0, 1
 		var gap int
 		var song string
 		var win winamp.Winamp
@@ -38,8 +38,8 @@ func reproduccion() {
 				Error.Println(err)
 			}
 			//fmt.Printf("%s", fichero)
-			publi[cont] = fichero
-			cont++
+			publi[p] = fichero
+			p++
 		}
 		fmt.Println(publi)
 		//Se crean lo comandos
@@ -53,79 +53,89 @@ func reproduccion() {
 			if err != nil {
 				break
 			}
-			fmt.Println(i, gap)
-
 			//fmt.Printf("%s", line)
-			music[i] = strings.TrimRight(line, "\r\n")
-			i++
+			music[a] = strings.TrimRight(line, "\r\n")
 			a++
 		}
 		cmd.Wait()
 		rand.Seed(time.Now().UnixNano())
 		shuffle := rand.Perm(len(music))
-		rand.Seed(time.Now().UnixNano())
-		shuffle2 := rand.Perm(len(publi))
-		fmt.Println(shuffle2)
-
 		//Rulamos el Winamp
 		win.RunWinamp()
+		//ZONA DE CREACION DE PLAYLIST
 		//Este bucle va a mezclar la musica con la publicidad segun el GAP
 		for _, v := range shuffle {
-			//var song_duration int
-			song = music[v]
+			var song_duration int
+			song = music[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
 			fmt.Println(song)
-			// .xxx = musica cifrada; Hay que descifrarla
+			// .xxx = musica cif; Hay que descifrarla
 			if strings.Contains(song, ".xxx") {
 				del_ext := strings.Split(song, ".xxx")
 				descifrada := del_ext[0] + ".mp3"
-				//Proceso de descifrado de la cancion
+				//Proceso de descifrado de la cancion: ver función mas abajo.
 				cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-				//Carga de cancion y reproduccion de la cancion
+				//Carga y reproduccion de cancion
 				win.Load("\"" + descifrada + "\"")
 				win.Play()
 				//Guardamos la duracion total de la cancion
-				//song_duration = win.SongLenght(descifrada)
+				song_duration = win.SongLenght(descifrada)
 			} else {
-				//Carga de cancion y reproduccion de la cancion
+				//Carga y reproduccion de cancion
 				win.Load("\"" + song + "\"")
 				win.Play()
 				//Guardamos la duracion total de la cancion
-				//song_duration = win.SongLenght(song)
+				song_duration = win.SongLenght(song)
 			}
-			//Cuando el contador de canciones es igual al número de gap, metemos publicidad
-			//Un gap = 0, significa que no hay publicidad
-			fmt.Println(a, gap)
-			/*
-				if a == gap {
-					for _, val := range shuffle2 {
-						arch_publicidad := publi[val]
-						total := win.SongEnd()
-						inicial := win.SongPlay()
-						fmt.Println(arch_publicidad, total, inicial)
-
-							for {
-								fmt.Println(total - win.SongEnd())
-								if total-win.SongEnd() == 0 {
-									fmt.Println("fichero_publi-> " + arch_publicidad)
-									win.Load("\"" + arch_publicidad + "\"")
-									win.Play()
-									break
-								}
-								time.Sleep(1 * time.Second)
-							}
-
-					}
-
-					a = 0
+			//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+			//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+			if pl == gap {
+				//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+				rand.Seed(time.Now().UnixNano())
+				shuffle2 := rand.Perm(len(publi))
+				//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+				for _, val := range shuffle2 {
+					publi_file := publi[val]
+					fmt.Println(publi_file)
+					win.Load("\"" + publi_files_location + publi_file + "\"")
+					win.Play()
+					song_duration = win.SongLenght(publi_files_location + publi_file)
+					break
 				}
-			*/
+				//Volvemos a poner el contador de playlist 0
+				pl = 0
+			}
 			//time.Duration(song_duration)
-			time.Sleep(10 * time.Second)
-			a++
+			time.Sleep(time.Duration(song_duration) * time.Second)
+			pl++
 		}
 	}
 }
 
+func reproduccion_msgs() {
+	for {
+		hh, mm, _ := time.Now().Clock()
+		clock := fmt.Sprintf("%2d:%2d", hh, mm)
+		fmt.Println(clock)
+		mensajes, errM := db.Query("SELECT fichero FROM mensaje WHERE playtime=?", clock)
+		if errM != nil {
+			Error.Println(errM)
+		}
+		for mensajes.Next() {
+			var fichero string
+			//Tomamos el nombre del fichero mensaje
+			err := mensajes.Scan(&fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			var win winamp.Winamp
+			fmt.Printf("%s\n", fichero)
+			win.PlayFFplay(fichero)
+		}
+		time.Sleep(1 * time.Minute)
+	}
+}
+
+//Este proceso lo que hace es cifrar o descifrar un fichero existente
 func cifrado(origen, destino string, key []byte) error {
 	var fail error
 	p := make([]byte, 8) //Va a contener el archivo origen en bloques de 8 bytes
@@ -149,6 +159,7 @@ func cifrado(origen, destino string, key []byte) error {
 			}
 		}
 	}
+	//Escribimos el fichero
 	ioutil.WriteFile(destino, container, 0666)
 	return fail
 }

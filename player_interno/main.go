@@ -56,6 +56,7 @@ func main() {
 	go saveListInBD()
 	go solicitudDeFicheros()
 	go reproduccion()
+	go reproduccion_msgs()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
