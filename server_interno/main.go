@@ -88,8 +88,6 @@ func BuscarNuevosFicheros() {
 			}
 			//Descargamos el fichero del servidor externo
 			bytes, err := libs.DownloadFile(serverext["serverexterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
-			/////////////////////////////////////EEEEEEEEEEEEEEEEE/////////////////////////////
-			libs.GenerateFORM(serverext["serverexterno"]+"/get_fechas.cgi", "fichero;"+fichero)
 			//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
 			if err != nil || bytes == 0 {
 				Error.Println(err)

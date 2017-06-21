@@ -21,7 +21,6 @@ type Winamp struct {
 	pause  bool
 	volume int
 	run    bool
-	ffplay bool
 	mu     sync.Mutex // mutex tu protect the internal variables on multithreads
 }
 
@@ -29,7 +28,6 @@ type Status struct {
 	Playing   bool
 	Stopping  bool
 	Pausing   bool
-	FFplaying bool
 }
 
 //Constructor para Winamp
@@ -44,7 +42,6 @@ func Winamper() *Winamp {
 	win.pause = false
 	win.volume = 0
 	win.run = false
-	win.ffplay = false
 
 	return win
 }
@@ -59,7 +56,6 @@ func (w *Winamp) Status() *Status {
 	st.Playing = w.play
 	st.Pausing = w.pause
 	st.Stopping = w.stop
-	st.FFplaying = w.ffplay
 
 	return &st
 }
@@ -100,7 +96,7 @@ func (w *Winamp) Load(file string) error {
 		if err != nil {
 			err = fmt.Errorf("load: CANNOT_LOAD_PLAYLIST")
 		}
-		vol := fmt.Sprintf("%CLEVER% volume %d", w.volume)
+		vol := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", volMax)
 		exec.Command("cmd", "/c", vol).Run()
 	} else {
 		err = fmt.Errorf("winamp: WINAMP_IS_NOT_RUNNING")
@@ -221,15 +217,16 @@ func (w *Winamp) SongLenght(file string) int {
 }
 
 // Metodo que introduce la publicidad por ffplay
-func (w *Winamp) PlayFFplay(publi string) {
-	w.ffplay = true
+func (w *Winamp) PlayFFplay(publi string) string {
+	var st string
 	//Bajo el volumen del reproductor Winamp a 0
 	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe volume 0").Run()
 	//Reproduzco la publicidad del ffplay
-	play := fmt.Sprintf("C:\\instore\\ffplay -nodisp %s -autoexit", publi)
+	play := fmt.Sprintf("C:\\instore\\ffplay.exe -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
-	w.ffplay = false
 	//Vuelvo a subir el volumen a como estaba
-	inc := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", w.volume)
+	inc := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", volMax)
 	exec.Command("cmd", "/c", inc).Run()
+	st = "END"
+	return st
 }
