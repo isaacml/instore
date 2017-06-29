@@ -13,6 +13,9 @@ import (
 //Variable que guarda el estado del destino
 var estado_destino string
 
+//Variable para retroceder en una organizacion cuando se pulsa fuera del text-area
+var back_org string
+
 //Variables para guardar el identificador anterior, en caso de no encontrar datos.
 var last_entidad, last_almacen, last_pais, last_region, last_prov, last_tienda string
 
@@ -74,7 +77,6 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, output)
 		}
 	}
-
 	//EXPLORADOR DE DIRECTORIOS --> FORMULARIO 1(testform)
 	if r.FormValue("action") == "directorios" {
 		if r.FormValue("directory") != "" && r.FormValue("directory") != "..." {
@@ -279,7 +281,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
-		}	
+		}
 	}
 	//r.FormValue("type") == "msg", procedemos a insertar los datos en la tabla mensajes
 	if r.FormValue("action") == "get_ficheros" && r.FormValue("type") == "msg" {
@@ -349,6 +351,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 				if val != "" {
 					arr_entidad = strings.Split(val, ";")
 					output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
+					back_org = "entidad"
 				}
 			}
 			estado_destino = "*"
@@ -357,11 +360,15 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 		}
 		// Recogemos los datos al hacer ONCLICK en formulario de destinos en publi.html
 		if r.FormValue("action") == "recoger_id" {
-			valores := strings.Split(r.FormValue("destinos"), ":.:")
-			//Revisamos que el array tenga más de un valor, sino da un panic
-			destino := valores[0]
-			ident := valores[1]
-
+			var destino, ident string
+			if r.FormValue("destinos") == "" {
+				destino = back_org
+			} else {
+				valores := strings.Split(r.FormValue("destinos"), ":.:")
+				//Revisamos que el array tenga más de un valor, sino da un panic
+				destino = valores[0]
+				ident = valores[1]
+			}
 			if destino == "entidad" {
 				var st_entidad string //variable que va a contener el estado de la entidad
 				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos
@@ -372,6 +379,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					last_entidad = ident
 					//Se forma el nuevo estado
 					estado_destino = st_entidad + ".*"
+					back_org = "almacen"
 					output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 					fmt.Fprint(w, output)
 				} else {
@@ -387,6 +395,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 							}
 						}
 						estado_destino = "*"
+						back_org = "entidad"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 						fmt.Fprint(w, output)
 					}
@@ -407,6 +416,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 							}
 						}
 						estado_destino = "*"
+						back_org = "entidad"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -421,6 +431,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						res := libs.BackDestOrg(estado_destino, 1)
 						//Se forma el nuevo estado
 						estado_destino = res + st_almacen + ".*"
+						back_org = "pais"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -430,6 +441,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 							output, st_almacen = libs.GenerateSelectOrg(resultado2, "almacen")
 							//Se forma el nuevo estado
 							estado_destino = st_almacen + ".*"
+							back_org = "almacen"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -444,6 +456,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					if resultado2 != "" {
 						output, st_pais = libs.GenerateSelectOrg(resultado2, "almacen")
 						estado_destino = st_pais + ".*"
+						back_org = "almacen"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -458,6 +471,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						res := libs.BackDestOrg(estado_destino, 1)
 						//Se forma el nuevo estado
 						estado_destino = res + st_pais + ".*"
+						back_org = "region"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -469,6 +483,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 							res := libs.BackDestOrg(estado_destino, 2)
 							//Se forma el nuevo estado
 							estado_destino = res + st_pais + ".*"
+							back_org = "pais"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -482,9 +497,10 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
 					if resultado2 != "" {
 						output, st_region = libs.GenerateSelectOrg(resultado2, "pais")
-						res := libs.BackDestOrg(estado_destino, 2)
+						res := libs.BackDestOrg(estado_destino, 3)
 						//Se forma el nuevo estado
 						estado_destino = res + st_region + ".*"
+						back_org = "pais"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -498,16 +514,18 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						//Se borra el asterisco(*)
 						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + st_region + ".*"
+						back_org = "provincia"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar las regiones
 						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
 						if resultado2 != "" {
-							output, st_region = libs.GenerateSelectOrg(resultado, "provincia")
+							output, st_region = libs.GenerateSelectOrg(resultado2, "region")
 							//Se borra el asterisco(*) y se retrocede en una ORG.
 							res := libs.BackDestOrg(estado_destino, 2)
 							estado_destino = res + st_region + ".*"
+							back_org = "region"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -524,6 +542,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						res := libs.BackDestOrg(estado_destino, 3)
 						//Se forma el nuevo estado
 						estado_destino = res + st_provincia + ".*"
+						back_org = "region"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -538,6 +557,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						res := libs.BackDestOrg(estado_destino, 1)
 						//Se forma el nuevo estado
 						estado_destino = res + st_provincia + ".*"
+						back_org = "tienda"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -549,6 +569,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 							res := libs.BackDestOrg(estado_destino, 2)
 							//Se forma el nuevo estado
 							estado_destino = res + st_provincia + ".*"
+							back_org = "provincia"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -565,6 +586,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						res := libs.BackDestOrg(estado_destino, 3)
 						//Se forma el nuevo estado
 						estado_destino = res + st_tienda + ".*"
+						back_org = "provincia"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -578,12 +600,13 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						//Se borra el asterisco(*)
 						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + resultado
+						back_org = "destino_final"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar las provincias
 						var arr_tienda []string
-						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+last_tienda)
+						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
 						if resultado2 != "" {
 							output = "<option value='tienda:.:0'>...</option>"
 							arr := strings.Split(resultado2, "::")
@@ -595,6 +618,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 							}
 							res := libs.BackDestOrg(estado_destino, 1)
 							estado_destino = res + "*"
+							back_org = "tienda"
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -603,7 +627,7 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 			}
 			if destino == "destino_final" {
 				if ident == "0" {
-					//Si no hay resultado, volvemos a cargar las provincias
+					//value = 0 : volvemos a cargar las tiendas
 					var arr_tienda []string
 					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/destino.cgi", "action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
 					if resultado2 != "" {
@@ -617,12 +641,20 @@ func recoger_destinos(w http.ResponseWriter, r *http.Request) {
 						}
 						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + "*"
+						back_org = "tienda"
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
 				}
+				//El destino ya se ha generado, solo hay opcion de volver atrás
+				if ident == "" {
+					back_org = "destino_final"
+					output = "<option title='Volver Atrás' value='destino_final:.:0'>...</option>;<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>El destino ya está formado</span>"
+					fmt.Fprint(w, output)
+				}
 			}
 		}
+
 	}
 }
 

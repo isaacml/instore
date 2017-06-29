@@ -31,7 +31,7 @@ func downloadMsgFile(w http.ResponseWriter, r *http.Request) {
 	db.QueryRow("SELECT existe FROM mensaje WHERE fichero=?", nombre_fichero).Scan(&existe)
 	//existe = vacio --> No ha sido insertado nunca
 	if existe == "" {
-		//Lo insertamos con el existe en N
+		//Por tanto, lo insertamos con el existe en N para que el bucle BuscarNuevosFicheros() pueda localizarlo
 		publi, err := db.Prepare("INSERT INTO mensaje (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
 		if err != nil {
 			Error.Println(err)
@@ -43,7 +43,9 @@ func downloadMsgFile(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err1)
 		}
 	} else {
+		//Se compara la existencia del fichero.
 		if existe != r.FormValue("existencia") {
+			//Se le manda una orden de descarga de fichero a la tienda
 			fmt.Fprint(w, "Descarga")
 		}
 	}
@@ -56,24 +58,26 @@ func downloadPubliFile(w http.ResponseWriter, r *http.Request) {
 	nombre_fichero := r.FormValue("fichero")
 	gap := r.FormValue("gap")
 	f_ini := r.FormValue("fecha_ini")
-	f_fin := r.FormValue("fecha_fin")
 	timestamp := time.Now().Unix()
-	//Se comprueba que la existencia en la tienda se corresponde con la existencia en el server interno
+	//Se comprueba que la existencia del fichero en la tienda se corresponde con la existencia en el server interno
 	db.QueryRow("SELECT existe FROM publi WHERE fichero=?", nombre_fichero).Scan(&existe)
+	//existe = vacio --> No ha sido insertado nunca
 	if existe == "" {
-		//Lo insertamos con el existe en N
-		publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, fecha_ini, fecha_fin, `timestamp`, `gap`) VALUES (?,?,?,?,?,?)")
+		//Por tanto, lo insertamos con el existe en N para que el bucle BuscarNuevosFicheros() pueda localizarlo
+		publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, fecha_ini, `timestamp`, `gap`) VALUES (?,?,?,?,?)")
 		if err != nil {
 			Error.Println(err)
 		}
 		db_mu.Lock()
-		_, err1 := publi.Exec(nombre_fichero, "N", f_ini, f_fin, timestamp, gap)
+		_, err1 := publi.Exec(nombre_fichero, "N", f_ini, timestamp, gap)
 		db_mu.Unlock()
 		if err1 != nil {
 			Error.Println(err1)
 		}
 	} else {
+		//Se compara la existencia del fichero.
 		if existe != r.FormValue("existencia") {
+			//Se le manda una orden de descarga de fichero a la tienda
 			fmt.Fprint(w, "Descarga")
 		}
 	}

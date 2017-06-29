@@ -1,7 +1,7 @@
 /*
 Navicat SQLite Data Transfer
 
-Source Server         : TIENDA
+Source Server         : Pruebas
 Source Server Version : 30808
 Source Host           : :0
 
@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2017-04-05 19:25:23
+Date: 2017-06-23 03:36:08
 */
 
 PRAGMA foreign_keys = OFF;
@@ -22,7 +22,8 @@ CREATE TABLE "mensaje" (
 "id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 "fichero"  TEXT(255),
 "playtime"  TEXT(5),
-"estado"  TEXT(1)
+"existe"  TEXT(1),
+"fecha"  TEXT(10)
 );
 
 -- ----------------------------
@@ -44,7 +45,9 @@ DROP TABLE IF EXISTS "main"."publi";
 CREATE TABLE "publi" (
 "id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 "fichero"  TEXT(255),
-"existe"  TEXT(1)
+"existe"  TEXT(1),
+"fecha_ini"  TEXT(10),
+"gap"  INTEGER
 );
 
 -- ----------------------------

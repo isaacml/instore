@@ -71,7 +71,7 @@ func main() {
 
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
 }
-
+//Esta funcion esta consultando al servidor externo cada cierto tiempo en busca de ficheros publi/msg que bajarse
 func BuscarNuevosFicheros() {
 	for {
 		//Buscamos todos lo ficheros de publicidad que no tenemos en la BD

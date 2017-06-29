@@ -35,7 +35,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 			//Se sirven todos los ficheros de publicidad
 			http.ServeContent(w, r, publicidad, filepubliinfo.ModTime(), fr)
 		}
-	}else{
+	}else if accion == "mensaje"{
 		//ZONA DE MENSAJES
 		mensajes = strings.TrimRight(msg_files_location+r.URL.Path[1:], "/")
 		filemsginfo, err := os.Stat(mensajes)
