@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"bufio"
 )
 
 /*
@@ -340,4 +341,38 @@ func DomainGenerator(dom_tienda string) []string {
 	list_dom = append(list_dom, dom_entidad)
 
 	return list_dom
+}
+/*
+Cifrado: Funcion que cifra o descifra un fichero existente.
+	origen:  fichero origen
+	destino: fichero destino
+	key: 	 patrón por el que va a ser cifrado.
+Devuelve un error en caso de que algo no haya salido bien.
+*/
+func Cifrado(origen, destino string, key []byte) error {
+	var fail error
+	p := make([]byte, 8) //Va a contener el archivo origen en bloques de 8 bytes
+	var container []byte //Va almacenar los datos del fichero de destino
+	file, err := os.OpenFile(origen, os.O_RDONLY, 0666)
+	if err != nil {
+		fail = fmt.Errorf("Error en la apertura")
+	}
+	lector := bufio.NewReader(file)
+	for {
+		num, err := lector.Read(p)
+		if err != nil {
+			fail = fmt.Errorf("Fin de lectura")
+			break
+		}
+		if num <= 0 {
+			break
+		} else {
+			for i := 0; i < num; i++ {
+				container = append(container, p[i]^key[i])
+			}
+		}
+	}
+	//Escribimos el fichero
+	ioutil.WriteFile(destino, container, 0666)
+	return fail
 }

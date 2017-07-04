@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"strings"
 	//"sync"
+	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
-	"io/ioutil"
 	"os"
 	"time"
 )
@@ -72,8 +72,8 @@ func reproduccion() {
 			if strings.Contains(song, ".xxx") {
 				del_ext := strings.Split(song, ".xxx")
 				descifrada := del_ext[0] + ".mp3"
-				//Proceso de descifrado de la cancion: ver función mas abajo.
-				cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+				//Proceso de descifrado de la cancion: ver en libreria de funciones.
+				libs.Cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
 				//Carga y reproduccion de cancion
 				win.Load("\"" + descifrada + "\"")
 				win.Play()
@@ -154,33 +154,4 @@ func reproduccion_msgs() {
 		}
 		time.Sleep(1 * time.Minute)
 	}
-}
-
-//Este proceso lo que hace es cifrar o descifrar un fichero existente
-func cifrado(origen, destino string, key []byte) error {
-	var fail error
-	p := make([]byte, 8) //Va a contener el archivo origen en bloques de 8 bytes
-	var container []byte //Va almacenar los datos del fichero de destino
-	file, err := os.OpenFile(origen, os.O_RDONLY, 0666)
-	if err != nil {
-		fail = fmt.Errorf("Error en la apertura")
-	}
-	lector := bufio.NewReader(file)
-	for {
-		num, err := lector.Read(p)
-		if err != nil {
-			fail = fmt.Errorf("Fin de lectura")
-			break
-		}
-		if num <= 0 {
-			break
-		} else {
-			for i := 0; i < num; i++ {
-				container = append(container, p[i]^key[i])
-			}
-		}
-	}
-	//Escribimos el fichero
-	ioutil.WriteFile(destino, container, 0666)
-	return fail
 }

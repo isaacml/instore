@@ -109,7 +109,9 @@ func main() {
 	//Mensajes
 	http.HandleFunc("/horas_msg.cgi", horas_msg)
 	http.HandleFunc("/minutos_msg.cgi", minutos_msg)
-
+	//Encriptar Musica de JR
+	http.HandleFunc("/encriptar_musica.cgi", encriptar_musica)
+	
 	s := &http.Server{
 		Addr:           ":" + http_port,
 		Handler:        nil,
