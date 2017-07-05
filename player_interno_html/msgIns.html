@@ -116,10 +116,10 @@
         <div id="page-wrapper">
            <br>
             <div class="row">
-                <div class="col-md-6 col-md-offset-3">
+                <div class="col-md-8 col-md-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Música Cifrada
+                            Mensaje Instantaneo
                         </div>
                         <div class="panel-body" align="center">
                             <form id="testform" action="" method="post">
@@ -138,15 +138,9 @@
                                     <h5 class="text-muted">Directorios</h5>
                                     <br>
                                     <div class="form-group">
-                                        <select id="directory" name="directory" style="width:40%;" multiple></select>
+                                        <select id="directory" name="directory" style="width:40%;"></select>
                                     </div>
                                     <div class="form-group" id="statdir"></div>
-                                    <div class="form-group">
-                                        <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
-                                    </div> 
-                                    <div class="form-group">
-                                        <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
-                                    </div>
                                     <div class="form-group" id="statsend"></div>
                                     <br>     
                                 </fieldset>
@@ -159,49 +153,25 @@
         </div>
     </div>
     <script type="text/javascript">
-        $(document).ready(function(){
-            $("#statdir").hide();
-            $("#statsend").hide();
-            $("#dest_stat").hide();
-            $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+        $.post("/explorerMusic.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
+            $("#unidades").html(data);
+        });
+        $("#unidades").change(function(){
+            $.post("/explorerMusic.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
                 var res = data.split(";");
-                if (res[1] == 0){
-                    $("#zona_mCif").hide();
-                    $("#zona_mCif_top").hide();
-                }
-                if (res[3] == 0){
-                    $("#zona_mNoCif").hide();
-                    $("#zona_mNoCif_top").hide();
-                }
-            });
-            $.post("/explorerMusic.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
-                $("#unidades").html(data);
-            });
-            $("#unidades").change(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
-                    var res = data.split(";");
-                    $("#directory").html(res[0]);
-                    $("#statdir").show();
-                    $("#statdir").html(res[1]);
-                });
-            });
-            $("#directory").dblclick(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
-                    var res = data.split(";");
-                    $("#directory").html(res[0]);
-                    $("#statdir").show();
-                    $("#statdir").html(res[1]);
-                });
-            });
-            $("#enviar").click(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=get_directorys", $("#testform1").serialize(), function(data, status) {
-                    $("#popup_container").val("");
-                    $("#popup_container2").val("");
-                    $("#statsend").show();
-                    $("#statsend").html(data);
-                });
+                $("#directory").html(res[0]);
+                $("#statdir").show();
+                $("#statdir").html(res[1]);
             });
         });
-	</script>
+        $("#directory").change(function(){
+            $.post("/explorerMusic.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
+                var res = data.split(";");
+                $("#directory").html(res[0]);
+                $("#statdir").show();
+                $("#statdir").html(res[1]);
+            });
+        });
+    </script>
 </body>
 </html>

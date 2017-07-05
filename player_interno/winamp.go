@@ -25,7 +25,7 @@ func reproduccion() {
 		y, m, d := time.Now().Date()
 		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
 		//Obtenemos el GAP
-		publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ? OR fecha_fin >= ?", fecha, fecha)
+		publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
 		if errP != nil {
 			Error.Println(errP)
 			gap = 0

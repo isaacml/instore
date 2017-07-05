@@ -71,52 +71,9 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 	}
 	//EXPLORADOR DE DIRECTORIOS --> FORMULARIO 1(testform)
 	if r.FormValue("action") == "directorios" {
-		if r.FormValue("directory") != "" && r.FormValue("directory") != "..." {
-			directorio_actual = directorio_actual + r.FormValue("directory") + "\\"
-			file, err := os.Open(directorio_actual)
-			defer file.Close()
-			if err != nil {
-				// No se puede abrir el directorio, por falta de permisos
-				Error.Println(err)
-				//Volvemos a tomar el archivo anterior y lo abrimos
-				old := strings.Split(directorio_actual, r.FormValue("directory")+"\\")
-				directorio_actual = old[0]
-				fmt.Println(directorio_actual)
-				file2, err := os.Open(old[0])
-				defer file.Close()
-				directorios, err := file2.Readdir(0)
-				if err != nil {
-					Error.Println(err)
-					return
-				}
-				output = "<option value='' selected>[Selecciona un directorio]</option></option><option value='...'>...</option>"
-				for _, val := range directorios {
-					if val.IsDir() {
-						output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
-
-					}
-				}
-				output += ";<span style='color: #800000'>Necesitas permisos para abrir ese directorio</span>"
-				fmt.Fprint(w, output)
-				return
-			}
-			directorios, err := file.Readdir(0)
-			if err != nil {
-				Error.Println(err)
-				return
-			}
-			output = fmt.Sprintf("<option value='' selected>[Selecciona un directorio]</option><option value='...'>...</option>")
-			for _, val := range directorios {
-				if val.IsDir() {
-					output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
-
-				}
-			}
-			output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
-			fmt.Fprint(w, output)
-
-			//VOLVER UN DIRECTORIO ATRÁS
-		} else if r.FormValue("directory") != "" && r.FormValue("directory") == "..." {
+		fmt.Println(r.FormValue("directory"))
+		//VOLVER UN DIRECTORIO ATRÁS
+		if r.FormValue("directory") == "..." {
 			var contenedor string
 			var contador int
 			//Array para guardar la ruta sin valores nulos y para guardar la nueva ruta generada
@@ -189,7 +146,52 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 				output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
 				fmt.Fprint(w, output)
 			}
-		} else {
+		}else{
+			directorio_actual = directorio_actual + r.FormValue("directory") + "\\"
+			file, err := os.Open(directorio_actual)
+			defer file.Close()
+			if err != nil {
+				// No se puede abrir el directorio, por falta de permisos
+				Error.Println(err)
+				//Volvemos a tomar el archivo anterior y lo abrimos
+				old := strings.Split(directorio_actual, r.FormValue("directory")+"\\")
+				directorio_actual = old[0]
+				fmt.Println(directorio_actual)
+				file2, err := os.Open(old[0])
+				defer file.Close()
+				directorios, err := file2.Readdir(0)
+				if err != nil {
+					Error.Println(err)
+					return
+				}
+				output = "<option value='' selected>[Selecciona un directorio]</option></option><option value='...'>...</option>"
+				for _, val := range directorios {
+					if val.IsDir() {
+						output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
+	
+					}
+				}
+				output += ";<span style='color: #800000'>Necesitas permisos para abrir ese directorio</span>"
+				fmt.Fprint(w, output)
+				return
+			}
+			directorios, err := file.Readdir(0)
+			if err != nil {
+				Error.Println(err)
+				return
+			}
+			output = fmt.Sprintf("<option value='' selected>[Selecciona un directorio]</option><option value='...'>...</option>")
+			for _, val := range directorios {
+				if val.IsDir() {
+					output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
+	
+				}
+			}
+			output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
+			fmt.Fprint(w, output)
+		}
+		//En caso de que la ruta de directorio esté vacia.
+		if r.FormValue("directory") == "" {
 			//Abrimos el directorio y mostramos sus carpetas
 			file, err := os.Open(directorio_actual)
 			defer file.Close()
@@ -202,7 +204,7 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 				return
 			}
-			output = fmt.Sprintf("<option value='' selected>[Selecciona un directorio]</option><option value='...'>...</option>")
+			output = fmt.Sprintf("<option value='' selected>[Selecciona un directorio]</option>")
 			for _, val := range directorios {
 				if val.IsDir() {
 					output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
