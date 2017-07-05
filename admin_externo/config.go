@@ -17,4 +17,5 @@ const (
 	ErrorText         = "Error de Login"                    // mensaje a mostrar tras un error de login en la pagina de login
 	logFile           = "C:\\instore\\admin_externo.log"    //ruta del archivo de errores
 	serverRoot        = "C:\\instore\\serverext.reg"        // fichero que contiene la ruta hacia el servidor externo
+	cifDir			  = "C:\\instore\\cifrados\\"
 )

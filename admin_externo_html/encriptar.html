@@ -22,6 +22,9 @@
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Tabla que encripta la Música -->
+    <link href="css/encMusic.css" rel="stylesheet">
 
     <!-- MetisMenu CSS -->
     <link href="css/metisMenu.min.css" rel="stylesheet">
@@ -146,7 +149,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            EXPLORADOR DE WINDOWS
+                            EXPLORADOR DE MUSICA
                         </div>
                         <div class="panel-body" align="center">
                         <form id="testform" action="" method="post">
@@ -162,10 +165,10 @@
                         <div class="panel-body" align="center">
                         <form id="testform1" action="" method="post">
                             <fieldset>
-                                <h5 class="text-muted">Directorios</h5>
+                                <h5 class="text-muted">Carpeta de Música</h5>
                                 <br>
                                 <div class="form-group">
-                                    <select id="directory" name="directory" style="width:40%;"></select>
+                                    <select id="directory" name="directory"></select>
                                 </div>
                                 <div class="form-group" id="stat">
                                 </div>
@@ -176,22 +179,13 @@
                         <div class="panel-body" align="center">
                         <form id="testform2" action="" method="post">
                             <fieldset>
-                                <div id='all_files'>
-                                    <h5 class="text-muted">Ficheros</h5>
-                                    <br>
-                                    <input type='checkbox' name='all' id='all'>Todos
-                                    <div class="form-group" id="files" name="files"></div>
-                                </div>
-                                <h5 class="text-muted">Generar un destino</h5>
-                                <br>
-                                <div class="form-group">
-                                    <select id="destinos" name="destinos" style="width:75%;height:85px;" multiple></select>
-                                </div>
-                                <div class="form-group" id="dest_stat">
-                                </div>
-                                <div class="form-group" id="stat2">
-                                </div>
-                                <br>     
+                                <div id='all_files' style="overflow-x:auto;">
+                                    <input type='checkbox' name='all' id='all'> Todos
+                                    <br><br>
+                                    <table name="files" id="files"></table>
+                                    <br><br>
+                                    <div class="form-group" id="stat2"></div>
+                                </div>   
                             </fieldset>
                         </form>
                         <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
@@ -253,36 +247,13 @@
                     $("#files").html(data);
                 }
             });
-        });
+        });       
         $("#enviar").click(function(){
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=tomar_musica", $("#testform2").serialize(), function(data, status) {
-                var res = data.split(";");
                 $("#stat2").show();
-				$("#stat2").html(res[1]);
-                $("#popup_container").val("");
-                $("#popup_container2").val("");
+				$("#stat2").html(data);
             });
         });
-        ///////////////////////////// ZONA DE DESTINOS //////////////////////////////
-        $.post("/recoger_destinos.cgi?sid={{sid}}&action=destinos", function(data, status) {
-            var res1 = data.split(";");
-            $("#dest_stat").show();
-            $("#stat2").show();
-            $("#destinos").html(res1[0]);
-            $("#dest_stat").html(res1[1]);
-            $("#stat2").html(res1[2]);
-        });
-        $("#destinos").dblclick(function(){
-            $.post("/recoger_destinos.cgi?sid={{sid}}&action=recoger_id", $("#testform2").serialize(), function(data, status) {
-                var res1 = data.split(";");
-                $("#dest_stat").show();
-                $("#stat2").show();
-                $("#destinos").html(res1[0]);
-                $("#dest_stat").html(res1[1]);
-                $("#stat2").html(res1[2]);
-            });
-        });
-        ////////////////////// FIN ZONA DE DESTINOS //////////////////////
 	});
 	</script>
 </body>

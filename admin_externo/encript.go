@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	//"github.com/isaacml/instore/libs"
+	"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
-	//"time"
+	"time"
 )
 
 
@@ -223,60 +223,34 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 			return
-		}	
+		}
 		for _, val := range ficheros {
 			if !val.IsDir() {
 				if strings.Contains(val.Name(), ".mp3"){
-					output += fmt.Sprintf("<input type='checkbox' name='enc_files'  value='%s'> %s <br>", val.Name(), val.Name())
+					output += fmt.Sprintf("<tr><td><input type='checkbox' name='enc_files' value='%s'></td><td> %s </td></tr>", val.Name(), val.Name())
 				}
 			}
 		}
 		fmt.Fprint(w, output)
 	}
-	//TOMA LOS FICHEROS DEL FORMULARIO 2, Y LOS PROCESA
-	//r.FormValue("type") == "publi", procedemos a insertar los datos en la tabla publi
+	//TOMAMOS LOS FICHEROS DE MUSICA DEL FORMULARIO 2
 	if r.FormValue("action") == "tomar_musica" {
-		fmt.Println(r.Form)
-		/*
-		//Variables
-		f_inicio := r.FormValue("f_inicio")
-		f_final := r.FormValue("f_fin")
-		if f_inicio == "" || f_final == "" {
-			output += ";<span style='color: #FF0303'>Los campos fecha no pueden estar vacíos</span>"
-			fmt.Fprint(w, output)
-		} else {
-			dest := estado_destino
-			timestamp := time.Now().Unix()
-			gap := r.FormValue("gap")
-			//trozeamos las fechas
-			arr_inicio := strings.Split(f_inicio, "/")
-			arr_final := strings.Split(f_final, "/")
-			//establecemos el formato de fechas para la BD --> yyyymmdd
-			fecha_SQL_inc := fmt.Sprintf("%s%s%s", arr_inicio[2], arr_inicio[1], arr_inicio[0])
-			fecha_SQL_fin := fmt.Sprintf("%s%s%s", arr_final[2], arr_final[1], arr_final[0])
-
-			for clave, valor := range r.Form {
-				for _, v := range valor {
-					if clave == "files" {
-						//Insertamos datos en la tabla interna del admininistrador (programaciones.sql)
-						stmt, err0 := db.Prepare("INSERT INTO publi (`ruta`, `fichero`, `fecha_inicio`, `fecha_final`, `destino`, `timestamp`, `gap`) VALUES (?,?,?,?,?,?,?)")
-						if err0 != nil {
-							Error.Println(err0)
-						}
-						db_mu.Lock()
-						_, err1 := stmt.Exec(directorio_actual, v, fecha_SQL_inc, fecha_SQL_fin, dest, timestamp, gap)
-						db_mu.Unlock()
-						if err1 != nil {
-							Error.Println(err1)
-							output += ";<span style='color: #FF0303'>Fallo al subir los ficheros</span>"
-							fmt.Fprint(w, output)
-						} else {
-							output += ";<span style='color: #2E8B57'>Archivo/os subido/os correctamente</span>"
-							fmt.Fprint(w, output)
-						}
-					}
+		cont := 0
+		actual := time.Now()
+		for clave, valor := range r.Form {		
+			for _, v := range valor {
+				if clave == "enc_files" {
+					cont ++
+					del_ext := strings.Split(v, ".mp3")
+					cifrado := del_ext[0] + ".xxx"
+					libs.Cifrado(directorio_actual+v, cifDir+cifrado, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+					transcurrido := time.Since(actual)
+					fmt.Println(transcurrido)
+					output = fmt.Sprintf("Cifrado %d de %d ", cont, len(valor))
+					
 				}
 			}
-		}*/
+		}
+		fmt.Fprint(w, output)
 	}
 }

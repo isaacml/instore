@@ -1,0 +1,18 @@
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 75%;
+    border: 1px solid #ddd;
+}
+
+th, td {
+    border: none;
+    text-align: left;
+    padding: 8px;
+}
+
+#directory { 
+    width: 40%;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
