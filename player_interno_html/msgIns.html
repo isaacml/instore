@@ -119,31 +119,19 @@
                 <div class="col-md-8 col-md-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Mensaje Instantaneo
+                            Añade un mensaje de manera inmediata
                         </div>
                         <div class="panel-body" align="center">
                             <form id="testform" action="" method="post">
                                 <fieldset>
-                                    <h5 class="text-muted">Unidades de Disco</h5>
+                                    <h5 class="text-muted">Elige el mensaje</h5>
                                     <br>
                                     <div class="form-group">
-                                        <select id="unidades" name="unidades" style="width:30%;"></select>
-                                    </div>   
-                                </fieldset>
-                            </form>
-                        </div>
-                        <div class="panel-body" align="center">
-                            <form id="testform1" action="" method="post">
-                                <fieldset>
-                                    <h5 class="text-muted">Directorios</h5>
-                                    <br>
-                                    <div class="form-group">
-                                        <select id="directory" name="directory" style="width:40%;"></select>
+                                        <select id="instantaneos" name="instantaneos" style="width:30%;"></select>
                                     </div>
-                                    <div class="form-group" id="statdir"></div>
-                                    <div class="form-group" id="statsend"></div>
-                                    <br>     
+                                    <div class="form-group" id="status"></div> 
                                 </fieldset>
+                                <br> 
                             </form>
                             <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
                         </div>
@@ -153,23 +141,19 @@
         </div>
     </div>
     <script type="text/javascript">
-        $.post("/explorerMusic.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
-            $("#unidades").html(data);
+        $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=mensajes", function(data, status) {
+            var res = data.split("#:#");
+            $("#instantaneos").html(res[0]);
+            $("#status").html(res[1]);
         });
-        $("#unidades").change(function(){
-            $.post("/explorerMusic.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
-                var res = data.split(";");
-                $("#directory").html(res[0]);
-                $("#statdir").show();
-                $("#statdir").html(res[1]);
+        $("#instantaneos").change(function(){
+            $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=status",  $("#testform").serialize(), function(data, status) {
+                $("#status").html(data);
             });
         });
-        $("#directory").change(function(){
-            $.post("/explorerMusic.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
-                var res = data.split(";");
-                $("#directory").html(res[0]);
-                $("#statdir").show();
-                $("#statdir").html(res[1]);
+        $("#enviar").click(function(){
+            $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=send",  $("#testform").serialize(), function(data, status) {
+                $("#status").html(data);
             });
         });
     </script>
