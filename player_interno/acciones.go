@@ -56,9 +56,10 @@ func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
 	//Recibe el mensaje instantaneo y lo procesa
 	if r.FormValue("action") == "send" {
 		var win winamp.Winamp
-		output = fmt.Sprintf("Mensaje Enviado")
 		//Reproducimos el mensaje instantaneo
 		win.PlayFFplay(msg_files_location + r.FormValue("instantaneos"))
+		//Mensaje de reproduccion acabada
+		output = fmt.Sprintf("<span style='color: #FF0303'>Reproducción Finalizada</span>")
 	}
 	fmt.Fprint(w, output)
 }

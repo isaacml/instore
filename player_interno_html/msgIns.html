@@ -18,7 +18,9 @@
 	};
 	</script>
     <title>Tienda</title>
-
+    <!-- CSS Tienda Interna -->
+    <link href="css/player_interno.css" rel="stylesheet">
+    
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
@@ -127,9 +129,10 @@
                                     <h5 class="text-muted">Elige el mensaje</h5>
                                     <br>
                                     <div class="form-group">
-                                        <select id="instantaneos" name="instantaneos" style="width:30%;"></select>
+                                        <select id="instantaneos" name="instantaneos"></select>
                                     </div>
-                                    <div class="form-group" id="status"></div> 
+                                    <div class="form-group" id="status">
+                                    </div>
                                 </fieldset>
                                 <br> 
                             </form>
@@ -152,6 +155,7 @@
             });
         });
         $("#enviar").click(function(){
+            $("#status").html("<span style='color: #006400'>Reproduciendo Mensaje</span>");
             $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=send",  $("#testform").serialize(), function(data, status) {
                 $("#status").html(data);
             });
