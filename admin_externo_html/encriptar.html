@@ -179,6 +179,7 @@
                         <div class="panel-body" align="center">
                         <form id="testform2" action="" method="post">
                             <fieldset>
+                                <div class="form-group" id="saved_files"></div>
                                 <div id='all_files' style="overflow-x:auto;">
                                     <input type='checkbox' name='all' id='all'> Todos
                                     <br><br>
@@ -188,7 +189,8 @@
                                 </div>   
                             </fieldset>
                         </form>
-                        <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
+                        <button id="enviar" class="btn btn-lg btn-success" name="enviar">Guardar</button>
+                        <button id="encript" class="btn btn-lg btn-success" name="encript">Encriptar</button>
                         </div>
                     </div>
                 </div>
@@ -198,7 +200,6 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
         $("#stat").hide();
-        $("#stat2").hide();
         $("#dest_stat").hide();
         $("#all_files").hide();
         $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
@@ -210,9 +211,12 @@
                 $("#zona_msg").hide();
             }
         });
+        guardarficheros();
+        //Boton seleccionar todos para el listado
         $("#all").click(function () {
             $('input:checkbox').not(this).prop('checked', this.checked);
         });
+        //Muestra la unidades de disco de nuestro sistema
         $.post("/encriptar_musica.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
     		$("#unidades").html(data);
 		});
@@ -240,6 +244,7 @@
 				$("#stat").show();
 				$("#stat").html(res[1]);
                 $("#stat2").hide();
+                $("#all").value("");
             });
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=ficheros", function(data, status) {
                 if (data != ""){
@@ -249,11 +254,19 @@
             });
         });       
         $("#enviar").click(function(){
-            $.post("/encriptar_musica.cgi?sid={{sid}}&action=tomar_musica", $("#testform2").serialize(), function(data, status) {
-                $("#stat2").show();
-				$("#stat2").html(data);
+            guardarficheros();
+        });
+        $("#encript").click(function(){
+            $.post("/estado_encriptacion.cgi?sid={{sid}}", function(data, status) {
+                $("#stat2").html(data);
             });
         });
+        function guardarficheros() {
+            //Muestra el numero de archivos que llevamos guardados
+            $.post("/encriptar_musica.cgi?sid={{sid}}&action=guardar", $("#testform2").serialize(), function(data, status) {
+                $("#saved_files").html(data);
+            }); 
+        }
 	});
 	</script>
 </body>

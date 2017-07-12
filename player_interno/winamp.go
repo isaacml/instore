@@ -67,7 +67,7 @@ func reproduccion() {
 		for _, v := range shuffle {
 			var song_duration int
 			song = music[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-			fmt.Println(song)
+			fmt.Println("TOCANDO:", song)
 			// .xxx = musica cif; Hay que descifrarla
 			if strings.Contains(song, ".xxx") {
 				del_ext := strings.Split(song, ".xxx")
@@ -86,6 +86,7 @@ func reproduccion() {
 				//Guardamos la duracion total de la cancion
 				song_duration = win.SongLenght(song)
 			}
+			//fmt.Println("CONTADOR DE GAPS: ", pl, gap)
 			//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 			//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 			if pl == gap {

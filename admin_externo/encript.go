@@ -7,9 +7,10 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
+	//"time"
 )
 
+var encript_files map[int]string = make(map[int]string) //Mapa que guarda los ficheros para encriptar
 
 func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -35,7 +36,7 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, output)
 	}
-
+	
 	//EXPLORADOR DE DIRECTORIOS --> FORMULARIO 1(testform)
 	if r.FormValue("action") == "dir_unidad" {
 		if r.FormValue("unidades") != "" {
@@ -212,7 +213,7 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 			
 		}
 	}
-	//EXPLORADOR DE FICHEROS --> Envia los ficheros al FORMULARIO 2 (testform2)
+	//Toma los ficheros de la carpeta y nos genera la tabla con los ficheros MP3 correspondientes
 	if r.FormValue("action") == "ficheros" {
 		file, err := os.Open(directorio_actual)
 		defer file.Close()
@@ -233,24 +234,39 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, output)
 	}
-	//TOMAMOS LOS FICHEROS DE MUSICA DEL FORMULARIO 2
-	if r.FormValue("action") == "tomar_musica" {
-		cont := 0
-		actual := time.Now()
+	//Guarda en un mapa los archivos de encriptacion
+	if r.FormValue("action") == "guardar" {
+		cont := len(encript_files)
 		for clave, valor := range r.Form {		
 			for _, v := range valor {
 				if clave == "enc_files" {
+					db_mu.Lock()
+					encript_files[cont] = directorio_actual + v //Se guardan los datos
+					db_mu.Unlock()
 					cont ++
-					del_ext := strings.Split(v, ".mp3")
-					cifrado := del_ext[0] + ".xxx"
-					libs.Cifrado(directorio_actual+v, cifDir+cifrado, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-					transcurrido := time.Since(actual)
-					fmt.Println(transcurrido)
-					output = fmt.Sprintf("Cifrado %d de %d ", cont, len(valor))
-					
 				}
 			}
 		}
+		//Muestra el numero de fichero que llevamos guardados para la encriptacion
+		output = fmt.Sprintf("%d ficheros para encriptar", len(encript_files))
 		fmt.Fprint(w, output)
+	}
+}
+
+func estado_encriptacion(w http.ResponseWriter, r *http.Request){
+	cont := 1
+	for _, v := range encript_files {
+		cont ++ 
+		del_ext := strings.Split(v, ".mp3")
+		cifrado := del_ext[0] + ".xxx"
+		separator := strings.TrimSuffix(v, "\\")
+		fmt.Println("separador: ", separator)
+		libs.Cifrado(v, cifDir+cifrado, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+		fmt.Fprint(w, fmt.Sprintf("Cifrado %d de %d ", cont, len(encript_files)))
+		/*
+		transcurrido := time.Since(actual)
+		fmt.Println(transcurrido)
+		time.Sleep(1*time.Second)
+		*/
 	}
 }

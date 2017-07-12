@@ -15,4 +15,9 @@ th, td {
     width: 40%;
 }
 
+#saved_files { 
+    color: #2E8B57;
+    font-weight: 500;
+}
+
 tr:nth-child(even){background-color: #f2f2f2}
