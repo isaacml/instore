@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/isaacml/instore/libs"
+	//"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
 	"os/exec"
@@ -248,25 +248,49 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		//Muestra el numero de fichero que llevamos guardados para la encriptacion
-		output = fmt.Sprintf("%d ficheros para encriptar", len(encript_files))
+		output = fmt.Sprintf("%d ficheros en la lista de encriptación", len(encript_files))
+		fmt.Fprint(w, output)
+	}
+	//Borra todos los elementos del mapa de encriptacion
+	if r.FormValue("action") == "borrar" {
+		for k := range encript_files {
+		    delete(encript_files, k)
+		}
+		output = fmt.Sprint("<span style='color: #2E8B57'>Se han borrado todos los ficheros</span>;")
+		output += fmt.Sprintf("%d ficheros en la lista de encriptación", len(encript_files))
+		fmt.Fprint(w, output)
+	}
+	//Muestra el listado de ficheros de música para encriptar
+	if r.FormValue("action") == "mostrar_listado" {
+		for _, v:= range encript_files {
+			partir_direccion := strings.Split(v, "\\")
+			mp3 := partir_direccion[len(partir_direccion)-1] // De aquí obtenemos el nombre de fichero y su extensión
+		    output += fmt.Sprintf("<tr><td> %s </td></tr>", mp3)
+		}
 		fmt.Fprint(w, output)
 	}
 }
-
-func estado_encriptacion(w http.ResponseWriter, r *http.Request){
-	cont := 1
+/*
+func encriptacion(){
+	cont := 0
 	for _, v := range encript_files {
-		cont ++ 
-		del_ext := strings.Split(v, ".mp3")
-		cifrado := del_ext[0] + ".xxx"
-		separator := strings.TrimSuffix(v, "\\")
-		fmt.Println("separador: ", separator)
+		cont ++
+		partir_direccion := strings.Split(v, "\\")
+		mp3 := partir_direccion[len(partir_direccion)-1] // De aquí obtenemos el nombre de fichero y su extensión
+		del_ext := strings.Split(mp3, ".mp3")	//Quitamos la extensión y nos quedamos con el nombre
+		cifrado := del_ext[0] + ".xxx"	//Le añadimos la extensión de encriptado(.xxx)
+		//Generamos el fichero de encriptación
 		libs.Cifrado(v, cifDir+cifrado, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-		fmt.Fprint(w, fmt.Sprintf("Cifrado %d de %d ", cont, len(encript_files)))
-		/*
+		fmt.Println(cont, len(encript_files))
+		//fmt.Fprintf(w, "Cifrado %d de %d\n", cont, len(encript_files))
+		time.Sleep(1*time.Second)
 		transcurrido := time.Since(actual)
 		fmt.Println(transcurrido)
-		time.Sleep(1*time.Second)
-		*/
+
 	}
+}
+*/
+
+func estado_encriptacion(w http.ResponseWriter, r *http.Request){
+
 }

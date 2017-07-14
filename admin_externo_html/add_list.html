@@ -8,15 +8,6 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/epoch_styles.css" />
-	<script type="text/javascript" src="js/epoch_classes.js"></script>
-	<script type="text/javascript">
-	var bas_cal,dp_cal,ms_cal;      
-	window.onload = function () {
-		dp_cal  = new Epoch('epoch_popup','popup',document.getElementById('popup_container'));
-		dp_cal2  = new Epoch('epoch_popup','popup',document.getElementById('popup_container2'));
-	};
-	</script>        
 
     <title>Encriptar Música</title>
 
@@ -133,7 +124,15 @@
                             </ul>
                         </li>
                         <li>
-                            <a href='encriptar.html?{{sid}}'><i class="fa fa-file-audio-o fa-fw"></i>Encriptar Música</a>
+                            <a href="#"><i class="fa fa-file-audio-o fa-fw"></i>Encriptar Música<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="add_list.html?{{sid}}">Crear Listado</a>
+                                </li>
+                                <li>
+                                    <a href="listado.html?{{sid}}">Mostrar Listado</a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="visible-xs">
                             <a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i>Desconectar</a>
@@ -149,7 +148,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            EXPLORADOR DE MUSICA
+                            SELECCIONA MÚSICA DE UNA O DIFERENTES CARPETAS
                         </div>
                         <div class="panel-body" align="center">
                         <form id="testform" action="" method="post">
@@ -189,8 +188,9 @@
                                 </div>   
                             </fieldset>
                         </form>
-                        <button id="enviar" class="btn btn-lg btn-success" name="enviar">Guardar</button>
-                        <button id="encript" class="btn btn-lg btn-success" name="encript">Encriptar</button>
+                        <button id="add" title="Añade los ficheros seleccionados" class="btn btn-lg btn-primary" name="add">Añadir a Listado</button>
+                        <br><br>
+                        <button id="borrar" title="Empezar de nuevo la selección" class="btn btn-lg btn-warning" name="borrar">Reiniciar Listado</button>
                         </div>
                     </div>
                 </div>
@@ -200,6 +200,7 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
         $("#stat").hide();
+        $("#stat2").hide();
         $("#dest_stat").hide();
         $("#all_files").hide();
         $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
@@ -228,6 +229,7 @@
                 $("#stat").show();
 				$("#stat").html(res[1]);
                 $("#stat2").hide();
+                $("#all").removeAttr('checked');
             });
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=ficheros",  function(data, status) {
                 if (data != ""){
@@ -244,7 +246,7 @@
 				$("#stat").show();
 				$("#stat").html(res[1]);
                 $("#stat2").hide();
-                $("#all").value("");
+                $("#all").removeAttr('checked');
             });
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=ficheros", function(data, status) {
                 if (data != ""){
@@ -253,13 +255,17 @@
                 }
             });
         });       
-        $("#enviar").click(function(){
+        $("#add").click(function(){
             guardarficheros();
         });
-        $("#encript").click(function(){
-            $.post("/estado_encriptacion.cgi?sid={{sid}}", function(data, status) {
-                $("#stat2").html(data);
-            });
+        $("#borrar").click(function(){
+            //Borra los ficheros seleccionados
+            $.post("/encriptar_musica.cgi?sid={{sid}}&action=borrar", function(data, status) {
+                var res = data.split(";");
+                $("#stat2").show();
+                $("#stat2").html(res[0]);
+                $("#saved_files").html(res[1]);
+            }); 
         });
         function guardarficheros() {
             //Muestra el numero de archivos que llevamos guardados
