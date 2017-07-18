@@ -1,4 +1,4 @@
-table {
+#files {
     border-collapse: collapse;
     border-spacing: 0;
     width: 75%;
@@ -19,5 +19,3 @@ th, td {
     color: #2E8B57;
     font-weight: 500;
 }
-
-tr:nth-child(even){background-color: #f2f2f2}

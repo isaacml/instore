@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	//"github.com/isaacml/instore/libs"
+	"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
-	//"time"
+	"time"
+	"strconv"
 )
 
 var encript_files map[int]string = make(map[int]string) //Mapa que guarda los ficheros para encriptar
@@ -262,16 +263,45 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 	}
 	//Muestra el listado de ficheros de música para encriptar
 	if r.FormValue("action") == "mostrar_listado" {
-		for _, v:= range encript_files {
+		for k, v:= range encript_files {
 			partir_direccion := strings.Split(v, "\\")
 			mp3 := partir_direccion[len(partir_direccion)-1] // De aquí obtenemos el nombre de fichero y su extensión
-		    output += fmt.Sprintf("<tr><td> %s </td></tr>", mp3)
+		    output += fmt.Sprintf("<tr><td> %s </td><td><button title='Borra este archivo del listado' class='btn btn-md btn-warning' onclick=\"delfile(%d)\"><i class='fa fa-trash-o'></i></button></td></tr>", mp3, k)
 		}
 		fmt.Fprint(w, output)
 	}
+	//Borrar un fichero de audio del listado de encriptacion
+	if r.FormValue("action") == "borrar_de_listado" {
+		id := r.FormValue("id_fichero")
+		intID, err := strconv.Atoi(id)
+		if err != nil {
+			Error.Println(err)
+			return
+		}
+		db_mu.Lock()
+		delete(encript_files, intID)
+		db_mu.Unlock()
+	}
+}
+
+func encriptacion(w http.ResponseWriter, r *http.Request){
+	cont := 0
+	for _, v := range encript_files {
+		cont ++
+		partir_direccion := strings.Split(v, "\\")
+		mp3 := partir_direccion[len(partir_direccion)-1] // De aquí obtenemos el nombre de fichero y su extensión
+		del_ext := strings.Split(mp3, ".mp3")	//Quitamos la extensión y nos quedamos con el nombre
+		cifrado := del_ext[0] + ".xxx"	//Le añadimos la extensión de encriptado(.xxx)
+		//Generamos el fichero de encriptación
+		libs.Cifrado(v, cifDir+cifrado, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+
+		fmt.Println(cont, len(encript_files))
+		fmt.Fprintf(w, "Cifrado %d de %d\n", cont, len(encript_files))
+
+		time.Sleep(1*time.Second)
+	}
 }
 /*
-func encriptacion(){
 	cont := 0
 	for _, v := range encript_files {
 		cont ++
@@ -290,7 +320,3 @@ func encriptacion(){
 	}
 }
 */
-
-func estado_encriptacion(w http.ResponseWriter, r *http.Request){
-
-}

@@ -151,15 +151,9 @@
                             LISTADO DE MÚSICA PARA ENCRIPTAR
                         </div>
                         <div class="panel-body" align="center">
-                        <form id="testform" action="" method="post">
-                            <fieldset>
-                                <div style="overflow-x:auto;">
-                                    <table name="listados" id="listados"></table>
-                                    <br><br>
-                                    <div class="form-group" id="stat"></div>
-                                </div>   
-                            </fieldset>
-                        </form>
+                            <table name="listados" id="listados"></table>
+                            <br><br>
+                            <div class="form-group" id="stat"></div>
                         <button id="encript" title="Encriptar los ficheros listados" class="btn btn-lg btn-success" name="encript">Encriptar</button>
                         </div>
                     </div>
@@ -182,7 +176,26 @@
         $.post("/encriptar_musica.cgi?sid={{sid}}&action=mostrar_listado", function(data, status) {
             $("#listados").html(data); 
         });
+        
 	});
+    $("#encript").click(function(){
+        setInterval(estado(), 1000);
+    });
+    //Funcion que borra un fichero del listado
+    function delfile(id){
+        if (confirm("¿Eliminar este audio de la lista?")){
+            $.post("/encriptar_musica.cgi?sid={{sid}}&action=borrar_de_listado&id_fichero="+id, function(data, status) {
+                location.reload();
+            });
+        }
+    }
+    //Muestra el estado de encriptacion
+    function estado(){
+        $.post("/encriptacion.cgi?sid={{sid}}", function(data, status) {
+            $("#stat").show();
+            $("#stat").html(data);
+        });
+    }
 	</script>
 </body>
 </html>
