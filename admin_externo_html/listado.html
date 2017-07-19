@@ -164,6 +164,7 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
         $("#stat").hide();
+        setInterval("estado()", 1000); //Cada segundo muestra el estado de la encriptacion
         $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -176,11 +177,11 @@
         $.post("/encriptar_musica.cgi?sid={{sid}}&action=mostrar_listado", function(data, status) {
             $("#listados").html(data); 
         });
-        
+        //Mandamos el listado a encriptar
+        $("#encript").click(function(){
+            $.post("/encriptar_musica.cgi?sid={{sid}}&action=encriptar", function(data, status) {});
+        });
 	});
-    $("#encript").click(function(){
-        setInterval(estado(), 1000);
-    });
     //Funcion que borra un fichero del listado
     function delfile(id){
         if (confirm("¿Eliminar este audio de la lista?")){
@@ -191,7 +192,7 @@
     }
     //Muestra el estado de encriptacion
     function estado(){
-        $.post("/encriptacion.cgi?sid={{sid}}", function(data, status) {
+        $.post("/estado_encriptacion.cgi?sid={{sid}}", function(data, status) {
             $("#stat").show();
             $("#stat").html(data);
         });
