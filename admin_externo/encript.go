@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 	"strconv"
+	"time"
 )
 //Mapa que guarda los ficheros para encriptar
 var encript_files map[int]string = make(map[int]string) 
@@ -287,17 +288,26 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 	//Encripta un listado completo
 	if r.FormValue("action") == "encriptar" {
 		cont := 0
-		for _, v := range encript_files {
+		totalFiles := len(encript_files) //Obtenemos el total de fichero para encriptar
+		for k, v := range encript_files {
 			cont ++
 			partir_direccion := strings.Split(v, "\\")
 			mp3 := partir_direccion[len(partir_direccion)-1] // De aquí obtenemos el nombre de fichero y su extensión
 			del_ext := strings.Split(mp3, ".mp3")	//Quitamos la extensión y nos quedamos con el nombre
 			cifrado := del_ext[0] + ".xxx"	//Le añadimos la extensión de encriptado(.xxx)
 			//Generamos el fichero de encriptación
-			libs.Cifrado(v, cifDir+cifrado, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-			//Guardamos el estado de encriptacion
-			estado_encript = fmt.Sprintf("<span style='color: #2E8B57'>Cifrado %d de %d</span>", cont, len(encript_files))
+			_, estado := libs.Cifrado(v, cifDir+cifrado, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+			if estado == "GOOD"{
+				//Guardamos el estado de encriptacion
+				db_mu.Lock()
+				estado_encript = fmt.Sprintf("<span style='color: #000080'>Cifrado %d de %d</span>", cont, totalFiles)
+				//Borramos del listado una vez encriptado
+				delete(encript_files, k)
+				db_mu.Unlock()
+			}
 		}
+		time.Sleep(1 * time.Second) //despues de que pase 1 segundo ponemos reiniciamos el estado
+		estado_encript = ""
 	}
 }
 //Imprime el estado de encriptacion cada seg

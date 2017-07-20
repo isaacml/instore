@@ -347,21 +347,24 @@ Cifrado: Funcion que cifra o descifra un fichero existente.
 	origen:  fichero origen
 	destino: fichero destino
 	key: 	 patrón por el que va a ser cifrado.
-Devuelve un error en caso de que algo no haya salido bien.
+Devuelve un error en caso de que algo no haya salido bien(en formato err y string).
 */
-func Cifrado(origen, destino string, key []byte) error {
+func Cifrado(origen, destino string, key []byte) (error, string) {
 	var fail error
+	var outString string
 	p := make([]byte, 8) //Va a contener el archivo origen en bloques de 8 bytes
 	var container []byte //Va almacenar los datos del fichero de destino
 	file, err := os.OpenFile(origen, os.O_RDONLY, 0666)
 	if err != nil {
 		fail = fmt.Errorf("Error en la apertura")
+		outString = "BAD"
 	}
 	lector := bufio.NewReader(file)
 	for {
 		num, err := lector.Read(p)
 		if err != nil {
 			fail = fmt.Errorf("Fin de lectura")
+			outString = "END"
 			break
 		}
 		if num <= 0 {
@@ -373,6 +376,12 @@ func Cifrado(origen, destino string, key []byte) error {
 		}
 	}
 	//Escribimos el fichero
-	ioutil.WriteFile(destino, container, 0666)
-	return fail
+	err = ioutil.WriteFile(destino, container, 0666)
+	if err != nil {
+		fail = fmt.Errorf("Error en escritura")
+		outString = "BAD"
+	}else{
+		outString = "GOOD"
+	}
+	return fail, outString
 }
