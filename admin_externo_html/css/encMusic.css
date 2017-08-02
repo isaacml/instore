@@ -12,10 +12,7 @@ th, td {
 }
 
 #directory { 
-    width: 40%;
-}
-
-#saved_files { 
-    color: #2E8B57;
-    font-weight: 500;
+    width: 50%;
+    height: 20em;
+    
 }

@@ -127,10 +127,10 @@
                             <a href="#"><i class="fa fa-file-audio-o fa-fw"></i>Encriptar Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="add_list.html?{{sid}}">Crear Listado</a>
+                                    <a href="add_list.html?{{sid}}">Añadir Carpetas</a>
                                 </li>
                                 <li>
-                                    <a href="almacenes.html?{{sid}}">Listado</a>
+                                    <a href="listado.html?{{sid}}">Mostrar Carpetas</a>
                                 </li>
                             </ul>
                         </li>
@@ -148,13 +148,15 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            LISTADO DE MÚSICA PARA ENCRIPTAR
+                            LISTADO DE CARPETAS PARA ENCRIPTAR
                         </div>
                         <div class="panel-body" align="center">
-                            <table name="listados" id="listados"></table>
+                            <br>
+                            <button id="encript" title="Encriptar carpetas y subcarpetas" class="btn btn-lg btn-success" name="encript">Encriptar</button>
                             <br><br>
-                            <div class="form-group" id="stat"></div>
-                        <button id="encript" title="Encriptar los ficheros listados" class="btn btn-lg btn-success" name="encript">Encriptar</button>
+                            <table name="encriptados" id="encriptados"></table>
+                            <br>
+                            <table name="listados" id="listados"></table>
                         </div>
                     </div>
                 </div>
@@ -163,7 +165,8 @@
     </div>
 	<script type="text/javascript">
 	$(document).ready(function(){
-        $("#stat").hide();
+        $("#encriptados").hide();
+        $("#listados").show();
         setInterval("estado()", 1000); //Cada segundo muestra el estado de la encriptacion
         $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
             var res = data.split(";");
@@ -179,13 +182,15 @@
         });
         //Mandamos el listado a encriptar
         $("#encript").click(function(){
+            $("#listados").hide();
+            $("#encriptados").show();
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=encriptar", function(data, status) {});
         });
 	});
     //Funcion que borra un fichero del listado
     function delfile(id){
-        if (confirm("¿Eliminar este audio de la lista?")){
-            $.post("/encriptar_musica.cgi?sid={{sid}}&action=borrar_de_listado&id_fichero="+id, function(data, status) {
+        if (confirm("¿Quiere eliminar esta carpeta?")){
+            $.post("/encriptar_musica.cgi?sid={{sid}}&action=borrar_de_listado&id_directory="+id, function(data, status) {
                 location.reload();
             });
         }
@@ -193,8 +198,7 @@
     //Muestra el estado de encriptacion
     function estado(){
         $.post("/estado_encriptacion.cgi?sid={{sid}}", function(data, status) {
-            $("#stat").show();
-            $("#stat").html(data);
+            $("#encriptados").html(data); 
         });
     }
 	</script>

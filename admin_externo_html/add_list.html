@@ -8,7 +8,6 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-
     <title>Encriptar Música</title>
 
     <!-- Bootstrap Core CSS -->
@@ -127,10 +126,10 @@
                             <a href="#"><i class="fa fa-file-audio-o fa-fw"></i>Encriptar Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="add_list.html?{{sid}}">Crear Listado</a>
+                                    <a href="add_list.html?{{sid}}">Añadir Carpetas</a>
                                 </li>
                                 <li>
-                                    <a href="listado.html?{{sid}}">Mostrar Listado</a>
+                                    <a href="listado.html?{{sid}}">Mostrar Carpetas</a>
                                 </li>
                             </ul>
                         </li>
@@ -148,7 +147,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            SELECCIONA MÚSICA DE UNA O DIFERENTES CARPETAS
+                            SELECCIONA UNA O VARIAS CARPETAS PARA ENCRIPTAR
                         </div>
                         <div class="panel-body" align="center">
                         <form id="testform" action="" method="post">
@@ -156,41 +155,25 @@
                                 <h5 class="text-muted">Unidades de Disco</h5>
                                 <br>
                                 <div class="form-group">
-                                    <select id="unidades" name="unidades" style="width:30%;"></select>
-                                </div>   
+                                    <select id="unidades" name="unidades" style="width:40%;"></select>
+                                </div>
+                                <div class="form-group" id="stat"></div>
                             </fieldset>
                         </form>
                         </div>
                         <div class="panel-body" align="center">
                         <form id="testform1" action="" method="post">
                             <fieldset>
-                                <h5 class="text-muted">Carpeta de Música</h5>
+                                <h5 class="text-muted">Explorador de Directorios</h5>
                                 <br>
+                                <div class="form-group" id="stat2"></div>
                                 <div class="form-group">
-                                    <select id="directory" name="directory"></select>
-                                </div>
-                                <div class="form-group" id="stat">
-                                </div>
-                                <br>     
-                            </fieldset>
-                        </form>
-                        </div>
-                        <div class="panel-body" align="center">
-                        <form id="testform2" action="" method="post">
-                            <fieldset>
-                                <div class="form-group" id="saved_files"></div>
-                                <div id='all_files' style="overflow-x:auto;">
-                                    <input type='checkbox' name='all' id='all'> Todos
-                                    <br><br>
-                                    <table name="files" id="files"></table>
-                                    <br><br>
-                                    <div class="form-group" id="stat2"></div>
+                                    <select id="directory" name="directory" multiple></select>
                                 </div>   
                             </fieldset>
                         </form>
-                        <button id="add" title="Añade los ficheros seleccionados" class="btn btn-lg btn-primary" name="add">Añadir a Listado</button>
-                        <br><br>
-                        <button id="borrar" title="Empezar de nuevo la selección" class="btn btn-lg btn-warning" name="borrar">Reiniciar Listado</button>
+                        <button id="add" title="Añadir carpeta/as para cifrar" class="btn btn-lg btn-primary" name="add">Añadir</button>
+                        <button id="borrar" title="Empezar de nuevo la selección" class="btn btn-lg btn-warning" name="borrar">Reiniciar</button>
                         </div>
                     </div>
                 </div>
@@ -200,9 +183,6 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
         $("#stat").hide();
-        $("#stat2").hide();
-        $("#dest_stat").hide();
-        $("#all_files").hide();
         $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -212,67 +192,42 @@
                 $("#zona_msg").hide();
             }
         });
-        guardarficheros();
-        //Boton seleccionar todos para el listado
-        $("#all").click(function () {
-            $('input:checkbox').not(this).prop('checked', this.checked);
-        });
         //Muestra la unidades de disco de nuestro sistema
-        $.post("/encriptar_musica.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
-    		$("#unidades").html(data);
+        $.post("/encriptar_musica.cgi?sid={{sid}}&action=unidades",  function(data, status) {
+            var res = data.split(";");
+    		$("#unidades").html(res[0]);
+            $("#stat2").html(res[1]);
 		});
         $("#unidades").change(function(){
-            $("#all_files").hide();
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
                 var res = data.split(";");
 				$("#directory").html(res[0]);
                 $("#stat").show();
 				$("#stat").html(res[1]);
-                $("#stat2").hide();
-                $("#all").removeAttr('checked');
-            });
-            $.post("/encriptar_musica.cgi?sid={{sid}}&action=ficheros",  function(data, status) {
-                if (data != ""){
-                    $("#all_files").show(); //option all for checkbox
-                    $("#files").html(data);
-                }
             });
         });
-        $("#directory").change(function(){
-            $("#all_files").hide();
+        $("#directory").dblclick(function(){
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
                 var res = data.split(";");
                 $("#directory").html(res[0]);
 				$("#stat").show();
 				$("#stat").html(res[1]);
-                $("#stat2").hide();
-                $("#all").removeAttr('checked');
             });
-            $.post("/encriptar_musica.cgi?sid={{sid}}&action=ficheros", function(data, status) {
-                if (data != ""){
-                    $("#all_files").show(); //option all for checkbox
-                    $("#files").html(data);
-                }
-            });
-        });       
+        }); 
         $("#add").click(function(){
-            guardarficheros();
+            //Muestra el numero de archivos que llevamos guardados
+            $.post("/encriptar_musica.cgi?sid={{sid}}&action=guardar", $("#testform1").serialize(), function(data, status) {
+                $("#saved_files").html(data);
+                $("#stat2").html(data);
+            }); 
         });
         $("#borrar").click(function(){
             //Borra los ficheros seleccionados
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=borrar", function(data, status) {
                 var res = data.split(";");
-                $("#stat2").show();
-                $("#stat2").html(res[0]);
-                $("#saved_files").html(res[1]);
+                $("#stat2").html(data);
             }); 
         });
-        function guardarficheros() {
-            //Muestra el numero de archivos que llevamos guardados
-            $.post("/encriptar_musica.cgi?sid={{sid}}&action=guardar", $("#testform2").serialize(), function(data, status) {
-                $("#saved_files").html(data);
-            }); 
-        }
 	});
 	</script>
 </body>
