@@ -20,7 +20,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	//Generamos el select de entidades
 	if accion == "entidad" {
 		user := r.FormValue("username")
-		query, err := db.Query("SELECT id FROM usuarios WHERE user = ?", user)
+		query, err := db.Query("SELECT padre_id FROM usuarios WHERE user = ?", user)
 		if err != nil {
 			Error.Println(err)
 		}

@@ -234,11 +234,12 @@
         });
 		$("#enviar").click(function(){
 			$.post("/alta_users.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
+                var res = data.split(";");
                 $("#stat").show();
-				$("#stat").html(data);
-                $("#user").val("");
-				$("#name_user").val("");
-				$("#pass").val("");
+                $("#user").val(res[0]);
+				$("#name_user").val(res[1]);
+				$("#pass").val(res[2]);
+                $("#stat").html(res[3]);
                 table();
 	        });
         });

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	//"github.com/isaacml/instore/libs"
 	"net/http"
-	"strconv"
+	//"strconv"
 	"time"
 )
 
@@ -23,55 +23,33 @@ var bad, empty string
 
 //Función para dar de alta nuevos usuarios
 func alta_users(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm() // recupera campos del form tanto GET como POST
+	// Recupera campos del form tanto GET como POST
+	r.ParseForm() 
+	//FORMATO DE SALIDA: usuario;nom_completo;contraseña;status
+	var output string 
+	//VARIABLE DE FORMULARIO
 	user := r.FormValue("user")
 	name_user := r.FormValue("name_user")
 	pass := r.FormValue("pass")
-	nom_user := r.FormValue("padre")
+	father := r.FormValue("padre")
 	input_entidad := r.FormValue("input_entidad")
-
-	//Seleccionamos el usuario y la entidad de un padre concreto
-	query, err := db.Query("SELECT id, user, entidad_id, padre_id FROM usuarios WHERE user = ?", nom_user)
-	if err != nil {
-		Error.Println(err)
-	}
-	for query.Next() {
-		var id, ent_bd, padre_id, id_admin int
-		var user_bd string
-		err = query.Scan(&id, &user_bd, &ent_bd, &padre_id)
-		if err != nil {
-			Error.Println(err)
+	//Comprobamos que ninguno de los campos esté vacio
+	if user == "" || name_user == "" || pass == "" || input_entidad == "" {
+		output = fmt.Sprintf("%s;%s;;<div class='form-group text-warning'>Hay campos vacios</div>", user, name_user)
+	} else {
+		var existe_usuario int
+		//Comprobamos si existe o NO el usuario en base de datos
+		err1 := db.QueryRow("SELECT count(*) FROM usuarios WHERE user = ?", user).Scan(&existe_usuario)
+		if err1 != nil {
+			Error.Println(err1)
 		}
-		//Hacemos un select para obtener el id de los usuarios super-admin
-		errAdm := db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
-		if errAdm != nil {
-			Error.Println(errAdm)
-		}
-		//Si es un usuario super-admin o el usuario tiene un creador que es super-admin le permitimos añadir nuevos usuarios
-		if padre_id == 0 || padre_id == id_admin {
-			var entidad, bitmap int
-			//Comprobamos que no hay dos usuarios con el mismo nombre
-			if user_bd == user { 
-				bad := "Fallo al añadir: el usuario ya existe"
-				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-				return
-			}
-			//Se comprueba que no hay inputs vacios
-			if user == "" || name_user == "" || pass == "" {
-				empty := "Hay campos sin rellenar"
-				fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-				return
-			}else if input_entidad == "" {
-				empty := "Debe añadir una entidad"
-				fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
-				return
-			}
-			if input_entidad != "" {
-				//tomamos el id_entidad, proporcionado por el select de formulario
-				entidad, err = strconv.Atoi(input_entidad)
-				if err != nil {
-					Error.Println(err)
-				}
+		//Usuario no existe, continuamos...
+		if existe_usuario == 0 {
+			var id_admin, bitmap int
+			//Tomamos el identificador del padre
+			err2 := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", father).Scan(&id_admin)
+			if err2 != nil {
+				Error.Println(err2)
 			}
 			//Generar el bitmap de acciones en hexadecimal
 			if r.FormValue("prog_pub") != "" {
@@ -93,24 +71,23 @@ func alta_users(w http.ResponseWriter, r *http.Request) {
 				bitmap = bitmap + MSG_NORMAL
 			}
 			bitmap_hex := fmt.Sprintf("%x", bitmap)  //Se guarda el valor del bitmap en hexadecimal
+			//Insertamos los datos en BD
 			db_mu.Lock()
 			_, err1 := db.Exec("INSERT INTO usuarios (`user`, `old_user`, `pass`, `nombre_completo`, `entidad_id`, `padre_id`, `bitmap_acciones`) VALUES (?,?,?,?,?,?,?)",
-				user, user, pass, name_user, entidad, id, bitmap_hex)
+				user, user, pass, name_user, input_entidad, id_admin, bitmap_hex)
 			db_mu.Unlock()
 			if err1 != nil {
 				Error.Println(err1)
-				bad := "Fallo al añadir usuario"
-				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+				output = fmt.Sprintf(";;;<div class='form-group text-danger'>Fallo al añadir usuario</div>")
 			} else {
-				good := "Usuario añadido correctamente"
-				fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
+				output = fmt.Sprintf(";;;<div class='form-group text-success'>Usuario añadido correctamente</div>")
 			}
 		} else {
-			bad := "Solo un usuario ROOT puede añadir nuevos usuarios"
-			fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+			//ERROR: el usuario ya existe
+			output = fmt.Sprintf(";%s;;<div class='form-group text-danger'>El usuario ya existe, prueba con otro</div></div>", name_user)
 		}
 	}
-	
+	fmt.Fprint(w, output)
 }
 
 //Función para dar de alta una nueva entidad
