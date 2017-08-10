@@ -10,31 +10,75 @@ import (
 func get_users(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	username := r.FormValue("username")
-	
-	query, err := db.Query("SELECT id FROM usuarios WHERE user = ?", username)
-	if err != nil {
-		Error.Println(err)
+	var tabla string
+	var id_user, dad_id int
+	err0 := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &dad_id)
+	if err0 != nil {
+		Error.Println(err0)
 	}
-	for query.Next() {
-		var id, dad_id int
-		var user, all_name, pass string
-		err = query.Scan(&dad_id)
-		if err != nil {
-			Error.Println(err)
-		}
-		query, err := db.Query("SELECT id, user, nombre_completo, pass FROM usuarios WHERE padre_id = ?", dad_id)
+	tabla = "<table class='table table-striped table-bordered table-hover' id='dataTables-example'>"
+	//padre = 0 : es un usuario SUPER-ADMIN, muestra todos los usuarios
+	if dad_id == 0 {
+		var id, padre_id int
+		var user, all_name, pass, creador string
+		query, err := db.Query("SELECT id, user, nombre_completo, pass, padre_id FROM usuarios")
 		if err != nil {
 			Warning.Println(err)
 		}
+		tabla += "<thead><tr><th>Usuario</th><th class='hidden-xs'>Nombre Completo</th><th>Contraseña</th><th>Creador</th></tr></thead><tbody>"
+		for query.Next() {
+			err = query.Scan(&id, &user, &all_name, &pass, &padre_id)
+			if err != nil {
+				Error.Println(err)
+			}
+			if padre_id != 0 {
+				err = db.QueryRow("SELECT user FROM usuarios WHERE id = ?", padre_id).Scan(&creador)
+				if err != nil {
+					Warning.Println(err)
+				}
+			}
+			tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td class='hidden-xs'><td>%s</td><td>%s</td><td>%s</td></tr>", 
+						id, user, all_name, pass, creador)
+		}
+	}else if dad_id == 1 { //padre = 1, su creador es el super-admin, muestra todos los usuarios que ha creado el y sus hijos
+		var id, padre_id int
+		var user, all_name, pass, creador string
+		query, err := db.Query("SELECT id, user, nombre_completo, pass, padre_id FROM usuarios WHERE entidad_id IN (SELECT id FROM entidades WHERE creador_id = ?)", id_user)
+		if err != nil {
+			Warning.Println(err)
+		}
+		tabla += "<thead><tr><th>Usuario</th><th class='hidden-xs'>Nombre Completo</th><th>Contraseña</th><th>Creador</th></tr></thead><tbody>"
+		for query.Next() {
+			err = query.Scan(&id, &user, &all_name, &pass, &padre_id)
+			if err != nil {
+				Error.Println(err)
+			}
+			err = db.QueryRow("SELECT user FROM usuarios WHERE id = ?", padre_id).Scan(&creador)
+			if err != nil {
+				Warning.Println(err)
+			}
+			tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td><td class='hidden-xs'>%s</td><td>%s</td><td>%s</td></tr>", 
+						id, user, all_name, pass, creador)
+		}
+	} else { //Usuario Normal: Solo puede ver los usuarios que él ha creado
+		var id int
+		var user, all_name, pass string
+		query, err := db.Query("SELECT id, user, nombre_completo, pass FROM usuarios WHERE padre_id = ?", id)
+		if err != nil {
+			Warning.Println(err)
+		}
+		tabla += "<thead><tr><th>Usuario</th><th class='hidden-xs'>Nombre Completo</th><th>Contraseña</th></tr></thead><tbody>"
 		for query.Next() {
 			err = query.Scan(&id, &user, &all_name, &pass)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td><td>%s</td><td>%s</td></tr>", 
+			tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td><td class='hidden-xs'>%s</td><td>%s</td></tr>", 
 						id, user, all_name, pass)
 		}
 	}
+	tabla += "</tbody></table>"
+	fmt.Fprint(w, tabla)
 }
 //Función que va a mostrar las entidades en una tabla segun su usuario creador
 func get_entidad(w http.ResponseWriter, r *http.Request) {

@@ -8,76 +8,69 @@ import (
 //Función que va a mostrar un select de entidades (alta_users.html) 
 func user_entidad(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
-	user := r.FormValue("username")
-	query, err := db.Query("SELECT id, entidad_id, padre_id FROM usuarios WHERE user = ?", user)
-	if err != nil {
-		Error.Println(err)
+	user := r.FormValue("username") //Recogemos usuario autentificado en el panel de administrador
+	var list string
+	var id, entidad, padre int
+	//tomamos el id_usuario, el id_entidad a la que pertenece y el id de su padre
+	err0 := db.QueryRow("SELECT id, entidad_id, padre_id FROM usuarios WHERE user = ?", user).Scan(&id, &entidad, &padre)
+	if err0 != nil {
+		Error.Println(err0)
 	}
-	for query.Next() {
-		var id, entidad, padre, id_ent int
+	//padre = 0 : es un usuario SUPER-ADMIN, puede ver todas las entidades
+	if padre == 0 {
 		var name string
-		err = query.Scan(&id, &entidad, &padre)
+		var id_ent int
+		query, err := db.Query("SELECT id, nombre FROM entidades")
 		if err != nil {
 			Error.Println(err)
 		}
-		//entidad = 0 and padre = 0 : es un usuario SUPER-ADMIN, puede ver todas las entidades
-		if entidad == 0 && padre == 0 {
-			var list string
-			query, err := db.Query("SELECT id, nombre FROM entidades")
-			if err != nil {
-				Error.Println(err)
-			}
-			if query.Next() {
-				  list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
-			      query.Scan(&id_ent, &name)
-			      list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-			      for query.Next() {
-			          query.Scan(&id_ent, &name)
-				      if err != nil {
-						Error.Println(err)
-					  }
-					  list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-			      }
-			      list += "</select></div>"
-			} else {
-			      list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
-			}
-			fmt.Fprint(w, list)
-			return
-		} else {
-			var id_admin int
-			//Hacemos un select para obtener el id del super-admin
-			err := db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
-			if err != nil {
-				Error.Println(err)
-			}
-			//creador es un super-admin: por lo tanto, es un usuario ROOT; le permitimos ver sus entidades
-			if padre == id_admin {
-				var list string
-				query, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id=?", id)
-				if err != nil {
+		if query.Next() {
+			  list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
+		      query.Scan(&id_ent, &name)
+		      list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+		      for query.Next() {
+		          query.Scan(&id_ent, &name)
+			      if err != nil {
 					Error.Println(err)
-				}
-				if query.Next() {
-					  list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
-				      query.Scan(&id_ent, &name)
-				      list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-				      for query.Next() {
-				          query.Scan(&id_ent, &name)
-					      if err != nil {
-							Error.Println(err)
-						  }
-						  list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-				      }
-				      list += "</select></div>"
-				} else {
-				      list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
-				}
-				fmt.Fprint(w, list)
-				return
-			}
+				  }
+				  list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+		      }
+		      list += "</select></div>"
+		} else {
+		      list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
 		}
+	} else if padre == 1 { //padre = 1, su creador es el super-admin, puede ver todas las entidades que ha creado.
+		var name string
+		var id_ent int
+		query, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id=?", id)
+		if err != nil {
+			Error.Println(err)
+		}
+		if query.Next() {
+			  list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
+		      query.Scan(&id_ent, &name)
+		      list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+		      for query.Next() {
+		          query.Scan(&id_ent, &name)
+			      if err != nil {
+					Error.Println(err)
+				  }
+				  list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+		      }
+		      list += "</select></div>"
+		} else {
+		      list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
+		}
+	} else { //Es un usuario normal: solo le permitimos ver la entidad a la que el pertenece
+		var name string
+		var id_ent int
+		err1 := db.QueryRow("SELECT id, nombre FROM entidades WHERE id = ?", entidad).Scan(&id_ent, &name)
+		if err1 != nil {
+			Error.Println(err1)
+		}
+		list = fmt.Sprintf("<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='%d'>%s</option></select></div>", id_ent, name)
 	}
+	fmt.Fprint(w, list)
 }
 
 //Función que va a mostrar un select de entidades según el usuario (ROOT o normal)
