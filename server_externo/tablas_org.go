@@ -63,7 +63,7 @@ func get_users(w http.ResponseWriter, r *http.Request) {
 	} else { //Usuario Normal: Solo puede ver los usuarios que él ha creado
 		var id int
 		var user, all_name, pass string
-		query, err := db.Query("SELECT id, user, nombre_completo, pass FROM usuarios WHERE padre_id = ?", id)
+		query, err := db.Query("SELECT id, user, nombre_completo, pass FROM usuarios WHERE padre_id = ?", id_user)
 		if err != nil {
 			Warning.Println(err)
 		}

@@ -108,7 +108,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li>
+                        <li id="publi_and_msg">
                             <a href="#"><i class="fa fa-edit fa-fw"></i>Programar<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li id="zona_publi">
@@ -211,7 +211,11 @@
         $("#modificar").hide();
         $("#editActions").hide();
         $.post("/user_entidad.cgi?sid={{sid}}", function(data, status) {
-            $("#ent").html(data);
+            if (data == "DisableEnt"){
+                $("#ent").hide();
+            }else{
+                $("#ent").html(data); 
+            }
         });
         $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
             var res = data.split(";");
@@ -220,6 +224,9 @@
             }
             if (res[2] == 0){
                 $("#zona_msg").hide();
+            }
+            if ((res[0] == 0) && (res[2] == 0)){
+                $("#publi_and_msg").hide();
             }
         });
 		$("#enviar").click(function(){

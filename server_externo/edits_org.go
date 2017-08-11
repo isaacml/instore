@@ -54,6 +54,7 @@ func edit_own_user(w http.ResponseWriter, r *http.Request) {
 //Función que va a modificar a un usuario concreto por su identificador
 func edit_user(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
+	var output string
 	edit_id := r.FormValue("edit_id")
 	user := r.FormValue("user")
 	name_user := r.FormValue("name_user")
@@ -62,8 +63,7 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 	admin_user := r.FormValue("admin_user")
 
 	if user == "" || name_user == "" || pass == "" {
-		empty = "Los campos no pueden estar vacíos"
-		fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
+		output = "<div class='form-group text-danger'>Error al editar: hay campos vacíos</div>"
 	} else {
 		//Generar el bitmap de acciones en hexadecimal
 		var bitmap int
@@ -88,44 +88,41 @@ func edit_user(w http.ResponseWriter, r *http.Request) {
 		//Aquí se guarda el valor del bitmap en hexadecimal
 		bitmap_hex := fmt.Sprintf("%x", bitmap)
 
-		query, err := db.Query("SELECT entidad_id FROM usuarios WHERE user = ?", admin_user)
+		query, err := db.Query("SELECT padre_id FROM usuarios WHERE user = ?", admin_user)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var entidad_id int
-			err = query.Scan(&entidad_id)
+			var padre_id int
+			err = query.Scan(&padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			if entidad_id == 0 {
+			if padre_id == 0 || padre_id == 1 {
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, entidad_id=?, bitmap_acciones=? WHERE id = ?",
 					user, user, name_user, pass, entidad, bitmap_hex, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
-					bad = "Fallo al modificar usuario"
-					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+					output = "<div class='form-group text-danger'>Fallo al modificar usuario</div>"
 				} else {
-					good := "Usuario modificado correctamente"
-					fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
+					output = "<div class='form-group text-success'>Usuario modificado correctamente</div>"
 				}
-			} else {
+			}else{
 				db_mu.Lock()
 				_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, bitmap_acciones=? WHERE id = ?", user, user, name_user, pass, bitmap_hex, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
-					bad = "Fallo al modificar usuario"
-					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+					output = "<div class='form-group text-danger'>Fallo al modificar usuario</div>"
 				} else {
-					good := "Usuario modificado correctamente"
-					fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
+					output = "<div class='form-group text-success'>Usuario modificado correctamente</div>"
 				}
 			}
 		}
 	}
+	fmt.Fprint(w, output)
 }
 
 //Función que va a modificar a una entidad concreta

@@ -61,14 +61,8 @@ func user_entidad(w http.ResponseWriter, r *http.Request) {
 		} else {
 		      list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
 		}
-	} else { //Es un usuario normal: solo le permitimos ver la entidad a la que el pertenece
-		var name string
-		var id_ent int
-		err1 := db.QueryRow("SELECT id, nombre FROM entidades WHERE id = ?", entidad).Scan(&id_ent, &name)
-		if err1 != nil {
-			Error.Println(err1)
-		}
-		list = fmt.Sprintf("<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='%d'>%s</option></select></div>", id_ent, name)
+	} else { //Es un usuario normal: No puede ver ninguna entidad, los usuarios que añade, se añaden a su propia entidad
+		list = "DisableEnt"
 	}
 	fmt.Fprint(w, list)
 }
