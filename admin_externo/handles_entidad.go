@@ -18,8 +18,7 @@ func entidad(w http.ResponseWriter, r *http.Request) {
 		correct_res := libs.DeleteSplitsChars(r.FormValue("entidad"))
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/entidad.cgi", "entidad;"+correct_res, "username;"+username))
 		if respuesta == "OK" {
-			good = "Entidad añadida correctamente"
-			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
+			fmt.Fprint(w, "<div class='form-group text-success'>Entidad añadida correctamente</div>")
 		} else {
 			fmt.Fprint(w, respuesta)
 		}
@@ -64,8 +63,7 @@ func edit_entidad(w http.ResponseWriter, r *http.Request) {
 		correct_res := libs.DeleteSplitsChars(r.FormValue("entidad"))
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/edit_entidad.cgi", "edit_id;"+r.FormValue("id"), "entidad;"+correct_res, "username;"+username))
 		if respuesta == "OK" {
-			good = "Entidad modificada correctamente"
-			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
+			fmt.Fprint(w, "<div class='form-group text-success'>Entidad modificada correctamente</div>")
 		} else {
 			fmt.Fprint(w, respuesta)
 		}

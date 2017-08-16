@@ -16,22 +16,22 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var domain string
 	accion := r.FormValue("action")
-
+	
 	//Generamos el select de entidades
 	if accion == "entidad" {
+		var padre_id, id_ent int
+		var list, name string
 		user := r.FormValue("username")
-		query, err := db.Query("SELECT padre_id FROM usuarios WHERE user = ?", user)
+		err := db.QueryRow("SELECT padre_id FROM usuarios WHERE user = ?", user).Scan(&padre_id)
 		if err != nil {
 			Error.Println(err)
 		}
-		for query.Next() {
-			var entidad, id_ent int
-			var list, name string
-			err = query.Scan(&entidad)
-			if err != nil {
-				Error.Println(err)
-			}
-			query, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id=?", entidad)
+		if padre_id == 0 || padre_id == 1 { // Cuando es un usuario SUPER_ADMIN o ROOT, no es necesaria una configuracion.
+			//Mostramos un mensaje informativo
+			list = "<br><span style='color: #C90101'>Usuario Administrador: no requiere configuración</span>"
+		} else {
+			//Muestra las entidades que su padre ha creado. 
+			query, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id=?", padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
@@ -51,8 +51,9 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay entidades</option>"
 			}
 			list += "</select></div>"
-			fmt.Fprint(w, list)
+			
 		}
+		fmt.Fprint(w, list)
 	}
 	//Generamos el select de almacenes y guardamos el dominio
 	if accion == "almacen" {
