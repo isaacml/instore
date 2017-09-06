@@ -18,6 +18,17 @@ var (
 	Error   *log.Logger
 	db      *sql.DB
 	db_mu   sync.RWMutex
+	bad, empty string //Variables de estado global
+)
+
+//MASCARAS PARA BITMAP
+const (
+	PROG_PUB = 1 << iota
+	PROG_MUS
+	PROG_MSG
+	ADD_MUS
+	MSG_AUTO
+	MSG_NORMAL
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -40,61 +51,30 @@ func init() {
 
 // funcion principal del programa
 func main() {
-
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go BorrarFicherosAntiguos()
 	// handlers del servidor
 	http.HandleFunc("/login.cgi", login)
 	http.HandleFunc("/", root)
-	//USUARIO
-	http.HandleFunc("/edit_own_user.cgi", edit_own_user)
-	http.HandleFunc("/alta_users.cgi", alta_users)
-	http.HandleFunc("/get_users.cgi", get_users)
-	http.HandleFunc("/load_user.cgi", load_user)
-	http.HandleFunc("/edit_user.cgi", edit_user)
-	http.HandleFunc("/user_entidad.cgi", user_entidad)
+	//ACCIONES
+	http.HandleFunc("/acciones.cgi", acciones)
+	//USUARIOS
+	http.HandleFunc("/usuarios.cgi", usuarios)
 	//ENTIDADES
-	http.HandleFunc("/entidad.cgi", entidad)
-	http.HandleFunc("/get_entidad.cgi", get_entidad)
-	http.HandleFunc("/load_entidad.cgi", load_entidad)
-	http.HandleFunc("/edit_entidad.cgi", edit_entidad)
+	http.HandleFunc("/entidades.cgi", entidades)
 	//ALMACENES
-	http.HandleFunc("/almacen_entidad.cgi", almacen_entidad)
-	http.HandleFunc("/almacen.cgi", almacen)
-	http.HandleFunc("/get_almacen.cgi", get_almacen)
-	http.HandleFunc("/load_almacen.cgi", load_almacen)
-	http.HandleFunc("/edit_almacen.cgi", edit_almacen)
+	http.HandleFunc("/almacenes.cgi", almacenes)
 	//PAISES
-	http.HandleFunc("/pais_almacen.cgi", pais_almacen)
-	http.HandleFunc("/pais.cgi", pais)
-	http.HandleFunc("/get_pais.cgi", get_pais)
-	http.HandleFunc("/load_pais.cgi", load_pais)
-	http.HandleFunc("/edit_pais.cgi", edit_pais)
+	http.HandleFunc("/paises.cgi", paises)
 	//REGIONES
-	http.HandleFunc("/region_pais.cgi", region_pais)
-	http.HandleFunc("/region.cgi", region)
-	http.HandleFunc("/get_region.cgi", get_region)
-	http.HandleFunc("/load_region.cgi", load_region)
-	http.HandleFunc("/edit_region.cgi", edit_region)
+	http.HandleFunc("/regiones.cgi", regiones)
 	//PROVINCIAS
-	http.HandleFunc("/provincia_region.cgi", provincia_region)
-	http.HandleFunc("/provincia.cgi", provincia)
-	http.HandleFunc("/get_provincia.cgi", get_provincia)
-	http.HandleFunc("/load_provincia.cgi", load_provincia)
-	http.HandleFunc("/edit_provincia.cgi", edit_provincia)
+	http.HandleFunc("/provincias.cgi", provincias)
 	//TIENDAS
-	http.HandleFunc("/tienda_provincia.cgi", tienda_provincia)
-	http.HandleFunc("/tienda.cgi", tienda)
-	http.HandleFunc("/get_tienda.cgi", get_tienda)
-	http.HandleFunc("/load_tienda.cgi", load_tienda)
-	http.HandleFunc("/edit_tienda.cgi", edit_tienda)
+	http.HandleFunc("/tiendas.cgi", tiendas)
 	//RECOGER LOS FICHEROS
 	http.HandleFunc("/publi_files.cgi", publi_files)
 	http.HandleFunc("/msg_files.cgi", msg_files)
-	http.HandleFunc("/destino.cgi", destino)
-	//REVISAR LOS BITMAPS
-	http.HandleFunc("/bitmap_actions.cgi", bitmap_actions)
-	http.HandleFunc("/bitmap_checked.cgi", bitmap_checked)
 	//SELECTS PARA EL PLAYER INTERNO
 	http.HandleFunc("/config_shop.cgi", config_shop)
 	http.HandleFunc("/send_shop.cgi", send_shop)

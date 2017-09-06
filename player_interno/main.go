@@ -390,13 +390,15 @@ func solicitudDeFicheros() {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadMsgFile.cgi", "fichero;"+fichero, "existencia;"+exist))
 			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 			if respuesta == "Descarga" {
-				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensajes", msg_files_location+fichero, 0, 1000)
-				//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
-				if err != nil || b == 0 {
+				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
+				fmt.Println(b, err)
+				if err != nil {
 					Error.Println(err)
 				}
-				//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
-				if b != 0 || err == nil {
+				//bytes igual a 0: la descarga ha ido mal
+				if b == 0 {
+					Error.Println("Size Zero: NO se ha descargado el fichero")
+				} else { //la descarga se ha realizado correctamente.
 					//Cambiamos el estado del fichero de mensaje en BD, a existe.
 					ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE fichero = ?")
 					if err != nil {

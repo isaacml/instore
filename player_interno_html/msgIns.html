@@ -144,8 +144,9 @@
         });
         $("#enviar").click(function(){
             $("#status").html("<span style='color: #006400'>Reproduciendo Mensaje</span>");
+            $("#enviar").hide();
             $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=send",  $("#testform").serialize(), function(data, status) {
-                $("#status").html(data);
+                location.reload();
             });
         });
     </script>

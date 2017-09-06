@@ -59,7 +59,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <span class="navbar-brand">Panel de Encriptado</span>
+                <span class="navbar-brand">Panel de Administrador</span>
             </div>
 
             <ul class="nav navbar-top-links navbar-right hidden-xs">
@@ -83,12 +83,12 @@
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li>
-                            <a href='edit_own_user.html?{{sid}}'><i class="fa fa-gear fa-fw"></i>Editar Usuario Propio</a>
+                            <a href='edit_own_user.html?{{sid}}'><i class="fa fa-gear fa-fw"></i>Usuario Propio</a>
                         </li>
                         <li>
-                            <a href="alta_users.html?{{sid}}"><i class="fa fa-pencil fa-fw"></i>Alta y Mantenimiento de Usuarios</a>
+                            <a href="alta_users.html?{{sid}}"><i class="fa fa-pencil fa-fw"></i>Gestión de Usuarios</a>
                         </li>
-                        <li>
+                        <li id="organizaciones">
                             <a href="#"><i class="fa fa-bars fa-fw"></i>Mantener Organización<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
@@ -111,7 +111,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li>
+                        <li id="publi_and_msg">
                             <a href="#"><i class="fa fa-edit fa-fw"></i>Programar<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li id="zona_publi">
@@ -183,13 +183,21 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
         $("#stat").hide();
-        $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+        $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
                 $("#zona_publi").hide();
             }
             if (res[2] == 0){
                 $("#zona_msg").hide();
+            }
+            if ((res[0] == 0) && (res[2] == 0)){
+                $("#publi_and_msg").hide();
+            }
+        });
+        $.post("/acciones.cgi?sid={{sid}}&accion=show_org", function(data, status) {
+            if (data == "Ocultar"){
+                $("#organizaciones").hide();
             }
         });
         //Muestra la unidades de disco de nuestro sistema
