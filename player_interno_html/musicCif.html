@@ -8,17 +8,9 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/epoch_styles.css" />
-	<script type="text/javascript" src="js/epoch_classes.js"></script>
-	<script type="text/javascript">
-	var bas_cal,dp_cal,ms_cal;      
-	window.onload = function () {
-		dp_cal  = new Epoch('epoch_popup','popup',document.getElementById('popup_container'));
-		dp_cal2  = new Epoch('epoch_popup','popup',document.getElementById('popup_container2'));
-	};
-	</script>
     <title>Tienda</title>
-
+    <!-- CSS Tienda Interna -->
+    <link href="css/player_interno.css" rel="stylesheet">
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
@@ -87,7 +79,7 @@
             <div class="navbar-default sidebar" role="navigation" id="action_shop">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        <li>
+                        <li id="zona_CifNoCif">
                             <a href="#"><i class="fa fa-bars fa-fw"></i> Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li id="zona_mCif">
@@ -119,7 +111,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Música Cifrada
+                            Añadir Música Cifrada
                         </div>
                         <div class="panel-body" align="center">
                             <form id="testform" action="" method="post">
@@ -135,19 +127,12 @@
                         <div class="panel-body" align="center">
                             <form id="testform1" action="" method="post">
                                 <fieldset>
-                                    <h5 class="text-muted">Directorios</h5>
+                                    <h5 class="text-muted">Selecciona los directorios que quieres añadir</h5>
                                     <br>
                                     <div class="form-group">
-                                        <select id="directory" name="directory" style="width:40%;" multiple></select>
+                                        <select id="directory" name="directory" multiple></select>
                                     </div>
                                     <div class="form-group" id="statdir"></div>
-                                    <div class="form-group">
-                                        <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
-                                    </div> 
-                                    <div class="form-group">
-                                        <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
-                                    </div>
-                                    <div class="form-group" id="statsend"></div>
                                     <br>     
                                 </fieldset>
                             </form>
@@ -194,12 +179,7 @@
                 });
             });
             $("#enviar").click(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=get_directorys", $("#testform1").serialize(), function(data, status) {
-                    $("#popup_container").val("");
-                    $("#popup_container2").val("");
-                    $("#statsend").show();
-                    $("#statsend").html(data);
-                });
+                $.post("/explorerMusic.cgi?sid={{sid}}&action=cifDirs", $("#testform1").serialize(), function(data, status) {});
             });
         });
 	</script>

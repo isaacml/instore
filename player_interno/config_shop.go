@@ -8,20 +8,6 @@ import (
 	"strings"
 )
 
-//Comprueba si el fichero de configuracion de la tienda existe o no
-func check_config(w http.ResponseWriter, r *http.Request) {
-	var existe string
-	_, err := os.Stat(configShop)
-	if err != nil {
-		if os.IsNotExist(err) {
-			existe = "NOOK"
-		}
-	} else {
-		existe = "OK"
-	}
-	fmt.Fprint(w, existe)
-}
-
 //Funcion que va a recoger los valores de los selects y mostrarlos
 func get_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()

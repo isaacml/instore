@@ -60,22 +60,7 @@
                 </button>
                 <span class="navbar-brand">Tienda</span>
             </div>
-            <div id="config_shop_top">
-                <ul class="nav navbar-top-links navbar-right hidden-xs">
-                    <!-- Boton superior de logout -->
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-user">
-                            <li><a href='config_shop.html?{{sid}}'><i class="fa fa-gear fa-fw"></i> Configurar Tienda</a></li>
-                            <li class="divider"></li>
-                            <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-            <div id="action_shop_top">
+            <div>
                 <ul class="nav navbar-top-links navbar-right hidden-xs">
                     <!-- Boton superior de logout -->
                     <li class="dropdown">
@@ -92,19 +77,10 @@
                     </li>
                 </ul>
             </div>
-            <div class="navbar-default sidebar" role="navigation" id="config_shop">
-                <div class="sidebar-nav navbar-collapse">
-                    <ul class="nav" id="side-menu">
-                        <li>
-                            <a href='config_shop.html?{{sid}}'><i class="fa fa-gear fa-fw"></i> Configurar Tienda</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
             <div class="navbar-default sidebar" role="navigation" id="action_shop">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        <li>
+                        <li id="zona_CifNoCif">
                             <a href="#"><i class="fa fa-bars fa-fw"></i> Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li id="zona_mCif">
@@ -137,7 +113,7 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
-            $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+            $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
                 var res = data.split(";");
                 if (res[1] == 0){
                     $("#zona_mCif").hide();
@@ -148,7 +124,7 @@
                     $("#zona_mNoCif_top").hide();
                 }
             });
-            $.post("/check_config.cgi?sid={{sid}}", function(data, status) {
+            $.post("/acciones.cgi?sid={{sid}}&accion=check_config", function(data, status) {
                 if (data == "NOOK"){
                     $("#config_shop").show();
                     $("#config_shop_top").show();

@@ -76,7 +76,7 @@
             <div class="navbar-default sidebar" role="navigation" id="action_shop">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        <li>
+                        <li id="zona_CifNoCif">
                             <a href="#"><i class="fa fa-bars fa-fw"></i> Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li id="zona_mCif">
@@ -132,21 +132,39 @@
         </div>
     </div>
     <script type="text/javascript">
-        $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=mensajes", function(data, status) {
-            var res = data.split("#:#");
-            $("#instantaneos").html(res[0]);
-            $("#status").html(res[1]);
-        });
-        $("#instantaneos").change(function(){
-            $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=status",  $("#testform").serialize(), function(data, status) {
-                $("#status").html(data);
+        $(document).ready(function(){
+            $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+                var res = data.split(";");
+                if (res[1] == 0){
+                    $("#zona_mCif").hide();
+                    $("#zona_mCif_top").hide();
+                }
+                if (res[3] == 0){
+                    $("#zona_mNoCif").hide();
+                    $("#zona_mNoCif_top").hide();
+                }
+                if (res[3] == 0 && res[1] == 0){
+                    $("#zona_mCif_top").hide();
+                    $("#zona_mNoCif_top").hide();
+                    $("#zona_CifNoCif").hide();
+                }
             });
-        });
-        $("#enviar").click(function(){
-            $("#status").html("<span style='color: #006400'>Reproduciendo Mensaje</span>");
-            $("#enviar").hide();
-            $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=send",  $("#testform").serialize(), function(data, status) {
-                location.reload();
+            $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=mensajes", function(data, status) {
+                var res = data.split("#:#");
+                $("#instantaneos").html(res[0]);
+                $("#status").html(res[1]);
+            });
+            $("#instantaneos").change(function(){
+                $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=status",  $("#testform").serialize(), function(data, status) {
+                    $("#status").html(data);
+                });
+            });
+            $("#enviar").click(function(){
+                $("#status").html("<span style='color: #006400'>Reproduciendo Mensaje</span>");
+                $("#enviar").hide();
+                $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=send",  $("#testform").serialize(), function(data, status) {
+                    location.reload();
+                });
             });
         });
     </script>

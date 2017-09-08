@@ -385,3 +385,62 @@ func Cifrado(origen, destino string, key []byte) (error, string) {
 	}
 	return fail, outString
 }
+/*
+FileCopier: Esta funcion es usada internamente por la tienda y se encarga de copiar directorios de musica o cifrados.
+	contenedor:  es el array que contiene todas las carpetas que se quieren copiar.
+	destino: ruta donde se guardaran los directorios de musica seleccionados "C:\instore\\Music\"
+*/
+func FileCopier(contenedor []string, destino string){
+	//Obtenemos todos los ficheros para la copia y los procesamos.
+	for _, val := range contenedor {
+		canciones := strings.Split(val, "\\")
+		//Nombre la carpeta que contiene la cancion
+		song_dir := canciones[len(canciones)-2]
+		//ruta de destino + nombre de directorio de la cancion
+		all_song_dir := destino+song_dir
+		//Comprobamos si existe esa carpeta en el directorio de Musica(C:\instore\\Music)
+		ext_dir := Existencia(all_song_dir)
+		if ext_dir == false {
+			//Si no existe, se crea
+			os.Mkdir(all_song_dir, os.FileMode(0777))
+		}
+		//Comprobamos si existe dicha cancion en el directorio de Musica
+		song_name := canciones[len(canciones)-1]
+		//ruta de destino y directorio de cancion + cancion
+		all_song_name := all_song_dir+"\\"+song_name
+		ext_song := Existencia(all_song_name)
+		if ext_song == false {
+			//Abrimos el fichero origen
+			original, err := os.Open(val)
+			if err != nil {
+				err = fmt.Errorf("FileCopier: fail to open origen")
+				return
+			}
+			//Creamos el fichero destino
+			copia, err := os.Create(all_song_name)
+			if err != nil {
+				err = fmt.Errorf("FileCopier: fail to open destino")
+				return
+			}
+			//Realizamos la copia
+			io.Copy(copia, original)
+		}
+	}
+}
+/*
+Existencia: Comprueba la existencia de un fichero o directorio
+	name:  ruta completa del fichero o directorio
+Devuelve un bool con el resultado
+*/
+func Existencia(ruta string) bool {
+	var existe bool
+	_, err := os.Stat(ruta)
+	if err != nil {
+		if os.IsNotExist(err) {
+			existe = false
+		}
+	} else {
+		existe = true
+	}
+	return existe
+}

@@ -63,13 +63,13 @@ func main() {
 	http.HandleFunc(login_cgi, login)
 	http.HandleFunc(logout_cgi, logout)
 	// handler de configuracion de tienda
-	http.HandleFunc("/check_config.cgi", check_config)
 	http.HandleFunc("/get_orgs.cgi", get_orgs)
 	http.HandleFunc("/send_orgs.cgi", send_orgs)
 	//Bitmap Actions
-	http.HandleFunc("/bitmaps.cgi", bitmaps)
+	http.HandleFunc("/acciones.cgi", acciones)
 	//Exploradores
 	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
+	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

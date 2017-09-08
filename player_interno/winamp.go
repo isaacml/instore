@@ -41,7 +41,6 @@ func reproduccion() {
 			publi[p] = fichero
 			p++
 		}
-		fmt.Println(publi)
 		//Se crean lo comandos
 		cmd := exec.Command("cmd", "/c", "dir /s /b "+music_files+"*.mp3 & dir /s /b "+music_files+"*.xxx")
 		// comienza la ejecucion del pipe
@@ -153,6 +152,6 @@ func reproduccion_msgs() {
 				}	
 			}
 		}
-		time.Sleep(1 * time.Minute)
+		time.Sleep(2 * time.Minute)
 	}
 }
