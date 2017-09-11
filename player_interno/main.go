@@ -70,6 +70,7 @@ func main() {
 	//Exploradores
 	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
+	http.HandleFunc("/programarMusica.cgi", programarMusica)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

@@ -292,7 +292,7 @@
             });
         });
         ///////////////////////////// ZONA DE DESTINOS //////////////////////////////
-        $.post("/recoger_destinos.cgi?sid={{sid}}&action=destinos", function(data, status) {
+        $.post("/dest_explorer.cgi?sid={{sid}}&action=destinos", function(data, status) {
             var res1 = data.split(";");
             $("#dest_stat").show();
             $("#stat2").show();
@@ -301,7 +301,7 @@
             $("#stat2").html(res1[2]);
         });
         $("#destinos").dblclick(function(){
-            $.post("/recoger_destinos.cgi?sid={{sid}}&action=recoger_id", $("#testform2").serialize(), function(data, status) {
+            $.post("/dest_explorer.cgi?sid={{sid}}&action=recoger_id", $("#testform2").serialize(), function(data, status) {
                 var res1 = data.split(";");
                 $("#dest_stat").show();
                 $("#stat2").show();

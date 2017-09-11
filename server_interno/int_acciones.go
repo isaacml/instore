@@ -10,7 +10,7 @@ import (
 //Pasa el nombre de usuario al servidor externo
 func bitmaps(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	respuesta := libs.GenerateFORM(serverext["serverexterno"]+"/bitmap_actions.cgi", "user;"+r.FormValue("user"))
+	respuesta := libs.GenerateFORM(serverext["serverexterno"]+"/acciones.cgi", "accion;bitmap_perm", "user;"+r.FormValue("user"))
 	fmt.Fprint(w, respuesta)
 }
 

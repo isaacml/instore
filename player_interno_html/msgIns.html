@@ -66,6 +66,7 @@
                         <ul class="dropdown-menu dropdown-user">
                             <li id="zona_mCif_top"><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
                             <li id="zona_mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
+                            <li id="prog_music_top"><a href="prog.html?{{sid}}"><i class="fa fa-bars fa-fw"></i> Programar</a></li>
                             <li><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Instantaneos</a></li>
                             <li class="divider"></li>
                             <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
@@ -84,6 +85,9 @@
                                 </li>
                                 <li id="zona_mNoCif">
                                     <a href="musicNoCif.html?{{sid}}">No Cifrada</a>
+                                </li>
+                                <li id="prog_music">
+                                    <a href="prog.html?{{sid}}">Programar</a>
                                 </li>
                             </ul>
                         </li>
@@ -133,7 +137,7 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
-            $.post("/bitmaps.cgi?sid={{sid}}", function(data, status) {
+            $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
                 var res = data.split(";");
                 if (res[1] == 0){
                     $("#zona_mCif").hide();

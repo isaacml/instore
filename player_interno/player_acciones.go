@@ -8,6 +8,13 @@ import (
 	"os"
 	"strings"
 )
+//Tomamos el listado de carpetas programadas y las guardamos en este mapa
+var programmedMusic map[int]string = make(map[int]string)
+//Estado de la programacion: Inicial o Actualizada
+var statusProgammedMusic string
+//Bitmap de programacion de musica: con el se decide el tipo de reproduccion de la tienda
+//Reproduccion de música previamente programada o reproduccion de musica sin programar
+var bitmap_prog_music int
 
 func acciones(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -16,6 +23,9 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//Enviamos el nombre del usuario al server_interno y este lo pasará al server_externo
 	if accion == "bitmaps"{
 		respuesta := libs.GenerateFORM(serverint["serverinterno"]+"/bitmaps.cgi", "user;"+username)
+		bitmap := strings.Split(respuesta, ";")
+		//Guardamos el bitmap de programar musica
+		bitmap_prog_music = toInt(bitmap[1])
 		fmt.Fprint(w, respuesta)
 	}
 	//Comprueba si el fichero de configuracion de la tienda existe o no
@@ -74,6 +84,68 @@ func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
 		var win winamp.Winamp
 		//Reproducimos el mensaje instantaneo
 		win.PlayFFplay(msg_files_location + r.FormValue("instantaneos"))
+	}
+	fmt.Fprint(w, output)
+}
+
+//Programar Musica para la Tienda
+func programarMusica(w http.ResponseWriter, r *http.Request){
+	r.ParseForm()
+	var output string
+	accion := r.FormValue("accion")
+	//Muestra los directorios de musica de la tienda
+	if accion == "show_dirs" {
+		//Abrimos el directorio (C:\instore\Music\) 
+		file, err := os.Open(music_files)
+		defer file.Close()
+		if err != nil {
+			Error.Println(err)
+			return
+		}
+		musicDirs, err := file.Readdir(0)
+		if err != nil {
+			Error.Println(err)
+			return
+		}
+		for _, val := range musicDirs {
+			output += fmt.Sprintf("<tr><td><input type='checkbox' name='musicDirs' value='%s'></td><td>&nbsp;</td><td>%s</td>", val.Name(), val.Name())
+		}
+	}
+	//Se recogen los datos de formulario (prog.html)
+	if accion == "enviar" {
+		cont := 0
+		if len(programmedMusic) == 0 {
+			for clave, valor := range r.Form {
+				for _, v := range valor {
+					if clave == "musicDirs" {
+						db_mu.Lock()
+						//Guardamos cada una de los directorios seleccionadas
+						programmedMusic[cont] = v
+						statusProgammedMusic = "Inicial"
+						db_mu.Unlock()
+					}
+					cont++
+				}
+			}
+		} else {
+			//Borramos los antiguos directorios programados
+			for k, _ := range programmedMusic {
+				delete(programmedMusic, k)
+			}
+			//Añadimos los nuevos directorios
+			for clave, valor := range r.Form {
+				for _, v := range valor {
+					if clave == "musicDirs" {
+						db_mu.Lock()
+						//Guardamos cada una de las carpetas seleccionadas
+						programmedMusic[cont] = v
+						statusProgammedMusic = "Actualizada"
+						db_mu.Unlock()
+					}
+					cont++
+				}
+			}
+		}
 	}
 	fmt.Fprint(w, output)
 }

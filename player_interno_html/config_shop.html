@@ -114,7 +114,7 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
-            $.post("/check_config.cgi?sid={{sid}}", function(data, status) {
+            $.post("/acciones.cgi?sid={{sid}}&accion=check_config", function(data, status) {
                 if (data == "NOOK"){
                     $("#config_shop").show();
                     $("#config_shop_top").show();

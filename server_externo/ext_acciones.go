@@ -11,7 +11,7 @@ import (
 func acciones(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	accion := r.FormValue("accion")
-	
+	//Toma los valores bitmap de un determinado usuario
 	if accion == "bitmap_perm" {
 		query, err := db.Query("SELECT bitmap_acciones FROM usuarios WHERE user = ?", r.FormValue("user"))
 		if err != nil {

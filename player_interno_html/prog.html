@@ -1,0 +1,165 @@
+[[0]]
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+            
+
+    <title>Tienda</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="css/metisMenu.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="css/dataTables.bootstrap.css" rel="stylesheet">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="css/responsive.dataTables.scss" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    <!-- jQuery -->
+    <script src="js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="js/metisMenu.min.js"></script>
+
+    <!-- DataTables JavaScript -->
+    <script src="js/jquery.dataTables.min.js"></script>
+    <script src="js/dataTables.bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="js/sb-admin-2.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <!-- PANEL DE NAVEGACION -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Cambiar Navegacion</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <span class="navbar-brand">Tienda</span>
+            </div>
+            <div>
+                <ul class="nav navbar-top-links navbar-right hidden-xs">
+                    <!-- Boton superior de logout -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li id="zona_mCif_top"><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
+                            <li id="zona_mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
+                            <li id="prog_music_top"><a href="prog.html?{{sid}}"><i class="fa fa-bars fa-fw"></i> Programar</a></li>
+                            <li><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Instantaneos</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="navbar-default sidebar" role="navigation" id="action_shop">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li id="zona_CifNoCif">
+                            <a href="#"><i class="fa fa-bars fa-fw"></i> Música<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li id="zona_mCif">
+                                    <a href="musicCif.html?{{sid}}">Cifrada</a>
+                                </li>
+                                <li id="zona_mNoCif">
+                                    <a href="musicNoCif.html?{{sid}}">No Cifrada</a>
+                                </li>
+                                <li id="prog_music">
+                                    <a href="prog.html?{{sid}}">Programar</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-bars fa-fw"></i> Mensajes<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="msgIns.html?{{sid}}">Instantaneos</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="visible-xs">
+                            <a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i>Desconectar</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div id="page-wrapper">
+           <br>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Programar Música de la Tienda
+                        </div>
+                        <div class="panel-body" align="center">
+                            <form id="testform" action="" method="post">
+                                <fieldset>
+                                    <h5 class="text-muted">Selecciona las carpetas que van a sonar</h5>
+                                    <br>
+                                    <div class="form-group">
+                                        <table id="musicDirs"></table>
+                                    </div>   
+                                </fieldset>
+                            </form>
+                            <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
+                var res = data.split(";");
+                if (res[1] == 0){
+                    $("#zona_mCif").hide();
+                    $("#zona_mCif_top").hide();
+                }
+                if (res[3] == 0){
+                    $("#zona_mNoCif").hide();
+                    $("#zona_mNoCif_top").hide();
+                }
+                if (res[3] == 0 && res[1] == 0){
+                    $("#zona_mCif_top").hide();
+                    $("#zona_mNoCif_top").hide();
+                    $("#zona_CifNoCif").hide();
+                }
+            });
+            $.post("/programarMusica.cgi?sid={{sid}}&accion=show_dirs", function(data, status) {
+                $("#musicDirs").html(data);
+            });
+            $("#enviar").click(function(){
+                $.post("/programarMusica.cgi?sid={{sid}}&accion=enviar", $("#testform").serialize(), function(data, status) {});
+            });
+        });
+    </script>
+</body>
+</html>
