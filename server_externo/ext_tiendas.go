@@ -67,22 +67,22 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		address := r.FormValue("address")
 		phone := r.FormValue("phone")
 		extra := r.FormValue("extra")
-	
+
 		if provincia == "" || tienda == "" || address == "" || phone == "" {
 			empty = "No puede haber campos vacíos"
 			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 		} else {
-			query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
+			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 			if err != nil {
 				Error.Println(err)
 			}
 			for query.Next() {
-				var id, entidad_id int
-				err = query.Scan(&id, &entidad_id)
+				var id, padre_id int
+				err = query.Scan(&id, &padre_id)
 				if err != nil {
 					Error.Println(err)
 				}
-				if entidad_id == 0 {
+				if padre_id == 0 || padre_id == 1 {
 					db_mu.Lock()
 					_, err1 := db.Exec("UPDATE tiendas SET tienda=?, provincia_id=?, address=?, phone=?, extra=? WHERE id = ?", tienda, provincia, address, phone, extra, edit_id)
 					db_mu.Unlock()
@@ -125,13 +125,13 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 				}
 				creacion := time.Unix(tiempo, 0)
-				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar tienda'>%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", 
-							id, tienda, creacion, provincia, address, phone, extra)
+				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar tienda'>%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+					id, tienda, creacion, provincia, address, phone, extra)
 			}
 		}
 	}
 	//CARGA LOS DATOS DE UNA TIENDA EN UN FORMULARIO
-	if accion == "load_tienda" { 
+	if accion == "load_tienda" {
 		edit_id := r.FormValue("edit_id")
 		var id, prov_id int
 		var tienda, address, phone, extra string

@@ -61,7 +61,7 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		region := r.FormValue("region")
 		pais := r.FormValue("pais")
-	
+
 		if region == "" {
 			empty = "El campo región no puede estar vacío"
 			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
@@ -69,17 +69,17 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			empty = "El campo país no puede estar vacío"
 			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 		} else {
-			query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
+			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 			if err != nil {
 				Error.Println(err)
 			}
 			for query.Next() {
-				var id, entidad_id int
-				err = query.Scan(&id, &entidad_id)
+				var id, padre_id int
+				err = query.Scan(&id, &padre_id)
 				if err != nil {
 					Error.Println(err)
 				}
-				if entidad_id == 0 {
+				if padre_id == 0 || padre_id == 1 {
 					db_mu.Lock()
 					_, err1 := db.Exec("UPDATE region SET region=?, pais_id=? WHERE id = ?", region, pais, edit_id)
 					db_mu.Unlock()
@@ -122,13 +122,13 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 				}
 				creacion := time.Unix(tiempo, 0)
-				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar región'>%s</a></td><td>%s</td><td>%s</td></tr>", 
-							id, region, creacion, pais)
+				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar región'>%s</a></td><td>%s</td><td>%s</td></tr>",
+					id, region, creacion, pais)
 			}
 		}
 	}
 	//CARGA LOS DATOS DE UNA REGION EN UN FORMULARIO
-	if accion == "load_region" { 
+	if accion == "load_region" {
 		edit_id := r.FormValue("edit_id")
 		var id, pais_id int
 		var region string
@@ -188,4 +188,3 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-

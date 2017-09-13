@@ -204,7 +204,7 @@
         table();
         $("#stat").hide();
         $("#modificar").hide();
-        $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
+        $.post("/acciones.cgi?sid={{sid}}", {accion : "bitmap_perm"}, function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
                 $("#zona_publi").hide();
@@ -216,12 +216,12 @@
                 $("#publi_and_msg").hide();
             }
         });
-        $.post("/acciones.cgi?sid={{sid}}&accion=show_org", function(data, status) {
+        $.post("/acciones.cgi?sid={{sid}}", {accion: "show_org"}, function(data, status) {
             if (data == "Ocultar"){
                 $("#organizaciones").hide();
             }
         });
-        $.post("/paises.cgi?sid={{sid}}&accion=pais_almacen",  function(data, status) {
+        $.post("/paises.cgi?sid={{sid}}", {accion: "pais_almacen"}, function(data, status) {
     		$("#alm").html(data);
 		});
 		$("#enviar").click(function(){
@@ -246,7 +246,7 @@
 	});
     //Función que carga los datos del almacen
 	function table(){
-    	$.post("/paises.cgi?sid={{sid}}&accion=get_pais",  function(data, status) {
+    	$.post("/paises.cgi?sid={{sid}}", {accion: "get_pais"}, function(data, status) {
     		$("#tabla").html(data);
 		});
 	}
@@ -255,7 +255,7 @@
         $("#stat").hide();
 		$("#modificar").show();
     	$("#enviar").hide();
-        $.post("/paises.cgi?sid={{sid}}&accion=load_pais", "load="+id , function(data, status) {
+        $.post("/paises.cgi?sid={{sid}}", {load: id, accion: "load_pais"}, function(data, status) {
 	    	$.each(data.split('&'), function (index, elem) {
 				var vals = elem.split('=');
 				$("[name=\"" + vals[0].trim() + "\"]").val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));

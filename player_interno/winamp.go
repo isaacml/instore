@@ -110,8 +110,8 @@ func reproduccion() {
 				time.Sleep(time.Duration(song_duration) * time.Second)
 				pl++
 			}
-		//REPRODUCIMOS SOLO MUSICA PROGRAMADA
-		}else{
+			//REPRODUCIMOS SOLO MUSICA PROGRAMADA
+		} else {
 			a, p, pl := 0, 0, 1
 			var gap int
 			var song string
@@ -211,6 +211,7 @@ func reproduccion() {
 		time.Sleep(30 * time.Second)
 	}
 }
+
 //Reproduce los mensajes automáticos de la tienda: bucle infinito que busca cada minuto un mensaje nuevo para reproducir.
 func reproduccion_msgs() {
 	for {
@@ -234,18 +235,18 @@ func reproduccion_msgs() {
 			if err != nil {
 				Error.Println(err)
 			}
-			if playtime == clock { 
+			if playtime == clock {
 				var win winamp.Winamp
 				st := win.PlayFFplay(msg_files_location + fichero)
 				//Si el estado de la reproduccion del mensaje = END (ha acabado), procedemos al borrado.
-				if st == "END"{
-					fmt.Println("Borro el fichero: " + fichero, id)
+				if st == "END" {
+					fmt.Println("Borro el fichero: "+fichero, id)
 					//Borramos el fichero desde el directorio que contiene los mensajes en el player_int
 					err = os.Remove(msg_files_location + fichero)
 					if err != nil {
 						Error.Println(err)
 					}
-					//Ponemos el estado de mensaje en N (ya que lo hemos borrado y no existe) 
+					//Ponemos el estado de mensaje en N (ya que lo hemos borrado y no existe)
 					ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE id = ?")
 					if err != nil {
 						Error.Println(err)
@@ -257,7 +258,7 @@ func reproduccion_msgs() {
 					}
 					db_mu.Unlock()
 					break
-				}	
+				}
 			}
 		}
 		time.Sleep(1 * time.Minute)

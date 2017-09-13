@@ -14,7 +14,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 	if accion == "entidad" {
 		username := r.FormValue("username")
 		entidad := r.FormValue("entidad")
-		var output string 
+		var output string
 		if entidad == "" {
 			output = "<div class='form-group text-warning'>El campo no puede estar vacio</div>"
 		} else {
@@ -61,17 +61,17 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			empty = "El campo no puede estar vacío"
 			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 		} else {
-			query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
+			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 			if err != nil {
 				Error.Println(err)
 			}
 			for query.Next() {
-				var id, entidad_id int
-				err = query.Scan(&id, &entidad_id)
+				var id, padre_id int
+				err = query.Scan(&id, &padre_id)
 				if err != nil {
 					Error.Println(err)
 				}
-				if entidad_id == 0 {
+				if padre_id == 0 || padre_id == 1 {
 					db_mu.Lock()
 					_, err1 := db.Exec("UPDATE entidades SET nombre=? WHERE id = ?", entidad, edit_id)
 					db_mu.Unlock()
@@ -114,8 +114,8 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 				}
 				creacion := time.Unix(tiempo, 0)
-				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td></tr>", 
-							id, nombre, creacion)
+				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td></tr>",
+					id, nombre, creacion)
 			}
 		}
 	}

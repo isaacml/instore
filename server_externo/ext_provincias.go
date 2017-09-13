@@ -53,7 +53,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		fmt.Fprint(w, output) 
+		fmt.Fprint(w, output)
 	}
 	//MODIFICAR / EDITAR UNA PROVINCIA
 	if accion == "edit_provincia" {
@@ -61,7 +61,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		region := r.FormValue("region")
 		provincia := r.FormValue("provincia")
-	
+
 		if provincia == "" {
 			empty = "El campo provincia no puede estar vacío"
 			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
@@ -69,17 +69,17 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			empty = "El campo región no puede estar vacío"
 			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
 		} else {
-			query, err := db.Query("SELECT id, entidad_id FROM usuarios WHERE user = ?", username)
+			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
 			if err != nil {
 				Error.Println(err)
 			}
 			for query.Next() {
-				var id, entidad_id int
-				err = query.Scan(&id, &entidad_id)
+				var id, padre_id int
+				err = query.Scan(&id, &padre_id)
 				if err != nil {
 					Error.Println(err)
 				}
-				if entidad_id == 0 {
+				if padre_id == 0 || padre_id == 1 {
 					db_mu.Lock()
 					_, err1 := db.Exec("UPDATE provincia SET provincia=?, region_id=? WHERE id = ?", provincia, region, edit_id)
 					db_mu.Unlock()
@@ -122,13 +122,13 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 				}
 				creacion := time.Unix(tiempo, 0)
-				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar provincia'>%s</a></td><td>%s</td><td>%s</td></tr>", 
-							id, provincia, creacion, region)
+				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar provincia'>%s</a></td><td>%s</td><td>%s</td></tr>",
+					id, provincia, creacion, region)
 			}
 		}
 	}
 	//CARGA LOS DATOS DE UNA PROVINCIA EN UN FORMULARIO
-	if accion == "load_provincia" { 
+	if accion == "load_provincia" {
 		edit_id := r.FormValue("edit_id")
 		var id, region_id int
 		var provincia string
@@ -188,4 +188,3 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-
