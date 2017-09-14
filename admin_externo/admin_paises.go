@@ -12,7 +12,6 @@ func paises(w http.ResponseWriter, r *http.Request) {
 	sid := r.FormValue("sid")
 	accion := r.FormValue("accion")
 	_, ok := user[sid]
-	fmt.Println(sid, accion)
 	if ok {
 		loadSettings(serverRoot)
 		updateExpires(sid)

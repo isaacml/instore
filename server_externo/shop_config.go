@@ -16,13 +16,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var domain string
 	accion := r.FormValue("action")
-	
 	//Generamos el select de entidades
 	if accion == "entidad" {
-		var padre_id, id_ent int
-		var list, name string
+		var padre_id, entity_id int
+		var list string
 		user := r.FormValue("username")
-		err := db.QueryRow("SELECT padre_id FROM usuarios WHERE user = ?", user).Scan(&padre_id)
+		err := db.QueryRow("SELECT padre_id, entidad_id FROM usuarios WHERE user = ?", user).Scan(&padre_id, &entity_id)
 		if err != nil {
 			Error.Println(err)
 		}
@@ -30,8 +29,10 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			//Mostramos un mensaje informativo
 			list = "<br><span style='color: #C90101'>Usuario Administrador: no requiere configuración</span>"
 		} else {
-			//Muestra las entidades que su padre ha creado. 
-			query, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id=?", padre_id)
+			var id_ent int
+			var name string
+			//Muestra las entidades que su padre ha creado.
+			query, err := db.Query("SELECT id, nombre FROM entidades WHERE id=?", entity_id)
 			if err != nil {
 				Error.Println(err)
 			}
@@ -51,7 +52,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay entidades</option>"
 			}
 			list += "</select></div>"
-			
+
 		}
 		fmt.Fprint(w, list)
 	}
@@ -323,7 +324,6 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 //Si es NOOK, no se envia nada
 func send_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-
 	var output string
 	if enviar_estado == true {
 		//Se envía Ok y enviamos status_dom para generar el fichero (configshop.reg)

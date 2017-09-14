@@ -12,7 +12,6 @@ import (
 func get_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	accion := r.FormValue("action")
-
 	if accion == "entidades" {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
 		fmt.Fprint(w, respuesta)

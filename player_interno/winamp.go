@@ -67,8 +67,9 @@ func reproduccion() {
 					continue
 				}
 				var song_duration int
+				statusProgammedMusic = ""
 				song = music[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-				fmt.Println("TOCANDO:", song)
+				fmt.Println("TOCANDO-SIN-PROGRAMAR:", song)
 				// .xxx = musica cif; Hay que descifrarla
 				if strings.Contains(song, ".xxx") {
 					del_ext := strings.Split(song, ".xxx")
@@ -165,7 +166,7 @@ func reproduccion() {
 			for _, v := range shuffle {
 				var song_duration int
 				song = music[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-				fmt.Println("TOCANDO:", song)
+				fmt.Println("TOCANDO-PROGRAMADA:", song)
 				// .xxx = musica cif; Hay que descifrarla
 				if strings.Contains(song, ".xxx") {
 					del_ext := strings.Split(song, ".xxx")
