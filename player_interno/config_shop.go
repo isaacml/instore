@@ -45,7 +45,6 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 //Función que tramita el submit de formulario para la página(config_shop.html)
 func send_orgs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
 	//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
 	gen_domain := strings.Split(respuesta, ";")
