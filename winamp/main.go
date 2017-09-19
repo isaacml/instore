@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 var (
@@ -25,9 +24,9 @@ type Winamp struct {
 }
 
 type Status struct {
-	Playing   bool
-	Stopping  bool
-	Pausing   bool
+	Playing  bool
+	Stopping bool
+	Pausing  bool
 }
 
 //Constructor para Winamp
@@ -68,7 +67,6 @@ func (w *Winamp) RunWinamp() {
 		w.volume = volMax
 		w.run = true
 		w.mu.Unlock()
-		time.Sleep(1 * time.Second)
 	}
 }
 

@@ -1,13 +1,11 @@
 package main
 
 import (
-	//"bufio"
 	"fmt"
-	//"math/rand"
-	//"os/exec"
-	//"strings"
+	"math/rand"
+	"strings"
 	//"sync"
-	//"github.com/isaacml/instore/libs"
+	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
 	"os"
 	"time"
@@ -15,18 +13,69 @@ import (
 
 func reproduccion() {
 	for {
-		/*
-			a, p, pl := 0, 0, 1
-			var gap int
-			var song string
-			var win winamp.Winamp
-			music := make(map[int]string)
-			publi := make(map[int]string)
-			//Sacamos la fecha actual
-			y, m, d := time.Now().Date()
-		*/
+		//a, p, pl := 0, 0, 1
+		p := 0
+		var gap int
+		var song string
+		var win winamp.Winamp
+		publi := make(map[int]string)
+		musica := make(map[int]string)
+		//Sacamos la fecha actual
+		y, m, d := time.Now().Date()
+		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+		//INICIAL
 		if statusProgammedMusic == "Inicial" {
-
+			//Obtenemos el GAP
+			publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
+			if errP != nil {
+				Error.Println(errP)
+				gap = 0
+			}
+			for publicidad.Next() {
+				var fichero string
+				//Tomamos el nombre del fichero mensaje
+				err := publicidad.Scan(&fichero, &gap)
+				if err != nil {
+					Error.Println(err)
+				}
+				//fmt.Printf("%s", fichero)
+				publi[p] = fichero
+				p++
+			}
+			for _, val := range programmedMusic {
+				//generamos la ruta completa a esas carpetas
+				full_route := music_files + val + "\\"
+				musica = libs.MusicToPlay(full_route)
+			}
+			rand.Seed(time.Now().UnixNano())
+			shuffle := rand.Perm(len(musica))
+			//Rulamos el Winamp
+			win.RunWinamp()
+			for _, v := range shuffle {
+				var song_duration, song_end int
+				song = musica[v]
+				if strings.Contains(song, ".xxx") {
+					del_ext := strings.Split(song, ".xxx")
+					descifrada := del_ext[0] + ".mp3"
+					//Proceso de descifrado de la cancion: ver en libreria de funciones.
+					libs.Cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+					//Carga y reproduccion de cancion
+					win.Load("\"" + descifrada + "\"")
+					win.Play()
+					//Guardamos la duracion total de la cancion
+					song_duration = win.SongLenght(descifrada)
+				}
+				for {
+					song_end = win.SongEnd()
+					song_play := win.SongPlay()
+					if song_end == 0 {
+						err := os.Remove(song)
+						fmt.Println(err)
+						continue
+					}
+					fmt.Println(song_duration, song_end, song_play)
+				}
+			}
 		}
 		time.Sleep(30 * time.Second)
 	}

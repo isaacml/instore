@@ -1,6 +1,7 @@
 package libs
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/todostreaming/ratelimit"
@@ -10,10 +11,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
-	"bufio"
 )
 
 /*
@@ -342,6 +343,7 @@ func DomainGenerator(dom_tienda string) []string {
 
 	return list_dom
 }
+
 /*
 Cifrado: Funcion que cifra o descifra un fichero existente.
 	origen:  fichero origen
@@ -380,24 +382,25 @@ func Cifrado(origen, destino string, key []byte) (error, string) {
 	if err != nil {
 		fail = fmt.Errorf("Error en escritura")
 		outString = "BAD"
-	}else{
+	} else {
 		outString = "GOOD"
 	}
 	return fail, outString
 }
+
 /*
 FileCopier: Esta funcion es usada internamente por la tienda y se encarga de copiar directorios de musica o cifrados.
 	contenedor:  es el array que contiene todas las carpetas que se quieren copiar.
 	destino: ruta donde se guardaran los directorios de musica seleccionados "C:\instore\\Music\"
 */
-func FileCopier(contenedor []string, destino string){
+func FileCopier(contenedor []string, destino string) {
 	//Obtenemos todos los ficheros para la copia y los procesamos.
 	for _, val := range contenedor {
 		canciones := strings.Split(val, "\\")
 		//Nombre la carpeta que contiene la cancion
 		song_dir := canciones[len(canciones)-2]
 		//ruta de destino + nombre de directorio de la cancion
-		all_song_dir := destino+song_dir
+		all_song_dir := destino + song_dir
 		//Comprobamos si existe esa carpeta en el directorio de Musica(C:\instore\\Music)
 		ext_dir := Existencia(all_song_dir)
 		if ext_dir == false {
@@ -407,7 +410,7 @@ func FileCopier(contenedor []string, destino string){
 		//Comprobamos si existe dicha cancion en el directorio de Musica
 		song_name := canciones[len(canciones)-1]
 		//ruta de destino y directorio de cancion + cancion
-		all_song_name := all_song_dir+"\\"+song_name
+		all_song_name := all_song_dir + "\\" + song_name
 		ext_song := Existencia(all_song_name)
 		if ext_song == false {
 			//Abrimos el fichero origen
@@ -427,6 +430,32 @@ func FileCopier(contenedor []string, destino string){
 		}
 	}
 }
+
+/*
+MusicToPlay: Esta función determina los ficheros que va a reproducir el player de la tienda.
+	ruta:  Ruta del directorio que va a contener los ficheros de música
+Devuelve un mapa con todos los ficheros a reproducir.
+*/
+func MusicToPlay(ruta string) map[int]string {
+	a := 0
+	music := make(map[int]string)
+	//Se obtienen los ficheros del directorio y subdirectorios
+	cmd := exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx")
+	//comienza la ejecucion del pipe
+	stdoutRead, _ := cmd.StdoutPipe()
+	reader := bufio.NewReader(stdoutRead)
+	cmd.Start()
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+		music[a] = strings.TrimRight(line, "\r\n")
+		a++
+	}
+	return music
+}
+
 /*
 Existencia: Comprueba la existencia de un fichero o directorio
 	name:  ruta completa del fichero o directorio
