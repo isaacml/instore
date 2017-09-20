@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 )
-					
+
 func reproduccion() {
 	for {
 		//a, p, pl := 0, 0, 1
@@ -52,11 +52,12 @@ func reproduccion() {
 			//Rulamos el Winamp
 			win.RunWinamp()
 			for _, v := range shuffle {
-				var song_duration, song_end int
+				var song_duration int
+				var descifrada string
 				song = musica[v]
 				if strings.Contains(song, ".xxx") {
 					del_ext := strings.Split(song, ".xxx")
-					descifrada := del_ext[0] + ".mp3"
+					descifrada = del_ext[0] + ".mp3"
 					//Proceso de descifrado de la cancion: ver en libreria de funciones.
 					libs.Cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
 					//Carga y reproduccion de cancion
@@ -64,18 +65,23 @@ func reproduccion() {
 					win.Play()
 					//Guardamos la duracion total de la cancion
 					song_duration = win.SongLenght(descifrada)
-					for {
-						song_end = win.SongEnd()
-						song_play := win.SongPlay()
-						if song_play == song_duration {
-							err := os.Remove(descifrada)
-							fmt.Println(err)
-							continue
+					/*
+						for {
+							song_end = win.SongEnd()
+							song_play := win.SongPlay()
+							if song_end-2 == 0 {
+								time.Sleep(1 * time.Second)
+								err := os.Remove(descifrada)
+								fmt.Println(err)
+								continue
+							}
+							fmt.Println(song_duration, song_end-2, song_play+2)
 						}
-						fmt.Println(song_duration, song_end, song_play)
-						time.Sleep(1 * time.Second)
-					}
+					*/
 				}
+				time.Sleep(time.Duration(song_duration) * time.Second)
+				err := os.Remove(descifrada)
+				fmt.Println(err)
 			}
 		}
 		time.Sleep(30 * time.Second)
