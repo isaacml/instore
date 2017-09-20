@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 )
-
+					
 func reproduccion() {
 	for {
 		//a, p, pl := 0, 0, 1
@@ -64,16 +64,17 @@ func reproduccion() {
 					win.Play()
 					//Guardamos la duracion total de la cancion
 					song_duration = win.SongLenght(descifrada)
-				}
-				for {
-					song_end = win.SongEnd()
-					song_play := win.SongPlay()
-					if song_end == 0 {
-						err := os.Remove(song)
-						fmt.Println(err)
-						continue
+					for {
+						song_end = win.SongEnd()
+						song_play := win.SongPlay()
+						if song_play == song_duration {
+							err := os.Remove(descifrada)
+							fmt.Println(err)
+							continue
+						}
+						fmt.Println(song_duration, song_end, song_play)
+						time.Sleep(1 * time.Second)
 					}
-					fmt.Println(song_duration, song_end, song_play)
 				}
 			}
 		}
