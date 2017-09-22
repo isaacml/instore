@@ -139,7 +139,11 @@ func programarMusica(w http.ResponseWriter, r *http.Request){
 						db_mu.Lock()
 						//Guardamos cada una de las carpetas seleccionadas
 						programmedMusic[cont] = v
-						statusProgammedMusic = "Actualizada"
+						if statusProgammedMusic == "Actualizada" {
+							statusProgammedMusic = "Modificar"
+						}else{
+							statusProgammedMusic = "Actualizada"
+						}
 						db_mu.Unlock()
 					}
 					cont++

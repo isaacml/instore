@@ -123,7 +123,7 @@ func (w *Winamp) Pause() {
 	w.pause = true
 	w.stop = false
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "/instore/clever.exe pause").Run()
+	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe  pause").Run()
 }
 
 //Muestra el tiempo de reproducción (en seg) de la canción
@@ -189,7 +189,11 @@ func (w *Winamp) VolumeDown() {
 	}
 	fmt.Println(w.volume)
 }
-
+//Limpia la playlist
+func (w *Winamp) Clear(){
+	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe clear").Run()
+}
+//Tiempo total de un fichero de musica en segundos
 func (w *Winamp) SongLenght(file string) int {
 	var total_sec int
 	var song_lenght_bat *os.File
