@@ -67,15 +67,16 @@ func (w *Winamp) RunWinamp() {
 		w.volume = volMax
 		w.run = true
 		w.mu.Unlock()
-		
+
 	}
 }
+
 //Función que establece el volumen del Winamp
 func (w *Winamp) Volume() {
 	fmt.Println("este es el volumen", w.volume)
-	vol := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", w.volume)
-	exec.Command("cmd", "/c", vol).Run()
+	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe volume 250").Run()
 }
+
 //Función que cierra Winamp
 func (w *Winamp) WinampClose() {
 	w.mu.Lock()
@@ -217,10 +218,12 @@ func (w *Winamp) VolumeDown() {
 	}
 	fmt.Println(w.volume)
 }
+
 //Limpia la playlist
-func (w *Winamp) Clear(){
+func (w *Winamp) Clear() {
 	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe clear").Run()
 }
+
 //Tiempo total de un fichero de musica en segundos
 func (w *Winamp) SongLenght(file string) int {
 	var gen_bat string

@@ -24,7 +24,7 @@ func reproduccion() {
 		y, m, d := time.Now().Date()
 		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
 		//INICIAL
-		fmt.Println("-" + statusProgammedMusic+"-")
+		fmt.Println("-" + statusProgammedMusic + "-")
 		//Obtenemos el GAP
 		publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
 		if errP != nil {
@@ -115,7 +115,7 @@ func reproduccion() {
 					pl = 0
 				}
 			}
-		}else if statusProgammedMusic == "Actualizada" {
+		} else if statusProgammedMusic == "Actualizada" {
 			for _, val := range programmedMusic {
 				//generamos la ruta completa a esas carpetas
 				full_route := music_files + val + "\\"
@@ -176,7 +176,7 @@ func reproduccion() {
 					pl = 0
 				}
 			}
-		}else if statusProgammedMusic == "Modificar" {
+		} else if statusProgammedMusic == "Modificar" {
 			for _, val := range programmedMusic {
 				//generamos la ruta completa a esas carpetas
 				full_route := music_files + val + "\\"
@@ -237,50 +237,52 @@ func reproduccion() {
 					pl = 0
 				}
 			}
-		}else{
-			for _, v := range shuffle {
-				var song_duration int
-				song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-				if strings.Contains(song, ".xxx") {
-					del_ext := strings.Split(song, ".xxx")
-					descifrada := del_ext[0] + ".mp3"
-					//Proceso de descifrado de la cancion: ver en libreria de funciones.
-					libs.Cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-					//Carga y reproduccion de cancion
-					win.Load("\"" + descifrada + "\"")
-					win.Play()
-					//Guardamos la duracion total de la cancion
-					song_duration = win.SongLenght(descifrada)
-				} else {
-					//Carga y reproduccion de cancion
-					win.Load("\"" + song + "\"")
-					win.Play()
-					//Guardamos la duracion total de la cancion
-					song_duration = win.SongLenght(song)
-				}
-				//fmt.Println("CONTADOR DE GAPS: ", pl, gap)
-				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
-				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
-				if pl == gap {
-					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-					rand.Seed(time.Now().UnixNano())
-					shuffle2 := rand.Perm(len(publi))
-					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-					for _, val := range shuffle2 {
-						publi_file := publi[val]
-						fmt.Println(publi_file)
-						win.Load("\"" + publi_files_location + publi_file + "\"")
-						win.Play()
-						song_duration = win.SongLenght(publi_files_location + publi_file)
-						break
-					}
-					//Volvemos a poner el contador de playlist 0
-					pl = 0
-				}
-				//time.Duration(song_duration)
-				time.Sleep(time.Duration(song_duration) * time.Second)
-				pl++
+		}
+		for _, v := range shuffle {
+			if statusProgammedMusic == "Inicial" {
+				break
 			}
+			var song_duration int
+			song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
+			if strings.Contains(song, ".xxx") {
+				del_ext := strings.Split(song, ".xxx")
+				descifrada := del_ext[0] + ".mp3"
+				//Proceso de descifrado de la cancion: ver en libreria de funciones.
+				libs.Cifrado(song, descifrada, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+				//Carga y reproduccion de cancion
+				win.Load("\"" + descifrada + "\"")
+				win.Play()
+				//Guardamos la duracion total de la cancion
+				song_duration = win.SongLenght(descifrada)
+			} else {
+				//Carga y reproduccion de cancion
+				win.Load("\"" + song + "\"")
+				win.Play()
+				//Guardamos la duracion total de la cancion
+				song_duration = win.SongLenght(song)
+			}
+			//fmt.Println("CONTADOR DE GAPS: ", pl, gap)
+			//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+			//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+			if pl == gap {
+				//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+				rand.Seed(time.Now().UnixNano())
+				shuffle2 := rand.Perm(len(publi))
+				//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+				for _, val := range shuffle2 {
+					publi_file := publi[val]
+					fmt.Println(publi_file)
+					win.Load("\"" + publi_files_location + publi_file + "\"")
+					win.Play()
+					song_duration = win.SongLenght(publi_files_location + publi_file)
+					break
+				}
+				//Volvemos a poner el contador de playlist 0
+				pl = 0
+			}
+			//time.Duration(song_duration)
+			time.Sleep(time.Duration(song_duration) * time.Second)
+			pl++
 		}
 		time.Sleep(5 * time.Second)
 	}
