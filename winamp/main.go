@@ -67,15 +67,45 @@ func (w *Winamp) RunWinamp() {
 		w.volume = volMax
 		w.run = true
 		w.mu.Unlock()
+		
 	}
 }
-
+//Función que establece el volumen del Winamp
+func (w *Winamp) Volume() {
+	fmt.Println("este es el volumen", w.volume)
+	vol := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", w.volume)
+	exec.Command("cmd", "/c", vol).Run()
+}
 //Función que cierra Winamp
 func (w *Winamp) WinampClose() {
 	w.mu.Lock()
 	w.run = false
 	w.mu.Unlock()
 	exec.Command("cmd", "/c", "taskkill /IM winamp.exe").Run()
+}
+
+//Función que comprueba si Winamp se está ejecutando o no
+func (w *Winamp) WinampIsOpen() bool {
+	var gen_bat string
+	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
+	isOpenFile, err := os.Create("C:\\instore\\Winamp\\isOpenWin.bat")
+	if err != nil {
+		err = fmt.Errorf("BAT: CANNOT CREATE BAT FILE")
+	}
+	gen_bat = "@echo off\r\ntasklist /fi \"IMAGENAME eq winamp.exe\" | find /i \"winamp.exe\" > nul\r\nif not errorlevel 1 (echo Existe) else (echo NoExiste)"
+	isOpenFile.WriteString(gen_bat)
+	bat, err := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\isOpenWin.bat").CombinedOutput()
+	if err != nil {
+		err = fmt.Errorf("bat: CANNOT OPEN BAT")
+	}
+	limpio := strings.TrimRight(string(bat), "\r\n")
+	//Evaluamos la salida del fichero bat
+	if limpio == "Existe" {
+		w.run = true
+	} else {
+		w.run = false
+	}
+	return w.run
 }
 
 //Si Winamp está arrancado, carga una playlist
@@ -94,8 +124,6 @@ func (w *Winamp) Load(file string) error {
 		if err != nil {
 			err = fmt.Errorf("load: CANNOT_LOAD_PLAYLIST")
 		}
-		vol := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", volMax)
-		exec.Command("cmd", "/c", vol).Run()
 	} else {
 		err = fmt.Errorf("winamp: WINAMP_IS_NOT_RUNNING")
 	}
@@ -195,12 +223,9 @@ func (w *Winamp) Clear(){
 }
 //Tiempo total de un fichero de musica en segundos
 func (w *Winamp) SongLenght(file string) int {
-	var total_sec int
-	var song_lenght_bat *os.File
-	var err error
 	var gen_bat string
 	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
-	song_lenght_bat, err = os.Create("song_lenght.bat")
+	song_lenght_bat, err := os.Create("song_lenght.bat")
 	if err != nil {
 		err = fmt.Errorf("lenght_bat: CANNOT CREATE BAT FILE")
 	}
@@ -211,7 +236,7 @@ func (w *Winamp) SongLenght(file string) int {
 	seg, _ := exec.Command("cmd", "/c", "song_lenght.bat").CombinedOutput()
 	//formato de SongLenght -> 201.91234 seg
 	song := strings.Split(fmt.Sprintf("%s", string(seg)), ".")
-	total_sec, err = strconv.Atoi(song[0])
+	total_sec, err := strconv.Atoi(song[0])
 	if err != nil {
 		err = fmt.Errorf("conv: CANNOT_CONVERSION")
 	}

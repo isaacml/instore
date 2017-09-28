@@ -10,7 +10,7 @@ import (
 )
 //Tomamos el listado de carpetas programadas y las guardamos en este mapa
 var programmedMusic map[int]string = make(map[int]string)
-//Estado de la programacion: Inicial o Actualizada
+//Estado de la programacion: Inicial, Actualizada o Modificar
 var statusProgammedMusic string
 //Bitmap de programacion de musica: con el se decide el tipo de reproduccion de la tienda
 //Reproduccion de música previamente programada o reproduccion de musica sin programar
