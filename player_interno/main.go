@@ -71,6 +71,7 @@ func main() {
 	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
+	http.HandleFunc("/player_btn_control.cgi", player_btn_control)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
