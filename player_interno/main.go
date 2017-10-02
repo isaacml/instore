@@ -55,7 +55,7 @@ func main() {
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go saveListInBD()
 	go solicitudDeFicheros()
-	go reproduccion()
+	//go reproduccion()
 	go reproduccion_msgs()
 
 	// handlers del servidor HTTP
