@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 )
+
 /*
 func reproduccion() {
 	for {
@@ -292,7 +293,8 @@ func reproduccion() {
 }
 */
 
-var btn_action_control string 
+var btn_action_control string
+
 func player_btn_control(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var win winamp.Winamp
@@ -355,6 +357,13 @@ func player_btn_control(w http.ResponseWriter, r *http.Request) {
 				win.Load("\"" + descifrada + "\"")
 				//Guardamos la duracion total de la cancion
 				song_duration = win.SongLenght(descifrada)
+				//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
+				win.Clear()
+				//Borramos el descifrado(.mp3)
+				err := os.Remove(descifrada)
+				if err != nil {
+					Error.Println(err)
+				}
 			} else {
 				//Carga y reproduccion de cancion
 				win.Load("\"" + song + "\"")
