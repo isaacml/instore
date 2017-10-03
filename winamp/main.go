@@ -59,7 +59,7 @@ func (w *Winamp) Status() *Status {
 	return &st
 }
 
-//Función que arranca Winamp, si no está arrancado y establece el volumen a 250
+//Función que arranca Winamp, si no está arrancado
 func (w *Winamp) RunWinamp() {
 	if w.run == false {
 		exec.Command("cmd", "/c", "%winamp%").Start()
@@ -73,8 +73,11 @@ func (w *Winamp) RunWinamp() {
 
 //Función que establece el volumen del Winamp
 func (w *Winamp) Volume() {
-	fmt.Println("este es el volumen", w.volume)
-	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe volume 250").Run()
+	cmd := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", w.volume)
+	err := exec.Command("cmd", "/c", cmd).Run()
+	if err != nil {
+		err = fmt.Errorf("VOL: FAIL TO SEND VOLUME")
+	}
 }
 
 //Función que cierra Winamp
@@ -112,9 +115,10 @@ func (w *Winamp) WinampIsOpen() bool {
 //Si Winamp está arrancado, carga una playlist
 func (w *Winamp) Load(file string) error {
 	var err error
+	var bat *os.File
 	if w.run == true {
 		var gen_fich string
-		bat, err := os.Create("song.bat")
+		bat, err = os.Create("song.bat")
 		if err != nil {
 			err = fmt.Errorf("bat: CANNOT CREATE BAT FILE")
 		}
@@ -130,13 +134,17 @@ func (w *Winamp) Load(file string) error {
 	}
 	return err
 }
-func (w *Winamp) Play() {
+func (w *Winamp) Play() error{
 	w.mu.Lock()
 	w.play = true
 	w.pause = false
 	w.stop = false
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe play").Run()
+	err := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe play").Run()
+	if err != nil {
+		err = fmt.Errorf("FAIL TO RUN COMMAND")
+	}
+	return err
 }
 func (w *Winamp) Stop() {
 	w.mu.Lock()
