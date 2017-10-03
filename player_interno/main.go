@@ -55,7 +55,7 @@ func main() {
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go saveListInBD()
 	go solicitudDeFicheros()
-	//go reproduccion()
+	go reproduccion()
 	go reproduccion_msgs()
 
 	// handlers del servidor HTTP
@@ -71,7 +71,6 @@ func main() {
 	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
-	http.HandleFunc("/player_btn_control.cgi", player_btn_control)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,

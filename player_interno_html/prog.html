@@ -119,10 +119,6 @@
                             Programar Música de la Tienda
                         </div>
                         <div class="panel-body" align="center">
-                            <br>
-                            <button id="play" class="btn btn-lg btn-success" name="play"><i class="fa fa-play"></i></button>
-                            <button id="pause" class="btn btn-lg btn-warning" name="pause"><i class="fa fa-pause"></i></button>
-                            <button id="stop" class="btn btn-lg btn-danger" name="stop"><i class="fa fa-stop"></i></button>
                             <form id="testform" action="" method="post">
                                 <fieldset>
                                     <br>
@@ -157,17 +153,7 @@
                     $("#zona_mNoCif_top").hide();
                     $("#zona_CifNoCif").hide();
                 }
-            });
-            $("#play").click(function(){
-                $.post("/player_btn_control.cgi?sid={{sid}}&accion=play", function(data, status) {});
-            });
-            $("#pause").click(function(){
-                $.post("/player_btn_control.cgi?sid={{sid}}&accion=pause", function(data, status) {});
-            });
-            $("#stop").click(function(){
-                $.post("/player_btn_control.cgi?sid={{sid}}&accion=stop", function(data, status) {});
-            });
-            
+            });            
             $.post("/programarMusica.cgi?sid={{sid}}&accion=show_dirs", function(data, status) {
                 $("#musicDirs").html(data);
             });

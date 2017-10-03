@@ -134,17 +134,13 @@ func (w *Winamp) Load(file string) error {
 	}
 	return err
 }
-func (w *Winamp) Play() error{
+func (w *Winamp) Play() {
 	w.mu.Lock()
 	w.play = true
 	w.pause = false
 	w.stop = false
 	w.mu.Unlock()
-	err := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe play").Run()
-	if err != nil {
-		err = fmt.Errorf("FAIL TO RUN COMMAND")
-	}
-	return err
+	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe play").Run()
 }
 func (w *Winamp) Stop() {
 	w.mu.Lock()
