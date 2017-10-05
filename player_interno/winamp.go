@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"strings"
-	//"sync"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
+	"math/rand"
 	"os"
 	"time"
 )
@@ -16,7 +14,7 @@ func reproduccion() {
 		var win winamp.Winamp
 		publi := make(map[int]string)
 		musica := make(map[int]string)
-		p := 0
+		p, pl := 0, 1
 		var gap int
 		var song string
 		//Sacamos la fecha actual
@@ -62,7 +60,24 @@ func reproduccion() {
 					break
 				}
 				song = musica[v]
-				Mezclador(song, publi, win, gap)
+				libs.PlaySong(song, win)
+				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+				if pl == gap {
+					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+					rand.Seed(time.Now().UnixNano())
+					shuffle2 := rand.Perm(len(publi))
+					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+					for _, val := range shuffle2 {
+						publi_file := publi[val]
+						all_publi_file := publi_files_location + publi_file
+						libs.PlayPubli(all_publi_file, win)
+						break
+					}
+					//Volvemos a poner el contador de playlist 0
+					pl = 0
+				}
+				pl++
 			}
 		} else if statusProgammedMusic == "Actualizada" {
 			for _, val := range programmedMusic {
@@ -77,7 +92,24 @@ func reproduccion() {
 					break
 				}
 				song = musica[v]
-				Mezclador(song, publi, win, gap)
+				libs.PlaySong(song, win)
+				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+				if pl == gap {
+					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+					rand.Seed(time.Now().UnixNano())
+					shuffle2 := rand.Perm(len(publi))
+					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+					for _, val := range shuffle2 {
+						publi_file := publi[val]
+						all_publi_file := publi_files_location + publi_file
+						libs.PlayPubli(all_publi_file, win)
+						break
+					}
+					//Volvemos a poner el contador de playlist 0
+					pl = 0
+				}
+				pl++
 			}
 		} else if statusProgammedMusic == "Modificar" {
 			for _, val := range programmedMusic {
@@ -92,7 +124,24 @@ func reproduccion() {
 					break
 				}
 				song = musica[v]
-				Mezclador(song, publi, win, gap)
+				libs.PlaySong(song, win)
+				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+				if pl == gap {
+					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+					rand.Seed(time.Now().UnixNano())
+					shuffle2 := rand.Perm(len(publi))
+					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+					for _, val := range shuffle2 {
+						publi_file := publi[val]
+						all_publi_file := publi_files_location + publi_file
+						libs.PlayPubli(all_publi_file, win)
+						break
+					}
+					//Volvemos a poner el contador de playlist 0
+					pl = 0
+				}
+				pl++
 			}
 		} else {
 			var song string
@@ -104,58 +153,27 @@ func reproduccion() {
 					break
 				}
 				song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-				Mezclador(song, publi, win, gap)
+				libs.PlaySong(song, win)
+				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+				if pl == gap {
+					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+					rand.Seed(time.Now().UnixNano())
+					shuffle2 := rand.Perm(len(publi))
+					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+					for _, val := range shuffle2 {
+						publi_file := publi[val]
+						all_publi_file := publi_files_location + publi_file
+						libs.PlayPubli(all_publi_file, win)
+						break
+					}
+					//Volvemos a poner el contador de playlist 0
+					pl = 0
+				}
+				pl++
 			}
 		}
 	}
-}
-func Mezclador(song string, publi map[int]string, win winamp.Winamp, gap int) {
-	pl := 1
-	fmt.Println(pl)
-	if strings.Contains(song, ".xxx") {
-		del_ext := strings.Split(song, ".xxx")
-		song_to_play := del_ext[0] + ".mp3"
-		//Proceso de descifrado de la cancion: ver en libreria de funciones.
-		libs.Cifrado(song, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-		//Guardamos la duracion total de la cancion
-		song_duration := win.SongLenght(song_to_play)
-		//Carga y reproduccion de cancion
-		win.Load("\"" + song_to_play + "\"")
-		win.Play()
-		time.Sleep(time.Duration(song_duration+1) * time.Second)
-		//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
-		win.Clear()
-		//Borramos el descifrado(.mp3)
-		err := os.Remove(song_to_play)
-		if err != nil {
-			Error.Println(err)
-		}
-	}
-	song_to_play := song
-	//Guardamos la duracion total de la cancion
-	song_duration := win.SongLenght(song_to_play)
-	//Carga y reproduccion de cancion
-	win.Load("\"" + song_to_play + "\"")
-	win.Play()
-	//fmt.Println("CONTADOR DE GAPS: ", pl, gap)
-	//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
-	//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
-	if pl == gap {
-		//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-		rand.Seed(time.Now().UnixNano())
-		shuffle2 := rand.Perm(len(publi))
-		//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-		for _, val := range shuffle2 {
-			publi_file := publi[val]
-			win.Load("\"" + publi_files_location + publi_file + "\"")
-			song_duration = win.SongLenght(publi_files_location + publi_file)
-			break
-		}
-		//Volvemos a poner el contador de playlist 0
-		pl = 0
-	}
-	pl++
-	time.Sleep(time.Duration(song_duration) * time.Second)
 }
 
 //Reproduce los mensajes automáticos de la tienda: bucle infinito que busca cada minuto un mensaje nuevo para reproducir.

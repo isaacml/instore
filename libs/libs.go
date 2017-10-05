@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/isaacml/instore/winamp"
 	"github.com/todostreaming/ratelimit"
 	"io"
 	"io/ioutil"
@@ -432,6 +433,24 @@ func FileCopier(contenedor []string, destino string) {
 }
 
 /*
+Existencia: Comprueba la existencia de un fichero o directorio
+	name:  ruta completa del fichero o directorio
+Devuelve un bool con el resultado
+*/
+func Existencia(ruta string) bool {
+	var existe bool
+	_, err := os.Stat(ruta)
+	if err != nil {
+		if os.IsNotExist(err) {
+			existe = false
+		}
+	} else {
+		existe = true
+	}
+	return existe
+}
+
+/*
 MusicToPlay: Esta función determina los ficheros que va a reproducir el player de la tienda.
 	ruta:  Ruta del directorio que va a contener los ficheros de música
 Devuelve un mapa con todos los ficheros a reproducir.
@@ -457,19 +476,45 @@ func MusicToPlay(ruta string) map[int]string {
 }
 
 /*
-Existencia: Comprueba la existencia de un fichero o directorio
-	name:  ruta completa del fichero o directorio
-Devuelve un bool con el resultado
+PlaySongs: Toma una cancion del listado y la reproduce.
+	song:  Nombre de la cancion
+	win:   Objeto Winamp
+La cancion puede ser cifrada o no cifrada.
 */
-func Existencia(ruta string) bool {
-	var existe bool
-	_, err := os.Stat(ruta)
-	if err != nil {
-		if os.IsNotExist(err) {
-			existe = false
-		}
-	} else {
-		existe = true
+func PlaySong(song string, win winamp.Winamp) {
+	if strings.Contains(song, ".xxx") {
+		del_ext := strings.Split(song, ".xxx")
+		song_to_play := del_ext[0] + ".mp3"
+		//Proceso de descifrado de la cancion: ver en libreria de funciones.
+		Cifrado(song, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+		//Guardamos la duracion total de la cancion
+		song_duration := win.SongLenght(song_to_play)
+		//Carga y reproduccion de cancion
+		win.Load("\"" + song_to_play + "\"")
+		win.Play()
+		time.Sleep(time.Duration(song_duration+1) * time.Second)
+		//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
+		win.Clear()
+		//Borramos el descifrado(.mp3)
+		os.Remove(song_to_play)
 	}
-	return existe
+	song_to_play := song
+	//Guardamos la duracion total de la cancion
+	song_duration := win.SongLenght(song_to_play)
+	//Carga y reproduccion de cancion
+	win.Load("\"" + song_to_play + "\"")
+	win.Play()
+	time.Sleep(time.Duration(song_duration) * time.Second)
+}
+
+/*
+PlayPubli: Toma un fichero de publicidad del listado y lo reproduce.
+	publi_file:  Nombre del fichero de publicidad
+	win:   Objeto Winamp
+*/
+func PlayPubli(publi_file string, win winamp.Winamp) {
+	win.Load("\"" + publi_file + "\"")
+	win.Play()
+	song_duration := win.SongLenght(publi_file)
+	time.Sleep(time.Duration(song_duration) * time.Second)
 }
