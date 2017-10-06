@@ -84,3 +84,12 @@ func send_orgs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func additional_domains(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
+	domain := strings.Split(respuesta, ";")
+	dom := domain[1]
+	fmt.Println(dom)
+	fmt.Println(domainint)
+}

@@ -112,23 +112,26 @@
                 </div>
             </div>
         </nav>
-        <div id="page-wrapper">
-           <br>
+        <div id="page-wrapper"><br>
             <div class="row">
-                <div class="col-md-6 col-md-offset-3">
+                <div class="col-md-8 col-md-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Añadir Nuevos Dominios
+                            Añadir Dominios Adicionales
                         </div>
                         <div class="panel-body" align="center">
-                            <form id="testform" action="" method="post">
+                            <form id="testform" action="/additional_domains.cgi?sid={{sid}}" method="post">
                                 <fieldset>
-                                    <h5 class="text-muted">entidad</h5>
-                                    <br>
-                                    <div class="form-group">
-                                        <select id="unidades" name="unidades" style="width:30%;"></select>
-                                    </div>   
+                                    <div id='entidad'></div>
+                                    <div id='almacen'></div>
+                                    <div id='pais'></div>
+                                    <div id='region'></div>
+                                    <div id='provincia'></div>
+                                    <div id='tienda'></div>
+                                    <div class='panel-body' id="dom_container"></div>
                                 </fieldset>
+                                <br>
+                                <input id="enviar" type="submit" class="btn btn-lg btn-success" value="Enviar"/>
                             </form>
                         </div>
                     </div>
@@ -156,6 +159,64 @@
                     $("#zona_mNoCif_top").hide();
                     $("#zona_CifNoCif").hide();
                 }
+            });
+            $.post("/get_orgs.cgi?sid={{sid}}&action=entidades", function(data, status) {
+                $("#entidad").html(data);
+            });
+            $("#entidad").change(function() {
+                $("#pais").hide();
+                $("#region").hide();
+                $("#provincia").hide();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=almacenes", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#almacen").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#almacen").change(function() {
+                $("#pais").show();
+                $("#region").hide();
+                $("#provincia").hide();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=paises", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#pais").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#pais").change(function() {
+                $("#region").show();
+                $("#provincia").hide();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=regiones", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#region").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#region").change(function() {
+                $("#provincia").show();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=provincias", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#provincia").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#provincia").change(function() {
+                $("#tienda").show();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=tiendas", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#tienda").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#tienda").change(function() {
+                $.post("/get_orgs.cgi?sid={{sid}}&action=cod_tienda", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#dom_container").html(res[1]);
+                });
             });
         });
     </script>
