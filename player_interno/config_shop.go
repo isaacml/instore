@@ -56,6 +56,7 @@ func send_orgs(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
+		defer config_file.Close()
 		config_file.WriteString("shopdomain = " + domain + "\n")
 		//Aquí tomamos el SID que nos proporciona el formulario (action="/send_orgs.cgi?sid={{sid}}")
 		for k, v := range r.Form {
@@ -87,9 +88,45 @@ func send_orgs(w http.ResponseWriter, r *http.Request) {
 
 func additional_domains(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	loadSettings(configShop, serverint)
+	domain_extra := domainint["optionaldomain"]
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
 	domain := strings.Split(respuesta, ";")
 	dom := domain[1]
-	fmt.Println(dom)
-	fmt.Println(domainint)
+	fmt.Println(domain_extra, dom)
+	if strings.Contains(domain_extra, dom) {
+		fmt.Println("lo tengo ya pichon")
+	} else {
+		if domain_extra == "" {
+			fmt.Println("No tengo ninguno, meto el primero de todos")
+		}
+	}
+	/*
+		if domain_extra == "" {
+			file, err := os.OpenFile(configShop, os.O_APPEND, 0666)
+			if err != nil {
+				Error.Println(err)
+			}
+			defer file.Close()
+			file.WriteString("optionaldomain = " + dom + ";")
+		} else {
+			file, err := os.OpenFile(configShop, os.O_APPEND, 0666)
+			if err != nil {
+				Error.Println(err)
+			}
+			defer file.Close()
+			lectura, err := ioutil.ReadFile(configShop)
+			if err != nil {
+				Error.Println(err)
+			}
+			lines := strings.Split(string(lectura), "\n")
+			for i, line := range lines {
+				if strings.Contains(line, ";") {
+					lines[i] = dom
+				}
+			}
+			output := strings.Join(lines, dom+";")
+			fmt.Println("Añado un nuevo dominio", output)
+		}
+	*/
 }
