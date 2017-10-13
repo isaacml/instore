@@ -433,7 +433,7 @@ func loadSettings(filename string, arr map[string]string) {
 			if rerr != nil {
 				break
 			}
-			linea = strings.TrimRight(linea, "\n")
+			linea = strings.TrimRight(linea, "\r\n")
 			item := strings.Split(linea, " = ")
 			if len(item) == 2 {
 				arr[item[0]] = item[1]

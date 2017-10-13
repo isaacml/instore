@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"io/ioutil"
 )
 
 //Funcion que va a recoger los valores de los selects y mostrarlos
@@ -88,8 +89,9 @@ func send_orgs(w http.ResponseWriter, r *http.Request) {
 
 func additional_domains(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	loadSettings(configShop, serverint)
-	domain_extra := domainint["optionaldomain"]
+	extra_domain := make(map[string]string)
+	loadSettings(configShop, extra_domain)
+	domain_extra := extra_domain["optionaldomain"]
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
 	domain := strings.Split(respuesta, ";")
 	dom := domain[1]
@@ -99,6 +101,24 @@ func additional_domains(w http.ResponseWriter, r *http.Request) {
 	} else {
 		if domain_extra == "" {
 			fmt.Println("No tengo ninguno, meto el primero de todos")
+			file, err := os.OpenFile(configShop, os.O_APPEND, 0666)
+			if err != nil {
+				Error.Println(err)
+			}
+			defer file.Close()
+			file.WriteString("optionaldomain = " + dom + ";\n")
+		}else{
+			file, err := ioutil.ReadFile(configShop)
+			if err != nil {
+				Error.Println(err)
+			}
+			line := strings.TrimSuffix(string(file), "\n")
+			extra := line + dom + ";\n"
+			err = ioutil.WriteFile(configShop, []byte(extra), 0666)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Println("Metemos un dominio exta nuevo")
 		}
 	}
 	/*
