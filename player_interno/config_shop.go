@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/isaacml/instore/libs"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
-	"io/ioutil"
 )
 
 //Funcion que va a recoger los valores de los selects y mostrarlos
@@ -91,13 +91,15 @@ func additional_domains(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	extra_domain := make(map[string]string)
 	loadSettings(configShop, extra_domain)
+	loadSettings(configShop, serverint)
 	domain_extra := extra_domain["optionaldomain"]
+	shop_domain := serverint["shopdomain"]
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
 	domain := strings.Split(respuesta, ";")
 	dom := domain[1]
-	fmt.Println(domain_extra, dom)
-	if strings.Contains(domain_extra, dom) {
-		fmt.Println("lo tengo ya pichon")
+	fmt.Println("dominio principal: ", shop_domain)
+	if strings.Contains(domain_extra, dom) || strings.Contains(shop_domain, dom) {
+		fmt.Println("El dominio ya existe")
 	} else {
 		if domain_extra == "" {
 			fmt.Println("No tengo ninguno, meto el primero de todos")
@@ -107,7 +109,7 @@ func additional_domains(w http.ResponseWriter, r *http.Request) {
 			}
 			defer file.Close()
 			file.WriteString("optionaldomain = " + dom + ";\n")
-		}else{
+		} else {
 			file, err := ioutil.ReadFile(configShop)
 			if err != nil {
 				Error.Println(err)
@@ -121,32 +123,4 @@ func additional_domains(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Metemos un dominio exta nuevo")
 		}
 	}
-	/*
-		if domain_extra == "" {
-			file, err := os.OpenFile(configShop, os.O_APPEND, 0666)
-			if err != nil {
-				Error.Println(err)
-			}
-			defer file.Close()
-			file.WriteString("optionaldomain = " + dom + ";")
-		} else {
-			file, err := os.OpenFile(configShop, os.O_APPEND, 0666)
-			if err != nil {
-				Error.Println(err)
-			}
-			defer file.Close()
-			lectura, err := ioutil.ReadFile(configShop)
-			if err != nil {
-				Error.Println(err)
-			}
-			lines := strings.Split(string(lectura), "\n")
-			for i, line := range lines {
-				if strings.Contains(line, ";") {
-					lines[i] = dom
-				}
-			}
-			output := strings.Join(lines, dom+";")
-			fmt.Println("Añado un nuevo dominio", output)
-		}
-	*/
 }
