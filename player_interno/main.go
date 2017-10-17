@@ -23,7 +23,6 @@ var (
 	db                *sql.DB
 	db_mu             sync.RWMutex
 	serverint         map[string]string = make(map[string]string) //Mapa que guarda la direccion del servidor interno
-	domainint         map[string]string = make(map[string]string) //Mapa que guarda el dominio de la tienda
 	username          string                                      //Variable de usuario y estado global
 	directorio_actual string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 )
@@ -102,8 +101,13 @@ func saveListInBD() {
 		string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 		//Si el fichero de configuracion existe, enviamos el dominio de la tienda
 		if existe == true {
+			var dominios string
+			domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
 			loadSettings(configShop, domainint)
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+domainint["shopdomain"]))
+			for _, val := range domainint {
+				dominios += val + ":.:"
+			}
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+dominios))
 			fmt.Println(respuesta)
 			//Si la respuesta NO está vacía, comprobamos la respuesta.
 			if respuesta != "" {
@@ -424,6 +428,7 @@ loadSettings: esta función va a abrir un fichero, leer los datos que contiene y
 	filename: ruta completa donde se encuentra nuestro fichero(C:\instore\serverext.reg)
 */
 func loadSettings(filename string, arr map[string]string) {
+	cont := 1
 	fr, err := os.Open(filename)
 	defer fr.Close()
 	if err == nil {
@@ -436,7 +441,13 @@ func loadSettings(filename string, arr map[string]string) {
 			linea = strings.TrimRight(linea, "\r\n")
 			item := strings.Split(linea, " = ")
 			if len(item) == 2 {
-				arr[item[0]] = item[1]
+				if _, ok := arr[item[0]]; ok {
+					clave := fmt.Sprintf("%s%d", item[0], cont)
+					arr[clave] = item[1]
+					cont++
+				} else {
+					arr[item[0]] = item[1]
+				}
 			}
 		}
 	}

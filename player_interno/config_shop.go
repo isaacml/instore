@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/isaacml/instore/libs"
-	"io/ioutil"
+	//"io/ioutil"
+	"bufio"
 	"net/http"
 	"os"
 	"strings"
@@ -89,38 +90,31 @@ func send_orgs(w http.ResponseWriter, r *http.Request) {
 
 func additional_domains(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	extra_domain := make(map[string]string)
-	loadSettings(configShop, extra_domain)
-	loadSettings(configShop, serverint)
-	domain_extra := extra_domain["optionaldomain"]
-	shop_domain := serverint["shopdomain"]
+	cont := 0
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_orgs.cgi"))
 	domain := strings.Split(respuesta, ";")
 	dom := domain[1]
-	fmt.Println("dominio principal: ", shop_domain)
-	if strings.Contains(domain_extra, dom) || strings.Contains(shop_domain, dom) {
-		fmt.Println("El dominio ya existe")
-	} else {
-		if domain_extra == "" {
-			fmt.Println("No tengo ninguno, meto el primero de todos")
-			file, err := os.OpenFile(configShop, os.O_APPEND, 0666)
-			if err != nil {
-				Error.Println(err)
+	fr, err := os.OpenFile(configShop, os.O_RDWR, 0666)
+	defer fr.Close()
+	if err == nil {
+		reader := bufio.NewReader(fr)
+		for {
+			linea, rerr := reader.ReadString('\n')
+			if rerr != nil {
+				break
 			}
-			defer file.Close()
-			file.WriteString("optionaldomain = " + dom + ";\n")
-		} else {
-			file, err := ioutil.ReadFile(configShop)
-			if err != nil {
-				Error.Println(err)
+			linea = strings.TrimRight(linea, "\r\n")
+			item := strings.Split(linea, " = ")
+			if len(item) == 2 {
+				if item[1] == dom {
+					cont++
+				}
 			}
-			line := strings.TrimSuffix(string(file), "\n")
-			extra := line + dom + ";\n"
-			err = ioutil.WriteFile(configShop, []byte(extra), 0666)
-			if err != nil {
-				Error.Println(err)
-			}
-			fmt.Println("Metemos un dominio exta nuevo")
 		}
+	}
+	//No existe dominio en el fichero
+	if cont == 0 {
+		//escribimos nuestro dominio extra
+		fr.WriteString("optionaldomain = " + dom + "\n")
 	}
 }
