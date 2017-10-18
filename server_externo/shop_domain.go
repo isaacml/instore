@@ -11,19 +11,22 @@ import (
 //Funcion que toma la peticion de dominio por parte de la tienda.
 func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 	var output string
-	var arr_domain []string
-	domains := strings.Split(r.FormValue("dominio"), ":.:")
-	for _, v := range domains {
+	var domains []string
+	doms := strings.Split(r.FormValue("dominio"), ":.:")
+	doms = doms[:len(doms)-1]
+	for _, val := range doms {
 		//enviamos el dominio a DomainGenerator() en la libreria de funciones
-		arr_domain = libs.DomainGenerator(v)
+		dom := libs.DomainGenerator(val)
+		for _, v := range dom {
+			fmt.Println(v)
+		}
 	}
-	fmt.Println(arr_domain)
 	fecha_actual := time.Now()
 	//Formato de la fecha actual --> 20070405
 	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 	//Formamos una cadena con la publicidad y los mensajes para ese dominio y con la fecha que le corresponde
 	output += "[publi]"
-	for _, val := range arr_domain {
+	for _, val := range domains {
 		publicidad, err := db.Query("SELECT fichero, fecha_inicio, gap FROM publi WHERE destino = ? AND fecha_inicio = ?", val, string_fecha)
 		if err != nil {
 			Error.Println(err)
@@ -38,7 +41,7 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	output += "[mensaje]"
-	for _, val := range arr_domain {
+	for _, val := range domains {
 		mensajes, err := db.Query("SELECT fichero, playtime FROM mensaje WHERE destino = ? AND fecha_inicio = ?", val, string_fecha)
 		if err != nil {
 			Error.Println(err)
