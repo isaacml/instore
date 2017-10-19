@@ -6,12 +6,6 @@ import (
 	"strings"
 )
 
-//Variable que va a guardar el dominio de la tienda
-var status_dom string
-
-//Variable de estado para saber si podemos guardar el dominio de la tienda o NO
-var enviar_estado bool
-
 func config_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var domain string

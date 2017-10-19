@@ -13,12 +13,14 @@ import (
 )
 
 var (
-	Info    *log.Logger
-	Warning *log.Logger
-	Error   *log.Logger
-	db      *sql.DB
-	db_mu   sync.RWMutex
-	bad, empty string //Variables de estado global
+	Info          *log.Logger
+	Warning       *log.Logger
+	Error         *log.Logger
+	db            *sql.DB
+	db_mu         sync.RWMutex
+	bad, empty    string //Variables de estado global
+	status_dom    string //Variable que va a guardar el dominio de la tienda
+	enviar_estado bool   //Variable de estado para saber si podemos guardar el dominio de la tienda o NO
 )
 
 //MASCARAS PARA BITMAP

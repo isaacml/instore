@@ -346,6 +346,28 @@ func DomainGenerator(dom_tienda string) []string {
 }
 
 /*
+RemoveDuplicates: Borra los datos duplicados en un slice.
+	domains: contiene el listado de dominios(puede contener duplicados).
+Devuelve un slice limpio sin duplciados
+*/
+
+func RemoveDuplicates(domains []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+	for value := range domains {
+		if encountered[domains[value]] == true {
+			// Do not add duplicate.
+		} else {
+			// Record this element as an encountered element.
+			encountered[domains[value]] = true
+			// Append to result slice.
+			result = append(result, domains[value])
+		}
+	}
+	return result
+}
+
+/*
 Cifrado: Funcion que cifra o descifra un fichero existente.
 	origen:  fichero origen
 	destino: fichero destino

@@ -56,8 +56,7 @@ func main() {
 	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
 	http.HandleFunc("/send_orgs.cgi", send_orgs)
 	//Actions
-	http.HandleFunc("/bitmaps.cgi", bitmaps)
-	http.HandleFunc("/send_domain.cgi", send_domain)
+	http.HandleFunc("/acciones.cgi", acciones)
 	http.HandleFunc("/downloadPubliFile.cgi", downloadPubliFile)
 	http.HandleFunc("/downloadMsgFile.cgi", downloadMsgFile)
 
@@ -71,6 +70,7 @@ func main() {
 
 	log.Fatal(s.ListenAndServe()) // servidor HTTP multihilo
 }
+
 //Esta funcion esta consultando al servidor externo cada cierto tiempo en busca de ficheros publi/msg que bajarse
 func BuscarNuevosFicheros() {
 	for {

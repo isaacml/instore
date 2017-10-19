@@ -18,16 +18,11 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 		//enviamos el dominio a DomainGenerator() en la libreria de funciones
 		dom := libs.DomainGenerator(val)
 		for _, v := range dom {
-			fmt.Println("val1", v)
-			for _, valor := range domains {
-				fmt.Println("val2", v)
-				if v != valor {
-					domains = append(domains, v)
-				}
-			}
+			domains = append(domains, v)
 		}
 	}
-	fmt.Println(domains)
+	//Borramos dominios duplicados
+	domains = libs.RemoveDuplicates(domains)
 	fecha_actual := time.Now()
 	//Formato de la fecha actual --> 20070405
 	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
@@ -63,5 +58,5 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//Enviamos la cadena
-	fmt.Fprint(w, output)
+	fmt.Fprint(w, output) //fmt.Println(output)
 }

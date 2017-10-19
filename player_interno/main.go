@@ -397,7 +397,6 @@ func solicitudDeFicheros() {
 			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 			if respuesta == "Descarga" {
 				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
-				fmt.Println(b, err)
 				if err != nil {
 					Error.Println(err)
 				}

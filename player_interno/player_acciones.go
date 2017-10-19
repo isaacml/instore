@@ -3,15 +3,18 @@ package main
 import (
 	"fmt"
 	"github.com/isaacml/instore/libs"
-	"net/http"
 	"github.com/isaacml/instore/winamp"
+	"net/http"
 	"os"
 	"strings"
 )
+
 //Tomamos el listado de carpetas programadas y las guardamos en este mapa
 var programmedMusic map[int]string = make(map[int]string)
+
 //Estado de la programacion: Inicial, Actualizada o Modificar
 var statusProgammedMusic string
+
 //Bitmap de programacion de musica: con el se decide el tipo de reproduccion de la tienda
 //Reproduccion de música previamente programada o reproduccion de musica sin programar
 var bitmap_prog_music int
@@ -21,23 +24,23 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("accion")
 	//Obtener los valores de bitmap para el usuario de la tienda
 	//Enviamos el nombre del usuario al server_interno y este lo pasará al server_externo
-	if accion == "bitmaps"{
-		respuesta := libs.GenerateFORM(serverint["serverinterno"]+"/bitmaps.cgi", "user;"+username)
+	if accion == "bitmaps" {
+		respuesta := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
 		bitmap := strings.Split(respuesta, ";")
 		//Guardamos el bitmap de programar musica
 		bitmap_prog_music = toInt(bitmap[1])
 		fmt.Fprint(w, respuesta)
 	}
 	//Comprueba si el fichero de configuracion de la tienda existe o no
-	if accion == "check_config"{
+	if accion == "check_config" {
 		var existe string
 		existencia := libs.Existencia(configShop)
 		if existencia == true {
 			existe = "OK"
-		}else{
+		} else {
 			existe = "NOOK"
 		}
-		fmt.Fprint(w, existe)	
+		fmt.Fprint(w, existe)
 	}
 }
 
@@ -48,7 +51,7 @@ func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
 	var msg_instantaneo string
 	//Generar un listado de Mensajes
 	if r.FormValue("action") == "mensajes" {
-		//Abrimos el directorio de mensajes(MessagesShop) 
+		//Abrimos el directorio de mensajes(MessagesShop)
 		file, err := os.Open(msg_files_location)
 		defer file.Close()
 		if err != nil {
@@ -62,7 +65,7 @@ func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
 		}
 		for key, val := range ficheros {
 			//Tomamos solamente ficheros MP3
-			if strings.Contains(val.Name(), ".mp3"){
+			if strings.Contains(val.Name(), ".mp3") {
 				//Formamos el select
 				output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
 				//Guardamos el nombre del primer mensaje
@@ -72,12 +75,12 @@ func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		//Mostrar msg: muestra el nombre del mensaje por primera vez
-		output += fmt.Sprintf("#:#<span style='color: #006400'>Mensaje seleccionado: </span>"  + msg_instantaneo)
+		output += fmt.Sprintf("#:#<span style='color: #006400'>Mensaje seleccionado: </span>" + msg_instantaneo)
 	}
 	//Estado de mensaje
 	if r.FormValue("action") == "status" {
 		msg_instantaneo = r.FormValue("instantaneos")
-		output = fmt.Sprintf("<span style='color: #006400'>Mensaje seleccionado: </span>"  + msg_instantaneo)
+		output = fmt.Sprintf("<span style='color: #006400'>Mensaje seleccionado: </span>" + msg_instantaneo)
 	}
 	//Recibe el mensaje instantaneo y lo procesa
 	if r.FormValue("action") == "send" {
@@ -89,13 +92,13 @@ func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
 }
 
 //Programar Musica para la Tienda
-func programarMusica(w http.ResponseWriter, r *http.Request){
+func programarMusica(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var output string
 	accion := r.FormValue("accion")
 	//Muestra los directorios de musica de la tienda
 	if accion == "show_dirs" {
-		//Abrimos el directorio (C:\instore\Music\) 
+		//Abrimos el directorio (C:\instore\Music\)
 		file, err := os.Open(music_files)
 		defer file.Close()
 		if err != nil {
@@ -141,7 +144,7 @@ func programarMusica(w http.ResponseWriter, r *http.Request){
 						programmedMusic[cont] = v
 						if statusProgammedMusic == "Actualizada" {
 							statusProgammedMusic = "Modificar"
-						}else{
+						} else {
 							statusProgammedMusic = "Actualizada"
 						}
 						db_mu.Unlock()
