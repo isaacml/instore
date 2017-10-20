@@ -12,13 +12,17 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var output string
 	accion := r.FormValue("action")
+	//Pasa el nombre de usuario al servidor externo, nos devuelve los permisos para ese usuario
+	if accion == "bitmaps" {
+		output = libs.GenerateFORM(serverext["serverexterno"]+"/acciones.cgi", "accion;bitmap_perm", "user;"+r.FormValue("user"))
+	}
+	//Intermediario para guardar el dominio de la tienda en el fichero de configuracion.
+	if accion == "save_domain" {
+		output = libs.GenerateFORM(serverext["serverexterno"] + "/send_shop.cgi")
+	}
 	//Intermediario para enviar el dominio de la tienda
 	if accion == "shop_configuration" {
 		output = libs.GenerateFORM(serverext["serverexterno"]+"/recoger_dominio.cgi", "dominio;"+r.FormValue("dominio"))
-	}
-	//Pasa el nombre de usuario al servidor externo
-	if accion == "bitmaps" {
-		output = libs.GenerateFORM(serverext["serverexterno"]+"/acciones.cgi", "accion;bitmap_perm", "user;"+r.FormValue("user"))
 	}
 	fmt.Fprint(w, output)
 }

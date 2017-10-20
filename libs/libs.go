@@ -540,3 +540,13 @@ func PlayPubli(publi_file string, win winamp.Winamp) {
 	song_duration := win.SongLenght(publi_file)
 	time.Sleep(time.Duration(song_duration) * time.Second)
 }
+
+/*
+MyCurrentDate: generamos una fecha actual propia
+Salida --> 20070405
+*/
+func MyCurrentDate() string {
+	fecha_actual := time.Now()
+	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
+	return string_fecha
+}

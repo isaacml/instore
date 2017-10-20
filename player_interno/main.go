@@ -9,7 +9,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	//"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -17,14 +16,16 @@ import (
 )
 
 var (
-	Info              *log.Logger
-	Warning           *log.Logger
-	Error             *log.Logger
-	db                *sql.DB
-	db_mu             sync.RWMutex
-	serverint         map[string]string = make(map[string]string) //Mapa que guarda la direccion del servidor interno
-	username          string                                      //Variable de usuario y estado global
-	directorio_actual string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
+	Info                 *log.Logger
+	Warning              *log.Logger
+	Error                *log.Logger
+	db                   *sql.DB
+	db_mu                sync.RWMutex
+	serverint            map[string]string = make(map[string]string) //Mapa que guarda la direccion del servidor interno
+	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
+	username             string                                      //Variable de usuario y estado global
+	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
+	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -63,14 +64,13 @@ func main() {
 	http.HandleFunc(logout_cgi, logout)
 	// handler de configuracion de tienda
 	http.HandleFunc("/get_orgs.cgi", get_orgs)
-	http.HandleFunc("/send_orgs.cgi", send_orgs)
+	http.HandleFunc("/config_shop.cgi", config_shop)
 	//Bitmap Actions
 	http.HandleFunc("/acciones.cgi", acciones)
 	//Exploradores
 	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
-	http.HandleFunc("/additional_domains.cgi", additional_domains)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
@@ -96,9 +96,8 @@ func saveListInBD() {
 		} else {
 			existe = true
 		}
-		fecha_actual := time.Now()
-		//Formato de la fecha actual --> 20070405
-		string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
+		//Fecha actual
+		fecha := libs.MyCurrentDate()
 		//Si el fichero de configuracion existe, enviamos el dominio de la tienda
 		if existe == true {
 			var dominios string
@@ -256,7 +255,7 @@ func saveListInBD() {
 											Error.Println(err)
 										}
 										db_mu.Lock()
-										_, err1 := nook.Exec(msgname, playtime, "N", string_fecha)
+										_, err1 := nook.Exec(msgname, playtime, "N", fecha)
 										db_mu.Unlock()
 										if err1 != nil {
 											Error.Println(err1)
@@ -269,7 +268,7 @@ func saveListInBD() {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := ok.Exec(msgname, playtime, "Y", string_fecha)
+									_, err1 := ok.Exec(msgname, playtime, "Y", fecha)
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)
@@ -310,7 +309,7 @@ func saveListInBD() {
 											Error.Println(err)
 										}
 										db_mu.Lock()
-										_, err1 := nook.Exec(msgname, playtime, "N", string_fecha)
+										_, err1 := nook.Exec(msgname, playtime, "N", fecha)
 										db_mu.Unlock()
 										if err1 != nil {
 											Error.Println(err1)
@@ -323,7 +322,7 @@ func saveListInBD() {
 										Error.Println(err)
 									}
 									db_mu.Lock()
-									_, err1 := ok.Exec(msgname, playtime, "Y", string_fecha)
+									_, err1 := ok.Exec(msgname, playtime, "Y", fecha)
 									db_mu.Unlock()
 									if err1 != nil {
 										Error.Println(err1)
