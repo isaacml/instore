@@ -54,7 +54,6 @@ func main() {
 	// handlers de la tienda
 	http.HandleFunc("/login_tienda.cgi", login_tienda)
 	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
-	http.HandleFunc("/send_orgs.cgi", send_orgs)
 	//Actions
 	http.HandleFunc("/acciones.cgi", acciones)
 	http.HandleFunc("/downloadPubliFile.cgi", downloadPubliFile)

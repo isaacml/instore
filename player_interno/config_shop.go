@@ -59,46 +59,31 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	}
 	//Añade nuevos dominios adiccionales a la tienda
 	if accion == "extra_domains" {
-		//cont := 0
-		r.ParseForm()
-		fmt.Println(r.Form)
-		var dominios string
-		domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
-		loadSettings(configShop, domainint)
-		for _, val := range domainint {
-			dominios += val + ":.:"
-		}
-		fmt.Println(dominios)
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;shop_configuration"))
-		fmt.Println(respuesta)
-		/*
-			domain := strings.Split(respuesta, ";")
-			dom := domain[1]
-			fr, err := os.OpenFile(configShop, os.O_RDWR, 0666)
-			defer fr.Close()
-			if err == nil {
-				reader := bufio.NewReader(fr)
-				for {
-					linea, rerr := reader.ReadString('\n')
-					if rerr != nil {
-						break
-					}
-					linea = strings.TrimRight(linea, "\r\n")
-					item := strings.Split(linea, " = ")
-					if len(item) == 2 {
-						//Si ya se encuentra el dominio, el contador aumenta
-						if item[1] == dom {
-							cont++
-						}
-					}
+		cont := 0
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;save_domain"))
+		//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
+		gen_domain := strings.Split(respuesta, ";")
+		gen := gen_domain[0]
+		domain := gen_domain[1]
+		if gen == "OK" {
+			domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
+			loadSettings(configShop, domainint)
+			for _, val := range domainint {
+				if val == domain {
+					cont++
 				}
 			}
+			fmt.Println(cont)
 			//contador = 0: No existe dominio en el fichero
 			if cont == 0 {
-				//escribimos nuestro dominio extra
-				fr.WriteString("optionaldomain = " + dom + "\n")
+				fr, err := os.OpenFile(configShop, os.O_APPEND, 0666)
+				defer fr.Close()
+				if err == nil {
+					//escribimos nuestro dominio extra
+					fr.WriteString("extradomain = " + domain + "\n")
+				}
 			}
-		*/
+		}
 	}
 }
 

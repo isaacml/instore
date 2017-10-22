@@ -54,9 +54,3 @@ func transf_orgs(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, respuesta)
 	}
 }
-
-//Intermediario para enviar formulario de configuracion
-func send_orgs(w http.ResponseWriter, r *http.Request) {
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/send_shop.cgi"))
-	fmt.Fprint(w, respuesta)
-}
