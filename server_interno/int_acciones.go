@@ -20,6 +20,10 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	if accion == "save_domain" {
 		output = libs.GenerateFORM(serverext["serverexterno"] + "/send_shop.cgi")
 	}
+	//Envia los dominios tomados de la tienda(configshop.reg) hacia el server externo
+	if accion == "send_domains" {
+		output = libs.GenerateFORM(serverext["serverexterno"] + "/recoger_dominio.cgi", "dominios;"+r.FormValue("dominios"))
+	}
 	fmt.Fprint(w, output)
 }
 

@@ -73,7 +73,6 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					cont++
 				}
 			}
-			fmt.Println(cont)
 			//contador = 0: No existe dominio en el fichero
 			if cont == 0 {
 				fr, err := os.OpenFile(configShop, os.O_APPEND, 0666)

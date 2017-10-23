@@ -106,7 +106,7 @@ func saveListInBD() {
 			for _, val := range domainint {
 				dominios += val + ":.:"
 			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/send_domain.cgi", "dominio;"+dominios))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
 			fmt.Println("La respuesta: ", respuesta)
 			//Si la respuesta NO está vacía, comprobamos la respuesta.
 			if respuesta != "" {
