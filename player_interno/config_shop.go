@@ -3,12 +3,40 @@ package main
 import (
 	"fmt"
 	"github.com/isaacml/instore/libs"
-	//"io/ioutil"
-	//"bufio"
 	"net/http"
 	"os"
 	"strings"
 )
+
+//Función que tramita el formulario de la página(config_shop.html)
+//Toma los valores, los envia al server_externo, recoge la respuesta y la muestra
+func get_orgs(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var respuesta string
+	accion := r.FormValue("action")
+	if accion == "entidades" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
+	}
+	if accion == "almacenes" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
+	}
+	if accion == "paises" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;pais", "almacen;"+r.FormValue("almacen")))
+	}
+	if accion == "regiones" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;region", "pais;"+r.FormValue("pais")))
+	}
+	if accion == "provincias" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;provincia", "region;"+r.FormValue("region")))
+	}
+	if accion == "tiendas" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;tienda", "provincia;"+r.FormValue("provincia")))
+	}
+	if accion == "cod_tienda" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
+	}
+	fmt.Fprint(w, respuesta)
+}
 
 //Acciones que se van a llevar acabo para configurar el dominio de la tienda
 func config_shop(w http.ResponseWriter, r *http.Request) {
@@ -83,40 +111,5 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-	}
-}
-
-//Función que tramita el submit de formulario para la página(config_shop.html)
-//Funcion que va a recoger los valores de los selects y mostrarlos
-func get_orgs(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	accion := r.FormValue("action")
-	if accion == "entidades" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
-		fmt.Fprint(w, respuesta)
-	}
-	if accion == "almacenes" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
-		fmt.Fprint(w, respuesta)
-	}
-	if accion == "paises" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;pais", "almacen;"+r.FormValue("almacen")))
-		fmt.Fprint(w, respuesta)
-	}
-	if accion == "regiones" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;region", "pais;"+r.FormValue("pais")))
-		fmt.Fprint(w, respuesta)
-	}
-	if accion == "provincias" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;provincia", "region;"+r.FormValue("region")))
-		fmt.Fprint(w, respuesta)
-	}
-	if accion == "tiendas" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;tienda", "provincia;"+r.FormValue("provincia")))
-		fmt.Fprint(w, respuesta)
-	}
-	if accion == "cod_tienda" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
-		fmt.Fprint(w, respuesta)
 	}
 }

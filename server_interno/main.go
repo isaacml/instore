@@ -51,11 +51,9 @@ func main() {
 	go BorrarFicherosAntiguos()
 	//servidor de ficheros
 	http.HandleFunc("/", root)
-	// handlers de la tienda
-	http.HandleFunc("/login_tienda.cgi", login_tienda)
-	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
-	//Actions
+	//Actions del servidor externo
 	http.HandleFunc("/acciones.cgi", acciones)
+	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
 	http.HandleFunc("/downloadPubliFile.cgi", downloadPubliFile)
 	http.HandleFunc("/downloadMsgFile.cgi", downloadMsgFile)
 

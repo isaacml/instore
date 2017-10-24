@@ -62,7 +62,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//SE PASAN LAS VARIABLES POST AL SERVIDOR INTERNO
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/login_tienda.cgi", "user;"+username, "pass;"+password))
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;login_tienda", "user;"+username, "pass;"+password))
 	//RECOGEMOS LA RESPUESTA
 	if respuesta == "OK" {
 		//Cuando se repite autenticacion de usuario

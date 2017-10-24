@@ -6,17 +6,57 @@ import (
 	"net/http"
 	"time"
 )
+//Intermediario de organizaciones entre la tienda y el servidor externo
+func transf_orgs(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var respuesta string
+	accion := r.FormValue("action")
+	//Enviamos el username al servidor interno
+	if accion == "entidad" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;entidad", "username;"+r.FormValue("user")))
+	}
+	//Enviamos la entidad al servidor interno
+	if accion == "almacen" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
+	}
+	//Enviamos el almacen al servidor interno
+	if accion == "pais" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;pais", "almacen;"+r.FormValue("almacen")))
+	}
+	//Enviamos el pais al servidor interno
+	if accion == "region" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;region", "pais;"+r.FormValue("pais")))
+	}
+	//Enviamos la región al servidor interno
+	if accion == "provincia" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;provincia", "region;"+r.FormValue("region")))
+	}
+	//Enviamos la provincia al servidor interno
+	if accion == "tienda" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;tienda", "provincia;"+r.FormValue("provincia")))
+	}
+	//Enviamos la tienda al servidor interno
+	if accion == "cod_tienda" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
+	}
+	fmt.Fprint(w, respuesta)
+}
 
 //Acciones realizadas por parte del servidor interno
 func acciones(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var output string
 	accion := r.FormValue("action")
+	//Envia user y pass hacia el server_externo
+	if accion == "login_tienda" {
+		//Se pasan las variables de autenticación
+		output = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/login.cgi", "user;"+r.FormValue("user"), "pass;"+r.FormValue("pass")))
+	}
 	//Pasa el nombre de usuario al servidor externo, nos devuelve los permisos para ese usuario
 	if accion == "bitmaps" {
 		output = libs.GenerateFORM(serverext["serverexterno"]+"/acciones.cgi", "accion;bitmap_perm", "user;"+r.FormValue("user"))
 	}
-	//Intermediario para guardar dominios de la tienda en el fichero de configuracion.
+	//Guardar dominios de la tienda en el fichero de configuracion.
 	if accion == "save_domain" {
 		output = libs.GenerateFORM(serverext["serverexterno"] + "/send_shop.cgi")
 	}
