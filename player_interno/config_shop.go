@@ -111,5 +111,17 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+		//Checkeamos el sid
+		for k, v := range r.Form {
+			if k == "sid" {
+				for _, sid := range v {
+					_, ok := user[sid]
+					if ok {
+						//Redirigimos a la página de añadir dominios extra(adddomain.html)
+						http.Redirect(w, r, "/adddomain.html?"+sid, http.StatusSeeOther)
+					}
+				}
+			}
+		}
 	}
 }

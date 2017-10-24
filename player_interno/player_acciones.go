@@ -38,7 +38,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//Mensajes Instantaneos
+//Reproductor de Mensajes Instantaneos
 func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var output string //variable para imprimir los datos hacia JavaScript

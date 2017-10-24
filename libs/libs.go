@@ -368,6 +368,29 @@ func RemoveDuplicates(domains []string) []string {
 }
 
 /*
+LimpiarMatriz: Limpia de carácteres nulos la matriz salida de windows
+*/
+func LimpiarMatriz(matriz []byte) []byte {
+	var matriz_limpiada []byte
+	for _, v := range matriz {
+		if v != 0 {
+			matriz_limpiada = append(matriz_limpiada, v)
+		}
+	}
+	return matriz_limpiada
+}
+
+/*
+RemoveIndex: Borrar espacios vacios dentro de un array
+	arr: nombre del array
+	index: identificador del valor vacio que queremos borrar
+Devuelve un array limpio, sin valores nulos
+*/
+func RemoveIndex(arr []string, index int) []string {
+	return append(arr[:index], arr[index+1:]...)
+}
+
+/*
 Cifrado: Funcion que cifra o descifra un fichero existente.
 	origen:  fichero origen
 	destino: fichero destino

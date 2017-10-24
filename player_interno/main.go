@@ -23,9 +23,12 @@ var (
 	db_mu                sync.RWMutex
 	serverint            map[string]string = make(map[string]string) //Mapa que guarda la direccion del servidor interno
 	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
+	copy_arr             []string                                    //Contenedor que va a guardar los ficheros que van a ser copiados a "C:\instore\\Music\"
+	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
 	username             string                                      //Variable de usuario y estado global
 	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
+
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -338,7 +341,7 @@ func saveListInBD() {
 	}
 }
 
-//Se mandan hacia el servidor interno una solicitud de los archivos publi/msg que se tiene que bajar.
+//Se manda hacia el servidor interno una solicitud de los archivos publi/msg que se tiene que bajar.
 func solicitudDeFicheros() {
 	for {
 		//Sacamos la fecha actual
@@ -356,7 +359,7 @@ func solicitudDeFicheros() {
 			if err != nil {
 				Error.Println(err)
 			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadPubliFile.cgi", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
 			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 			if respuesta == "Descarga" {
 				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
@@ -392,7 +395,7 @@ func solicitudDeFicheros() {
 			if err != nil {
 				Error.Println(err)
 			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/downloadMsgFile.cgi", "fichero;"+fichero, "existencia;"+exist))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist))
 			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 			if respuesta == "Descarga" {
 				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)

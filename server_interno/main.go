@@ -54,8 +54,7 @@ func main() {
 	//Actions del servidor externo
 	http.HandleFunc("/acciones.cgi", acciones)
 	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
-	http.HandleFunc("/downloadPubliFile.cgi", downloadPubliFile)
-	http.HandleFunc("/downloadMsgFile.cgi", downloadMsgFile)
+	http.HandleFunc("/publi_msg.cgi", publi_msg)
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
