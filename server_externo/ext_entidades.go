@@ -37,7 +37,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 				if padre_id == 0 || padre_id == id_admin {
 					timestamp := time.Now().Unix()
 					db_mu.Lock()
-					_, err1 := db.Exec("INSERT INTO entidades (`nombre`, `creador_id`, `timestamp`, `last_access`) VALUES (?, ?, ?, ?)", entidad, id, timestamp, timestamp)
+					_, err1 := db.Exec("INSERT INTO entidades (`nombre`, `creador_id`, `timestamp`, `last_access`, `status`) VALUES (?, ?, ?, ?, ?)", entidad, id, timestamp, timestamp, 1)
 					db_mu.Unlock()
 					if err1 != nil {
 						Error.Println(err1)
@@ -97,43 +97,48 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var id, creador_id int
+			var id, creador_id, status int
 			var tiempo int64
-			var nombre string
+			var nombre, st string
 			err = query.Scan(&creador_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			query, err := db.Query("SELECT id, nombre, timestamp FROM entidades WHERE creador_id = ?", creador_id)
+			query, err := db.Query("SELECT id, nombre, timestamp, status FROM entidades WHERE creador_id = ?", creador_id)
 			if err != nil {
 				Warning.Println(err)
 			}
 			for query.Next() {
-				err = query.Scan(&id, &nombre, &tiempo)
+				err = query.Scan(&id, &nombre, &tiempo, &status)
 				if err != nil {
 					Error.Println(err)
 				}
 				creacion := time.Unix(tiempo, 0)
-				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td></tr>",
-					id, nombre, creacion)
+				if status == 1 {
+					st = "Activado"
+				} else {
+					st = "Desactivado"
+				}
+				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td><td>%s</td></tr>",
+					id, nombre, creacion, st)
 			}
 		}
 	}
 	//CARGA LOS DATOS DE ENTIDAD EN UN FORMULARIO
 	if accion == "load_entidad" {
 		edit_id := r.FormValue("edit_id")
-		var id int
+		var id, st int
 		var nombre string
-		query, err := db.Query("SELECT id, nombre FROM entidades WHERE id = ?", edit_id)
+		query, err := db.Query("SELECT id, nombre, status FROM entidades WHERE id = ?", edit_id)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &nombre)
+			err = query.Scan(&id, &nombre, &st)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&entidad=%s", id, nombre)
+			fmt.Fprintf(w, "id=%d&entidad=%s&status=%d", id, nombre, st)
 		}
 	}
 }
