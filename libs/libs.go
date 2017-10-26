@@ -573,3 +573,17 @@ func MyCurrentDate() string {
 	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 	return string_fecha
 }
+
+/*
+FechaCreacion: Función para obtener la fecha y hora de creación
+	timestamp: cantidad de segundos
+Nos devuelve la fecha y la hora
+*/
+func FechaCreacion(timestamp int64) string {
+	var out string
+	localtime := time.Unix(timestamp, 0)
+	toString := localtime.String()
+	inSlice := strings.Split(toString, " ")
+	out = fmt.Sprintf("%s / %s", inSlice[0], inSlice[1])
+	return out
+}

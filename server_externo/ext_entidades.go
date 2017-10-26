@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/isaacml/instore/libs"
 	"net/http"
 	"time"
 )
@@ -12,32 +13,45 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("accion")
 	//DAR DE ALTAR UNA NUEVA ENTIDAD
 	if accion == "entidad" {
+		var id_user, padre_id, id_admin, cont int
+		var output, ent_name string
 		username := r.FormValue("username")
 		entidad := r.FormValue("entidad")
-		var output string
 		if entidad == "" {
-			output = "<div class='form-group text-warning'>El campo no puede estar vacio</div>"
+			output = "<div class='form-group text-warning'>El campo no puede estar vacío</div>"
 		} else {
-			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+			//Obtenemos el id y el padre(creador) de un usuario concreto
+			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			for query.Next() {
-				var id, padre_id, id_admin int
-				err = query.Scan(&id, &padre_id)
+			//Obtener el id del usuario super-admin
+			err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear entidades
+			if padre_id == 0 || padre_id == id_admin {
+				//Select que muestra todas las entidades de un usuario concreto
+				ents, err := db.Query("SELECT nombre FROM entidades WHERE creador_id = ?", id_user)
 				if err != nil {
 					Error.Println(err)
 				}
-				//Hacemos un select para obtener el id del usuario super-admin
-				err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
-				if err != nil {
-					Error.Println(err)
+				for ents.Next() {
+					err = ents.Scan(&ent_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Se comprueba que no hay dos entidades con el mismo nombre
+					if ent_name == entidad {
+						cont++ //Si hay alguna entidad, el contador incrementa
+					}
 				}
-				//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear entidades
-				if padre_id == 0 || padre_id == id_admin {
+				//Cont = 0, no hay ninguna entidad
+				if cont == 0 {
 					timestamp := time.Now().Unix()
 					db_mu.Lock()
-					_, err1 := db.Exec("INSERT INTO entidades (`nombre`, `creador_id`, `timestamp`, `last_access`, `status`) VALUES (?, ?, ?, ?, ?)", entidad, id, timestamp, timestamp, 1)
+					_, err1 := db.Exec("INSERT INTO entidades (`nombre`, `creador_id`, `timestamp`, `last_access`, `status`) VALUES (?, ?, ?, ?, ?)", entidad, id_user, timestamp, timestamp, 1)
 					db_mu.Unlock()
 					if err1 != nil {
 						Error.Println(err1)
@@ -46,82 +60,96 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 						output = "OK"
 					}
 				} else {
-					output = "<div class='form-group text-danger'>Solo un usuario ROOT puede añadir una entidad</div>"
+					output = "<div class='form-group text-danger'>Ya existe una entidad con ese nombre</div>"
 				}
+			} else {
+				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede añadir una entidad</div>"
 			}
 		}
 		fmt.Fprint(w, output)
 	}
 	//MODIFICAR / EDITAR UNA ENTIDAD
 	if accion == "edit_entidad" {
+		var id_user, padre_id, cont int
+		var output, ent_name string
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		entidad := r.FormValue("entidad")
 		if entidad == "" {
-			empty = "El campo no puede estar vacío"
-			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
+			output = "<div class='form-group text-warning'>El campo no puede estar vacío</div>"
 		} else {
-			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+			//Obtenemos el id y el padre(creador) del usuario conectado
+			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			for query.Next() {
-				var id, padre_id int
-				err = query.Scan(&id, &padre_id)
+			//Si es un usuario super-admin o  tiene creador super-admin, le permitimos modificar
+			if padre_id == 0 || padre_id == 1 {
+				//Select que muestra todas las entidades de un usuario concreto
+				ents, err := db.Query("SELECT nombre FROM entidades WHERE creador_id = ?", id_user)
 				if err != nil {
 					Error.Println(err)
 				}
-				if padre_id == 0 || padre_id == 1 {
+				for ents.Next() {
+					err = ents.Scan(&ent_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Se comprueba que no hay dos entidades con el mismo nombre
+					if ent_name == entidad {
+						cont++ //Si hay alguna entidad, el contador incrementa
+					}
+				}
+				//Cont = 0, no hay ninguna entidad
+				if cont == 0 {
 					db_mu.Lock()
 					_, err1 := db.Exec("UPDATE entidades SET nombre=? WHERE id = ?", entidad, edit_id)
 					db_mu.Unlock()
 					if err1 != nil {
 						Error.Println(err1)
-						bad = "Fallo al modificar entidad"
-						fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+						output = "<div class='form-group text-danger'>Fallo al modificar entidad</div>"
 					} else {
-						fmt.Fprint(w, "OK")
+						output = "OK"
 					}
 				} else {
-					bad = "Solo un usuario ROOT puede editar una entidad"
-					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+					output = "<div class='form-group text-danger'>La entidad no se puede modificar o ya existe</div>"
 				}
+			} else {
+				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una entidad</div>"
 			}
 		}
+		fmt.Fprint(w, output)
 	}
 	//MOSTRAR ENTIDADES EN UNA TABLA
 	if accion == "tabla_entidad" {
+		var id, creador_id, status int
+		var tiempo int64
+		var nombre, f_creacion, st string
 		username := r.FormValue("username")
-		query, err := db.Query("SELECT id FROM usuarios WHERE user = ?", username)
+		//Obtenemos el id de usuario conectado
+		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
 		if err != nil {
 			Error.Println(err)
 		}
+		query, err := db.Query("SELECT id, nombre, timestamp, status FROM entidades WHERE creador_id = ?", creador_id)
+		if err != nil {
+			Warning.Println(err)
+		}
 		for query.Next() {
-			var id, creador_id, status int
-			var tiempo int64
-			var nombre, st string
-			err = query.Scan(&creador_id)
+			err = query.Scan(&id, &nombre, &tiempo, &status)
 			if err != nil {
 				Error.Println(err)
 			}
-			query, err := db.Query("SELECT id, nombre, timestamp, status FROM entidades WHERE creador_id = ?", creador_id)
-			if err != nil {
-				Warning.Println(err)
+			//Se obtiene la fecha de creacion de una entidad
+			f_creacion = libs.FechaCreacion(tiempo)
+			//Se evalua el estado
+			if status == 1 {
+				st = "Activado"
+			} else {
+				st = "Desactivado"
 			}
-			for query.Next() {
-				err = query.Scan(&id, &nombre, &tiempo, &status)
-				if err != nil {
-					Error.Println(err)
-				}
-				creacion := time.Unix(tiempo, 0)
-				if status == 1 {
-					st = "Activado"
-				} else {
-					st = "Desactivado"
-				}
-				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td><td>%s</td></tr>",
-					id, nombre, creacion, st)
-			}
+			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td><td>%s</td></tr>",
+				id, nombre, f_creacion, st)
 		}
 	}
 	//CARGA LOS DATOS DE ENTIDAD EN UN FORMULARIO
