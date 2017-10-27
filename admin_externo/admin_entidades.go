@@ -10,9 +10,9 @@ import (
 func entidades(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	sid := r.FormValue("sid")
-	accion := r.FormValue("accion")
 	_, ok := user[sid]
 	if ok {
+		accion := r.FormValue("accion")
 		loadSettings(serverRoot)
 		updateExpires(sid)
 		//Envio de datos al server_ext: Dar de alta una nueva entidad
@@ -46,14 +46,9 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/entidades.cgi", "accion;load_entidad", "edit_id;"+r.FormValue("load")))
 			fmt.Fprint(w, respuesta)
 		}
-		//Organizaciones
-		if accion == "orgs" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/organizaciones.cgi", "username;"+username))
-			fmt.Fprint(w, respuesta)
-		}
-		//Organizaciones
-		if accion == "almacenes" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/organizaciones.cgi", "username;"+username))
+		//Modifica el estado de la entidad(ON/OFF)
+		if accion == "edit_status" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/entidades.cgi", "accion;edit_status", "edit_id;"+r.FormValue("id"), "st_ent;"+r.FormValue("st_ent")))
 			fmt.Fprint(w, respuesta)
 		}
 	}

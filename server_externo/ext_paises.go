@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/isaacml/instore/libs"
 	"net/http"
 	"time"
 )
@@ -46,7 +47,7 @@ func paises(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir pais</div>"
 					} else {
-						output = "OK"
+						output = "<div class='form-group text-success'>País añadido correctamente</div>"
 					}
 				} else {
 					output = "<div class='form-group text-danger'>Solo un usuario ROOT puede añadir un pais</div>"
@@ -57,74 +58,60 @@ func paises(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICAR / EDITAR UN PAIS
 	if accion == "edit_pais" {
+		var output string
+		var id, padre_id int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		almacen := r.FormValue("almacen")
 		pais := r.FormValue("pais")
-
 		if almacen == "" {
-			empty = "El campo almacen no puede estar vacío"
-			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
+			output = "<div class='form-group text-warning'>El campo almacen no puede estar vacío</div>"
 		} else if pais == "" {
-			empty = "El campo pais no puede estar vacío"
-			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
+			output = "<div class='form-group text-warning'>El campo pais no puede estar vacío</div>"
 		} else {
-			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			for query.Next() {
-				var id, padre_id int
-				err = query.Scan(&id, &padre_id)
-				if err != nil {
-					Error.Println(err)
-				}
-				if padre_id == 0 || padre_id == 1 {
-					db_mu.Lock()
-					_, err1 := db.Exec("UPDATE pais SET pais=?, almacen_id=? WHERE id = ?", pais, almacen, edit_id)
-					db_mu.Unlock()
-					if err1 != nil {
-						Error.Println(err1)
-						bad = "Fallo al modificar país"
-						fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
-					} else {
-						fmt.Fprint(w, "OK")
-					}
+			if padre_id == 0 || padre_id == 1 {
+				db_mu.Lock()
+				_, err1 := db.Exec("UPDATE pais SET pais=?, almacen_id=? WHERE id = ?", pais, almacen, edit_id)
+				db_mu.Unlock()
+				if err1 != nil {
+					Error.Println(err1)
+					output = "<div class='form-group text-danger'>Fallo al modificar país</div>"
 				} else {
-					bad = "Solo un usuario ROOT puede editar un país"
-					fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+					output = "<div class='form-group text-success'>País modificado correctamente</div>"
 				}
+			} else {
+				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar un país</div>"
 			}
 		}
+		fmt.Fprint(w, output)
 	}
 	//MOSTRAR PAISES EN UNA TABLA
 	if accion == "tabla_pais" {
+		var id, creador_id int
+		var tiempo int64
+		var pais, almacen string
 		username := r.FormValue("username")
-		query, err := db.Query("SELECT id FROM usuarios WHERE user = ?", username)
+		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
 		if err != nil {
 			Error.Println(err)
 		}
+		query, err := db.Query("SELECT pais.id, pais.pais, pais.timestamp, almacenes.almacen FROM pais INNER JOIN almacenes ON pais.almacen_id = almacenes.id WHERE pais.creador_id = ?", creador_id)
+		if err != nil {
+			Warning.Println(err)
+		}
 		for query.Next() {
-			var id, creador_id int
-			var tiempo int64
-			var pais, almacen string
-			err = query.Scan(&creador_id)
+			err = query.Scan(&id, &pais, &tiempo, &almacen)
 			if err != nil {
 				Error.Println(err)
 			}
-			query, err := db.Query("SELECT pais.id, pais.pais, pais.timestamp, almacenes.almacen FROM pais INNER JOIN almacenes ON pais.almacen_id = almacenes.id WHERE pais.creador_id = ?", creador_id)
-			if err != nil {
-				Warning.Println(err)
-			}
-			for query.Next() {
-				err = query.Scan(&id, &pais, &tiempo, &almacen)
-				if err != nil {
-					Error.Println(err)
-				}
-				creacion := time.Unix(tiempo, 0)
-				fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar país'>%s</a></td><td>%s</td><td>%s</td></tr>",
-					id, pais, creacion, almacen)
-			}
+			//Se obtiene la fecha de creacion de un pais
+			f_creacion := libs.FechaCreacion(tiempo)
+			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar país'>%s</a></td><td>%s</td><td>%s</td></tr>",
+				id, pais, f_creacion, almacen)
 		}
 	}
 	//CARGA LOS DATOS DE UN PAIS EN EL FORMULARIO
@@ -146,45 +133,38 @@ func paises(w http.ResponseWriter, r *http.Request) {
 	}
 	//MOSTRAR UN SELECT DE ALMACENES SEGUN SU CREADOR (almacenes.html)
 	if accion == "pais_almacen" {
+		var id int
+		var list string
 		user := r.FormValue("username")
-		query, err := db.Query("SELECT id FROM usuarios WHERE user = ?", user)
+		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", user).Scan(&id)
 		if err != nil {
 			Error.Println(err)
 		}
-		for query.Next() {
-			var id int
-			err = query.Scan(&id)
+		//Muestra un select de almacenes por usuario
+		query, err := db.Query("SELECT id, almacen FROM almacenes WHERE creador_id = ?", id)
+		if err != nil {
+			Error.Println(err)
+		}
+		list = "<div class='panel-heading'>Almacen</div><div class='panel-body'><select id='almacen' name='almacen'>"
+		if query.Next() {
+			var id_alm int
+			var name string
+			err = query.Scan(&id_alm, &name)
 			if err != nil {
 				Error.Println(err)
 			}
-			//Muestra un select de almacenes por usuario
-			var list string
-			query, err := db.Query("SELECT id, almacen FROM almacenes WHERE creador_id = ?", id)
-			if err != nil {
-				Error.Println(err)
-			}
-			list = "<div class='panel-heading'>Almacen</div><div class='panel-body'><select id='almacen' name='almacen'>"
-			if query.Next() {
-				var id_alm int
-				var name string
+			list += fmt.Sprintf("<option value='%d'>%s</option>", id_alm, name)
+			for query.Next() {
 				err = query.Scan(&id_alm, &name)
 				if err != nil {
 					Error.Println(err)
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_alm, name)
-				for query.Next() {
-					err = query.Scan(&id_alm, &name)
-					if err != nil {
-						Error.Println(err)
-					}
-					list += fmt.Sprintf("<option value='%d'>%s</option>", id_alm, name)
-				}
-				list += "</select></div>"
-				fmt.Fprint(w, list)
-			} else {
-				list += "<option value=''>No hay almacenes</option></select></div>"
-				fmt.Fprint(w, list)
 			}
+			list += "</select></div>"
+		} else {
+			list += "<option value=''>No hay almacenes</option></select></div>"
 		}
+		fmt.Fprint(w, list)
 	}
 }

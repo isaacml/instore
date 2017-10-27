@@ -144,9 +144,9 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			f_creacion = libs.FechaCreacion(tiempo)
 			//Se evalua el estado
 			if status == 1 {
-				st = "Activado"
+				st = "ON"
 			} else {
-				st = "Desactivado"
+				st = "OFF"
 			}
 			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td><td>%s</td></tr>",
 				id, nombre, f_creacion, st)
@@ -166,7 +166,23 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&entidad=%s&status=%d", id, nombre, st)
+			fmt.Fprintf(w, "id=%d&entidad=%s&st_ent=%d", id, nombre, st)
 		}
+	}
+	//MODIFICA EL ESTADO DE LA ENTIDAD
+	if accion == "edit_status" {
+		var output string
+		edit_id := r.FormValue("edit_id")
+		st_ent := r.FormValue("st_ent")
+		db_mu.Lock()
+		_, err1 := db.Exec("UPDATE entidades SET status=? WHERE id = ?", st_ent, edit_id)
+		db_mu.Unlock()
+		if err1 != nil {
+			Error.Println(err1)
+			output = "FAIL"
+		} else {
+			output = "OK"
+		}
+		fmt.Fprint(w, output)
 	}
 }

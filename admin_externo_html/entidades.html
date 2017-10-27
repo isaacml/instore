@@ -153,8 +153,13 @@
                                 <div class="form-group">
                                     <input class="form-control" id="entidad" placeholder='Nombre de la Entidad' name='entidad' type='text' autofocus> 
                                 </div>
-                                <div class="form-group" align="center" id="stat">
-                                </div>      
+                                <div class="form-group" align="center">
+                                    <select id="st_ent" name="st_ent">
+                                        <option value='1'>ON</option>
+                                        <option value='0'>OFF</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" align="center" id="stat"></div>
                             </fieldset>
                         </form>
                         <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
@@ -202,6 +207,7 @@
         table();
         $("#stat").hide();
         $("#modificar").hide();
+        $("#st_ent").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -228,15 +234,26 @@
 	        });
         });
         $("#modificar").click(function(){
+            $("#modificar").hide();
+            $("#enviar").show();
+            $("#stat").show();
+            $("#st_ent").hide();
 			$.post("/entidades.cgi?sid={{sid}}&accion=edit_entidad", $("#testform").serialize(), function(data, status) {
-				$("#modificar").hide();
-				$("#enviar").show();
-                $("#stat").show();
                 $("#stat").html(data);
                 $("#id").val("");
 				$("#entidad").val("");
 				table();
 	        });
+        });
+        $("#st_ent").change(function(){
+            $.post("/entidades.cgi?sid={{sid}}&accion=edit_status", $("#testform").serialize(), function(data, status) {
+                if (data == "OK"){
+                    $("#st_ent").hide();
+                    $("#id").val("");
+				    $("#entidad").val("");
+                    location.reload();
+                }
+            });
         });
 	});
     //Función que carga los datos de las Entidades
@@ -250,6 +267,7 @@
         $("#stat").hide();
 		$("#modificar").show();
     	$("#enviar").hide();
+        $("#st_ent").show();
         $.post("/entidades.cgi?sid={{sid}}&accion=load_entidad", "load="+id , function(data, status) {
 	    	$.each(data.split('&'), function (index, elem) {
 				var vals = elem.split('=');
