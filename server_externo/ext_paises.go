@@ -13,32 +13,44 @@ func paises(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("accion")
 	//DAR DE ALTAR UN NUEVO PAIS
 	if accion == "pais" {
+		var output, pais_name string
+		var id, padre_id, id_admin, cont int
 		username := r.FormValue("username")
 		almacen := r.FormValue("almacen")
 		pais := r.FormValue("pais")
-		var output string
 		if pais == "" {
 			output = "<div class='form-group text-warning'>El campo pais no puede estar vacio</div>"
 		} else if almacen == "" {
 			output = "<div class='form-group text-warning'>Debe haber almenos un almacen</div>"
 		} else {
-			query, err := db.Query("SELECT id, padre_id FROM usuarios WHERE user = ?", username)
+			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			for query.Next() {
-				var id, padre_id, id_admin int
-				err = query.Scan(&id, &padre_id)
+			//Hacemos un select para obtener el id del usuario super-admin
+			err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear paises
+			if padre_id == 0 || padre_id == id_admin {
+				//Buscamos los paises asociados a un determinado almacen
+				query, err := db.Query("SELECT pais FROM pais WHERE almacen_id = ?", almacen)
 				if err != nil {
-					Error.Println(err)
+					Warning.Println(err)
 				}
-				//Hacemos un select para obtener el id del usuario super-admin
-				err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
-				if err != nil {
-					Error.Println(err)
+				for query.Next() {
+					err = query.Scan(&pais_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Si hay alguno, el contador incrementa
+					if pais_name == pais {
+						cont++
+					}
 				}
-				//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear paises
-				if padre_id == 0 || padre_id == id_admin {
+				//Cont = 0, no hay ningun pais asociado
+				if cont == 0 {
 					timestamp := time.Now().Unix()
 					db_mu.Lock()
 					_, err1 := db.Exec("INSERT INTO pais (`pais`, `creador_id`, `timestamp`, `almacen_id`) VALUES (?, ?, ?, ?)", pais, id, timestamp, almacen)
@@ -50,16 +62,18 @@ func paises(w http.ResponseWriter, r *http.Request) {
 						output = "<div class='form-group text-success'>País añadido correctamente</div>"
 					}
 				} else {
-					output = "<div class='form-group text-danger'>Solo un usuario ROOT puede añadir un pais</div>"
+					output = "<div class='form-group text-danger'>El almacen ya tiene ese país asociado</div>"
 				}
+			} else {
+				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede añadir un pais</div>"
 			}
 		}
 		fmt.Fprint(w, output)
 	}
 	//MODIFICAR / EDITAR UN PAIS
 	if accion == "edit_pais" {
-		var output string
-		var id, padre_id int
+		var output, pais_name string
+		var id, padre_id, cont int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		almacen := r.FormValue("almacen")
@@ -74,14 +88,34 @@ func paises(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if padre_id == 0 || padre_id == 1 {
-				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE pais SET pais=?, almacen_id=? WHERE id = ?", pais, almacen, edit_id)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al modificar país</div>"
+				//Buscamos los paises asociados a un determinado almacen
+				query, err := db.Query("SELECT pais FROM pais WHERE almacen_id = ?", almacen)
+				if err != nil {
+					Warning.Println(err)
+				}
+				for query.Next() {
+					err = query.Scan(&pais_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Si hay alguno, el contador incrementa
+					if pais_name == pais {
+						cont++
+					}
+				}
+				//Cont = 0, no hay ningun pais asociado
+				if cont == 0 {
+					db_mu.Lock()
+					_, err1 := db.Exec("UPDATE pais SET pais=?, almacen_id=? WHERE id = ?", pais, almacen, edit_id)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al modificar país</div>"
+					} else {
+						output = "<div class='form-group text-success'>País modificado correctamente</div>"
+					}
 				} else {
-					output = "<div class='form-group text-success'>País modificado correctamente</div>"
+					output = "<div class='form-group text-danger'>El almacen ya tiene ese país asociado</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar un país</div>"

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/isaacml/instore/libs"
+	"net/http"
 )
 
 //Gestion de usuarios: tanto el propio (edit_own_user.html) como el resto de usuarios (alta_users.html)
@@ -12,14 +12,13 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("accion")
 	//Modificar nombre y contraseña del usuario propio
 	if accion == "own_user" {
+		var output string
 		user := r.FormValue("username")
 		old_user := r.FormValue("old_user")
 		password := r.FormValue("password")
 		repeat_password := r.FormValue("repeat-password")
-	
 		if user == "" || password == "" || repeat_password == "" {
-			empty = "Los campos no pueden estar vacíos"
-			fmt.Fprintf(w, "<div class='form-group text-warning'>%s</div>", empty)
+			output = "<div class='form-group text-warning'>Los campos no pueden estar vacíos</div>"
 		} else {
 			//Solo si las contraseñas son iguales modificamos
 			if password == repeat_password {
@@ -36,8 +35,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 					}
 					//Comprobamos que no hay dos Usuarios con el mismo nombre
 					if user_bd == user {
-						bad = "El usuario ya existe"
-						fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+						output = "<div class='form-group text-danger'>El usuario ya existe</div>"
 					} else {
 						db_mu.Lock()
 						_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, pass=? WHERE id = ?", user, user, password, id)
@@ -45,18 +43,18 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 						if err1 != nil {
 							Error.Println(err1)
 						}
+						output = "OK"
 					}
 				}
-				fmt.Fprintf(w, "OK")
 			} else {
-				bad = "Las contraseñas no coinciden"
-				fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
+				output = "<div class='form-group text-danger'>Las contraseñas no coinciden</div>"
 			}
 		}
+		fmt.Fprint(w, output)
 	}
 	//DAR DE ALTA NUEVOS USUARIOS
 	if accion == "alta_users" {
-		var output string  //FORMATO DE SALIDA: usuario;nom_completo;contraseña;status
+		var output string //FORMATO DE SALIDA: usuario;nom_completo;contraseña;status
 		//VARIABLE DE FORMULARIO
 		user := r.FormValue("user")
 		name_user := r.FormValue("name_user")
@@ -100,7 +98,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				if r.FormValue("msg_normal") != "" {
 					bitmap = bitmap + MSG_NORMAL
 				}
-				bitmap_hex := fmt.Sprintf("%x", bitmap)  //Se guarda el valor del bitmap en hexadecimal
+				bitmap_hex := fmt.Sprintf("%x", bitmap) //Se guarda el valor del bitmap en hexadecimal
 				//Insertamos los datos en BD
 				db_mu.Lock()
 				_, err1 := db.Exec("INSERT INTO usuarios (`user`, `old_user`, `pass`, `nombre_completo`, `entidad_id`, `padre_id`, `bitmap_acciones`) VALUES (?,?,?,?,?,?,?)",
@@ -149,10 +147,10 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 						Warning.Println(err)
 					}
 				}
-				tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td class='hidden-xs'><td>%s</td><td>%s</td><td>%s</td></tr>", 
-							id, user, all_name, pass, creador)
+				tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td class='hidden-xs'><td>%s</td><td>%s</td><td>%s</td></tr>",
+					id, user, all_name, pass, creador)
 			}
-		}else if dad_id == 1 { //padre = 1, su creador es el super-admin, muestra todos los usuarios que ha creado el y sus hijos
+		} else if dad_id == 1 { //padre = 1, su creador es el super-admin, muestra todos los usuarios que ha creado el y sus hijos
 			var id, padre_id int
 			var user, all_name, pass, creador string
 			query, err := db.Query("SELECT id, user, nombre_completo, pass, padre_id FROM usuarios WHERE entidad_id IN (SELECT id FROM entidades WHERE creador_id = ?)", id_user)
@@ -169,8 +167,8 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					Warning.Println(err)
 				}
-				tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td><td class='hidden-xs'>%s</td><td>%s</td><td>%s</td></tr>", 
-							id, user, all_name, pass, creador)
+				tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td><td class='hidden-xs'>%s</td><td>%s</td><td>%s</td></tr>",
+					id, user, all_name, pass, creador)
 			}
 		} else { //Usuario Normal: Solo puede ver los usuarios que él ha creado
 			var id int
@@ -185,8 +183,8 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					Error.Println(err)
 				}
-				tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td><td class='hidden-xs'>%s</td><td>%s</td></tr>", 
-							id, user, all_name, pass)
+				tabla += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar el usuario'>%s</a></td><td class='hidden-xs'>%s</td><td>%s</td></tr>",
+					id, user, all_name, pass)
 			}
 		}
 		tabla += "</tbody></table>"
@@ -211,57 +209,50 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 	}
 	//CHEQUEO DEL BITMAP: marca o desmarca las acciones del bitmap
 	if accion == "bitmap_checked" {
+		var output, bitmap string
 		edit_id := r.FormValue("edit_id")
-		var output string
-		query, err := db.Query("SELECT bitmap_acciones FROM usuarios WHERE id = ?", edit_id)
+		err := db.QueryRow("SELECT bitmap_acciones FROM usuarios WHERE id = ?", edit_id).Scan(&bitmap)
 		if err != nil {
 			Error.Println(err)
 		}
-		for query.Next() {
-			var bitmap string
-			err = query.Scan(&bitmap)
-			if err != nil {
-				Error.Println(err)
-			}
-			//Checkeado o No, segun el resultado al pasarle la mascara
-			prog_pub := libs.BitmapParsing(bitmap, PROG_PUB) //res[0]
-			if prog_pub != 0 {
-				output += "<input type='checkbox' name='prog_pub_edit' value='1' checked/> Programar Publicidad<br>"
-			} else {
-				output += "<input type='checkbox' name='prog_pub_edit' value='1'/> Programar Publicidad<br>"
-			}
-			prog_mus := libs.BitmapParsing(bitmap, PROG_MUS) //res[1]
-			if prog_mus != 0 {
-				output += "<input type='checkbox' name='prog_mus_edit' value='2' checked/> Programar Música<br>"
-			} else {
-				output += "<input type='checkbox' name='prog_mus_edit' value='2'/> Programar Música<br>"
-			}
-			prog_msg := libs.BitmapParsing(bitmap, PROG_MSG) //res[2]
-			if prog_msg != 0 {
-				output += "<input type='checkbox' name='prog_msg_edit' value='4' checked/> Programar Mensajes Nuevos<br>"
-			} else {
-				output += "<input type='checkbox' name='prog_msg_edit' value='4'/> Programar Mensajes Nuevos<br>"
-			}
-			add_mus := libs.BitmapParsing(bitmap, ADD_MUS) //res[3]
-			if add_mus != 0 {
-				output += "<input type='checkbox' name='add_mus_edit' value='8' checked/> Añadir Música No Cifrada<br>"
-			} else {
-				output += "<input type='checkbox' name='add_mus_edit' value='8'/> Añadir Música No Cifrada<br>"
-			}
-			msg_auto := libs.BitmapParsing(bitmap, MSG_AUTO) //res[4]
-			if msg_auto != 0 {
-				output += "<input type='checkbox' name='msg_auto_edit' value='16' checked/> Reproducir Mensajes Automatizados<br>"
-			} else {
-				output += "<input type='checkbox' name='msg_auto_edit' value='16'/> Reproducir Mensajes Automatizados<br>"
-			}
-			msg_normal := libs.BitmapParsing(bitmap, MSG_NORMAL) //res[5]
-			if msg_normal != 0 {
-				output += "<input type='checkbox' name='msg_normal_edit' value='32' checked/> Reproducir Mensajes Normales<br>"
-			} else {
-				output += "<input type='checkbox' name='msg_normal_edit' value='32'/> Reproducir Mensajes Normales<br>"
-			}
-			fmt.Fprint(w, output)
+		//Checkeado o No, segun el resultado al pasarle la mascara
+		prog_pub := libs.BitmapParsing(bitmap, PROG_PUB) //res[0]
+		if prog_pub != 0 {
+			output += "<input type='checkbox' name='prog_pub_edit' value='1' checked/> Programar Publicidad<br>"
+		} else {
+			output += "<input type='checkbox' name='prog_pub_edit' value='1'/> Programar Publicidad<br>"
 		}
+		prog_mus := libs.BitmapParsing(bitmap, PROG_MUS) //res[1]
+		if prog_mus != 0 {
+			output += "<input type='checkbox' name='prog_mus_edit' value='2' checked/> Programar Música<br>"
+		} else {
+			output += "<input type='checkbox' name='prog_mus_edit' value='2'/> Programar Música<br>"
+		}
+		prog_msg := libs.BitmapParsing(bitmap, PROG_MSG) //res[2]
+		if prog_msg != 0 {
+			output += "<input type='checkbox' name='prog_msg_edit' value='4' checked/> Programar Mensajes Nuevos<br>"
+		} else {
+			output += "<input type='checkbox' name='prog_msg_edit' value='4'/> Programar Mensajes Nuevos<br>"
+		}
+		add_mus := libs.BitmapParsing(bitmap, ADD_MUS) //res[3]
+		if add_mus != 0 {
+			output += "<input type='checkbox' name='add_mus_edit' value='8' checked/> Añadir Música No Cifrada<br>"
+		} else {
+			output += "<input type='checkbox' name='add_mus_edit' value='8'/> Añadir Música No Cifrada<br>"
+		}
+		msg_auto := libs.BitmapParsing(bitmap, MSG_AUTO) //res[4]
+		if msg_auto != 0 {
+			output += "<input type='checkbox' name='msg_auto_edit' value='16' checked/> Reproducir Mensajes Automatizados<br>"
+		} else {
+			output += "<input type='checkbox' name='msg_auto_edit' value='16'/> Reproducir Mensajes Automatizados<br>"
+		}
+		msg_normal := libs.BitmapParsing(bitmap, MSG_NORMAL) //res[5]
+		if msg_normal != 0 {
+			output += "<input type='checkbox' name='msg_normal_edit' value='32' checked/> Reproducir Mensajes Normales<br>"
+		} else {
+			output += "<input type='checkbox' name='msg_normal_edit' value='32'/> Reproducir Mensajes Normales<br>"
+		}
+		fmt.Fprint(w, output)
 	}
 	//MODIFICAR / EDITAR USUARIO (por su identificador)
 	if accion == "edit_user" {
@@ -272,7 +263,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 		pass := r.FormValue("pass")
 		entidad := r.FormValue("entidad")
 		admin_user := r.FormValue("admin_user")
-	
+
 		if user == "" || name_user == "" || pass == "" {
 			output = "<div class='form-group text-danger'>Error al editar: hay campos vacíos</div>"
 		} else {
@@ -298,7 +289,6 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 			}
 			//Aquí se guarda el valor del bitmap en hexadecimal
 			bitmap_hex := fmt.Sprintf("%x", bitmap)
-	
 			query, err := db.Query("SELECT padre_id FROM usuarios WHERE user = ?", admin_user)
 			if err != nil {
 				Error.Println(err)
@@ -320,7 +310,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 					} else {
 						output = "<div class='form-group text-success'>Usuario modificado correctamente</div>"
 					}
-				}else{
+				} else {
 					db_mu.Lock()
 					_, err1 := db.Exec("UPDATE usuarios SET user=?, old_user=?, nombre_completo=?, pass=?, bitmap_acciones=? WHERE id = ?", user, user, name_user, pass, bitmap_hex, edit_id)
 					db_mu.Unlock()
@@ -354,19 +344,19 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if query.Next() {
-				  list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
-			      query.Scan(&id_ent, &name)
-			      list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-			      for query.Next() {
-			          query.Scan(&id_ent, &name)
-				      if err != nil {
+				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
+				query.Scan(&id_ent, &name)
+				list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+				for query.Next() {
+					query.Scan(&id_ent, &name)
+					if err != nil {
 						Error.Println(err)
-					  }
-					  list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-			      }
-			      list += "</select></div>"
+					}
+					list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+				}
+				list += "</select></div>"
 			} else {
-			      list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
+				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
 			}
 		} else if padre == 1 { //padre = 1, su creador es el super-admin, puede ver todas las entidades que ha creado.
 			var name string
@@ -376,19 +366,19 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if query.Next() {
-				  list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
-			      query.Scan(&id_ent, &name)
-			      list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-			      for query.Next() {
-			          query.Scan(&id_ent, &name)
-				      if err != nil {
+				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
+				query.Scan(&id_ent, &name)
+				list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+				for query.Next() {
+					query.Scan(&id_ent, &name)
+					if err != nil {
 						Error.Println(err)
-					  }
-					  list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
-			      }
-			      list += "</select></div>"
+					}
+					list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
+				}
+				list += "</select></div>"
 			} else {
-			      list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
+				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
 			}
 		} else { //Es un usuario normal: No puede ver ninguna entidad, los usuarios que añade, se añaden a su propia entidad
 			list = "DisableEnt"

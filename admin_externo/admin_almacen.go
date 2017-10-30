@@ -10,9 +10,9 @@ import (
 func almacenes(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	sid := r.FormValue("sid")
-	accion := r.FormValue("accion")
 	_, ok := user[sid]
 	if ok {
+		accion := r.FormValue("accion")
 		loadSettings(serverRoot)
 		updateExpires(sid)
 		//Envio de datos al server_ext: Dar de alta un nuevo almacen

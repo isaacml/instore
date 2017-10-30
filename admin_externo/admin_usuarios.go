@@ -10,9 +10,9 @@ import (
 func usuarios(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	sid := r.FormValue("sid")
-	accion := r.FormValue("accion")
 	_, ok := user[sid]
 	if ok {
+		accion := r.FormValue("accion")
 		loadSettings(serverRoot)
 		updateExpires(sid)
 		//Muestra el usuario en activo
@@ -25,8 +25,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 			clearUser := libs.DeleteSplitsChars(r.FormValue("username"))
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/usuarios.cgi", "accion;own_user", "username;"+clearUser, "old_user;"+username, "password;"+r.FormValue("pass"), "repeat-password;"+r.FormValue("repeat-password")))
 			if respuesta == "OK" {
-				good = "Datos modificados correctamente"
-				fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
+				fmt.Fprintf(w, "<div class='form-group text-success'>Datos modificados correctamente</div>", good)
 				username = clearUser //Al cambiar el nombre de usuario, es necesario actualizar la variable global username
 			} else {
 				fmt.Fprint(w, respuesta)
@@ -48,7 +47,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 		}
 		//Envio de datos al server_ext: Cargar datos de un usuario concreto
 		if accion == "load_user" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/usuarios.cgi",  "accion;load_user", "edit_id;"+r.FormValue("load")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/usuarios.cgi", "accion;load_user", "edit_id;"+r.FormValue("load")))
 			respuesta2 := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/usuarios.cgi", "accion;bitmap_checked", "edit_id;"+r.FormValue("load")))
 			fmt.Fprint(w, respuesta+":.:"+respuesta2)
 		}

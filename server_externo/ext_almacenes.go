@@ -72,8 +72,8 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICAR / EDITAR UN ALMACEN
 	if accion == "edit_almacen" {
-		var output string
-		var id, padre_id int
+		var output, alm_name string
+		var id_user, padre_id, cont int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		almacen := r.FormValue("almacen")
@@ -83,19 +83,39 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 		} else if almacen == "" {
 			output = "<div class='form-group text-warning'>El campo almacen no puede estar vacío</div>"
 		} else {
-			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
+			//Obtenemos el id y el padre(creador) del usuario conectado
+			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
 			if padre_id == 0 || padre_id == 1 {
-				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE almacenes SET almacen=?, entidad_id=? WHERE id = ?", almacen, entidad, edit_id)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al modificar almacen</div>"
+				//Select que muestra todos los almacenes de un usuario concreto
+				alms, err := db.Query("SELECT almacen FROM almacenes WHERE creador_id = ?", id_user)
+				if err != nil {
+					Error.Println(err)
+				}
+				for alms.Next() {
+					err = alms.Scan(&alm_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Se comprueba que no hay dos almacenes con el mismo nombre
+					if alm_name == almacen {
+						cont++ //Si hay alguna entidad, el contador incrementa
+					}
+				} //Cont = 0, no hay ningun almacen
+				if cont == 0 {
+					db_mu.Lock()
+					_, err1 := db.Exec("UPDATE almacenes SET almacen=?, entidad_id=? WHERE id = ?", almacen, entidad, edit_id)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al modificar almacen</div>"
+					} else {
+						output = "<div class='form-group text-success'>Almacen modificado correctamente</div>"
+					}
 				} else {
-					output = "<div class='form-group text-success'>Almacen modificado correctamente</div>"
+					output = "<div class='form-group text-danger'>El almacen no se puede modificar o ya existe</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar un almacen</div>"

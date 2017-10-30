@@ -12,13 +12,14 @@ func updateExpires(sid string) {
 	expires := time.Now().Unix() + int64(session_timeout)
 	tiempo[sid] = expires
 }
+
 //Acciones independientes
 func acciones(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	sid := r.FormValue("sid")
-	accion := r.FormValue("accion")
 	_, ok := user[sid]
 	if ok {
+		accion := r.FormValue("accion")
 		//Pasamos el nombre de usuario al servidor para obtener los bitmaps de acciones
 		if accion == "bitmap_perm" {
 			respuesta := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;bitmap_perm", "user;"+username)

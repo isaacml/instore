@@ -19,22 +19,14 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 		if accion == "entidad" {
 			correct_res := libs.DeleteSplitsChars(r.FormValue("entidad"))
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/entidades.cgi", "accion;entidad", "entidad;"+correct_res, "username;"+username))
-			if respuesta == "OK" {
-				fmt.Fprint(w, "<div class='form-group text-success'>Entidad añadida correctamente</div>")
-			} else {
-				fmt.Fprint(w, respuesta)
-			}
+			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Modificar los datos de una entidad concreta
 		if accion == "edit_entidad" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("entidad"))
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/entidades.cgi", "accion;edit_entidad", "edit_id;"+r.FormValue("id"), "entidad;"+correct_res, "username;"+username))
-			if respuesta == "OK" {
-				fmt.Fprint(w, "<div class='form-group text-success'>Entidad modificada correctamente</div>")
-			} else {
-				fmt.Fprint(w, respuesta)
-			}
+			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Mostrar en una tabla los datos de una entidad
 		if accion == "get_entidad" {

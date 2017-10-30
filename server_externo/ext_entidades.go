@@ -57,7 +57,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir entidad</div>"
 					} else {
-						output = "OK"
+						output = "<div class='form-group text-success'>Entidad añadida correctamente</div>"
 					}
 				} else {
 					output = "<div class='form-group text-danger'>Ya existe una entidad con ese nombre</div>"
@@ -109,7 +109,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al modificar entidad</div>"
 					} else {
-						output = "OK"
+						output = "<div class='form-group text-success'>Entidad modificada correctamente</div>"
 					}
 				} else {
 					output = "<div class='form-group text-danger'>La entidad no se puede modificar o ya existe</div>"
