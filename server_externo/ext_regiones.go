@@ -13,11 +13,11 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("accion")
 	//DAR DE ALTAR UNA NUEVA REGION
 	if accion == "region" {
-		var id, padre_id, id_admin int
+		var output, reg_name string
+		var id, padre_id, id_admin, cont int
 		username := r.FormValue("username")
 		region := r.FormValue("region")
 		pais := r.FormValue("pais")
-		var output string
 		if region == "" {
 			output = "<div class='form-group text-warning'>El campo region no puede estar vacio</div>"
 		} else if pais == "" {
@@ -34,15 +34,35 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			}
 			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear regiones
 			if padre_id == 0 || padre_id == id_admin {
-				timestamp := time.Now().Unix()
-				db_mu.Lock()
-				_, err1 := db.Exec("INSERT INTO region (`region`, `creador_id`, `timestamp`, `pais_id`) VALUES (?, ?, ?, ?)", region, id, timestamp, pais)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al añadir region</div>"
+				//Buscamos las regiones asociados a un determinado pais
+				regs, err := db.Query("SELECT region FROM region WHERE pais_id = ?", pais)
+				if err != nil {
+					Error.Println(err)
+				}
+				for regs.Next() {
+					err = regs.Scan(&reg_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Se comprueba que no hay dos regiones con el mismo nombre
+					if region == reg_name {
+						cont++ //Si hay alguna region, el contador incrementa
+					}
+				}
+				//Cont = 0, no hay ninguna region
+				if cont == 0 {
+					timestamp := time.Now().Unix()
+					db_mu.Lock()
+					_, err1 := db.Exec("INSERT INTO region (`region`, `creador_id`, `timestamp`, `pais_id`) VALUES (?, ?, ?, ?)", region, id, timestamp, pais)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al añadir region</div>"
+					} else {
+						output = "<div class='form-group text-success'>Región añadida correctamente</div>"
+					}
 				} else {
-					output = "<div class='form-group text-success'>Región añadida correctamente</div>"
+					output = "<div class='form-group text-danger'>El país ya tiene esa región asociada</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede añadir una region</div>"
@@ -52,8 +72,8 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICAR / EDITAR UNA REGION
 	if accion == "edit_region" {
-		var output string
-		var id, padre_id int
+		var output, reg_name string
+		var id, padre_id, cont int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		region := r.FormValue("region")
@@ -68,14 +88,32 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if padre_id == 0 || padre_id == 1 {
-				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE region SET region=?, pais_id=? WHERE id = ?", region, pais, edit_id)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al modificar región</div>"
-				} else {
-					output = "<div class='form-group text-success'>Región modificada correctamente</div>"
+				//Buscamos las regiones asociados a un determinado pais
+				regs, err := db.Query("SELECT region FROM region WHERE pais_id = ?", pais)
+				if err != nil {
+					Error.Println(err)
+				}
+				for regs.Next() {
+					err = regs.Scan(&reg_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Se comprueba que no hay dos regiones con el mismo nombre
+					if region == reg_name {
+						cont++ //Si hay alguna region, el contador incrementa
+					}
+				}
+				//Cont = 0, no hay ninguna region
+				if cont == 0 {
+					db_mu.Lock()
+					_, err1 := db.Exec("UPDATE region SET region=?, pais_id=? WHERE id = ?", region, pais, edit_id)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al modificar región</div>"
+					} else {
+						output = "<div class='form-group text-success'>Región modificada correctamente</div>"
+					}
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una región</div>"
@@ -139,7 +177,6 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
-		list = "<div class='panel-heading'>País</div><div class='panel-body'><select id='pais' name='pais'>"
 		if query.Next() {
 			var id_pais int
 			var name string
@@ -155,10 +192,19 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_pais, name)
 			}
-			list += "</select></div>"
 		} else {
-			list += "<option value=''>No hay paises</option></select></div>"
+			list += "<option value=''>No hay paises</option>"
 		}
 		fmt.Fprint(w, list)
+	}
+	//Busca las organizaciones padre de un determinado país
+	if accion == "orgs_before" {
+		var ent_name, alm_name, pais_name string
+		err := db.QueryRow("SELECT entidades.nombre, almacenes.almacen, pais.pais FROM pais INNER JOIN almacenes ON pais.almacen_id = almacenes.id INNER JOIN entidades ON almacenes.entidad_id = entidades.id WHERE pais.id = ?", r.FormValue("pais_id")).Scan(&ent_name, &alm_name, &pais_name)
+		if err != nil {
+			Error.Println(err)
+		}
+		gen_orgs_before := fmt.Sprintf("<div class='form-group text-warning'>%s.%s.%s</div>", ent_name, alm_name, pais_name)
+		fmt.Fprint(w, gen_orgs_before)
 	}
 }

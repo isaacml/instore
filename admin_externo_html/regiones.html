@@ -153,7 +153,10 @@
                                 <div class="form-group">
                                     <input class="form-control" id="region" placeholder='Nombre de la Región' name='region' type='text' autofocus> 
                                 </div>
-                                <div id="paises"></div>
+                                <div class='panel-heading'>País</div>
+                                <div class='panel-body'>
+                                    <select id='pais' name='pais'></select>
+                                </div>
                                 <br>
                                 <div class="form-group" align="center" id="stat">
                                 </div>      
@@ -222,7 +225,7 @@
             }
         });
         $.post("/regiones.cgi?sid={{sid}}&accion=region_pais",  function(data, status) {
-    		$("#paises").html(data);
+    		$("#pais").html(data);
 		});
 		$("#enviar").click(function(){
 			$.post("/regiones.cgi?sid={{sid}}&accion=region", $("#testform").serialize(), function(data, status) {

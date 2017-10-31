@@ -78,8 +78,10 @@ func main() {
 	http.HandleFunc("/dest_explorer.cgi", dest_explorer)
 	//Encriptar Musica de JR
 	http.HandleFunc("/encriptar_musica.cgi", encriptar_musica)
+	http.HandleFunc("/orgs.cgi", orgs)
+	http.HandleFunc("/selected_org.cgi", selected_org)
 	http.HandleFunc("/estado_encriptacion.cgi", estado_encriptacion)
-	
+
 	s := &http.Server{
 		Addr:           ":" + http_port,
 		Handler:        nil,

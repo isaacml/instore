@@ -150,13 +150,17 @@
                             Organizaciones
                         </div>
                         <div class="panel-body">
-                        <form id="testform" action="" >
+                        <form id="testform" action="">
                             <fieldset>
-                                <div id="orgs"></div>    
+                                <div id="entidades"></div>
+                                <div id="almacenes"></div>  
+                                <div id="paises"></div>  
+                                <div id="regiones"></div>  
+                                <div id="provincias"></div>
+                                <div id="tiendas"></div>  
                             </fieldset>
                         </form>
-                        <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
-                        <button id="modificar" class="btn btn-lg btn-success btn-block" name="modificar">Modificar</button>
+                        <div id="stat"></div>
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -169,12 +173,22 @@
     <!-- /#wrapper -->
 	<script type="text/javascript">
 	$(document).ready(function(){
-        $.post("/entidades.cgi?sid={{sid}}&accion=orgs", function(data, status) {
-            $("#orgs").html(data);
+        $.post("/orgs.cgi?sid={{sid}}&accion=entidades", function(data, status) {
+            $("#entidades").html(data);
         });
-        $("#enviar").click(function(){
-			$.post("/entidades.cgi?sid={{sid}}&accion=almacenes", $("#testform").serialize(), function(data, status) {
-	        });
+        $.post("/orgs.cgi?sid={{sid}}&accion=almacenes", function(data, status) {
+            $("#almacenes").html(data);
+        });
+        $.post("/orgs.cgi?sid={{sid}}&accion=paises", function(data, status) {
+            $("#paises").html(data);
+        });
+        $.post("/orgs.cgi?sid={{sid}}&accion=regiones", function(data, status) {
+            $("#regiones").html(data);
+        });
+        $("#entidades").change(function(){
+            $.post("/selected_org.cgi?sid={{sid}}&accion=ent", $("#testform").serialize(), function(data, status) {
+				$("#stat").html(data);
+            });
         });
 	});
 	</script>

@@ -44,5 +44,10 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;region_pais", "username;"+username))
 			fmt.Fprint(w, respuesta)
 		}
+		//Envia el id_pais, para obtener las organizaciones padre
+		if accion == "orgs_before" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;orgs_before", "pais_id;"+r.FormValue("pais")))
+			fmt.Fprint(w, respuesta)
+		}
 	}
 }
