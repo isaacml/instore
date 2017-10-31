@@ -49,6 +49,9 @@ func selected_org(w http.ResponseWriter, r *http.Request) {
 			list += "<button id='enviar' class='btn btn-lg btn-success btn-block' name='enviar'>Enviar</button>"
 			fmt.Println(r.Form)
 		}
+		if accion == "alm" {
+
+		}
 		fmt.Fprint(w, list)
 	}
 }
