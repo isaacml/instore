@@ -82,8 +82,6 @@ func main() {
 	http.HandleFunc("/send_shop.cgi", send_shop)
 	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
 
-	http.HandleFunc("/organizaciones.cgi", organizaciones)
-
 	s := &http.Server{
 		Addr:           ":" + http_port,
 		Handler:        nil,

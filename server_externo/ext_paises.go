@@ -179,7 +179,6 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
-		list = "<div class='panel-heading'>Almacen</div><div class='panel-body'><select id='almacen' name='almacen'>"
 		if query.Next() {
 			var id_alm int
 			var name string
@@ -195,7 +194,6 @@ func paises(w http.ResponseWriter, r *http.Request) {
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_alm, name)
 			}
-			list += "</select></div>"
 		} else {
 			list += "<option value=''>No hay almacenes</option></select></div>"
 		}

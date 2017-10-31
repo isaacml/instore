@@ -153,9 +153,15 @@
                                 <div class="form-group">
                                     <input class="form-control" id="region" placeholder='Nombre de la Región' name='region' type='text' autofocus> 
                                 </div>
-                                <div class='panel-heading'>País</div>
+                                <div class='panel-heading'>Almacen</div>
                                 <div class='panel-body'>
-                                    <select id='pais' name='pais'></select>
+                                    <select id='almacen' name='almacen'></select>
+                                </div>
+                                <div id="box_pais">
+                                    <div class='panel-heading'>País</div>
+                                    <div class='panel-body'>
+                                        <select id='pais' name='pais'></select>
+                                    </div>
                                 </div>
                                 <br>
                                 <div class="form-group" align="center" id="stat">
@@ -206,6 +212,7 @@
 	$(document).ready(function(){
         table();
         $("#stat").hide();
+        $("#box_pais").hide();
         $("#modificar").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
@@ -224,9 +231,15 @@
                 $("#organizaciones").hide();
             }
         });
-        $.post("/regiones.cgi?sid={{sid}}&accion=region_pais",  function(data, status) {
-    		$("#pais").html(data);
-		});
+        $.post("/paises.cgi?sid={{sid}}&accion=pais_almacen", $("#testform").serialize(), function(data, status) {
+            $("#almacen").html(data);
+        });
+        $("#almacen").change(function(){
+            $("#box_pais").show();
+            $.post("/regiones.cgi?sid={{sid}}&accion=show_paises",  $("#testform").serialize(), function(data, status) {
+                $("#pais").html(data);
+            });
+        });
 		$("#enviar").click(function(){
 			$.post("/regiones.cgi?sid={{sid}}&accion=region", $("#testform").serialize(), function(data, status) {
                 $("#stat").show();

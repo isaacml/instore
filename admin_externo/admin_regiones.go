@@ -40,13 +40,8 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Generar un select de paises para poder añadir una nueva region
-		if accion == "region_pais" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;region_pais", "username;"+username))
-			fmt.Fprint(w, respuesta)
-		}
-		//Envia el id_pais, para obtener las organizaciones padre
-		if accion == "orgs_before" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;orgs_before", "pais_id;"+r.FormValue("pais")))
+		if accion == "show_paises" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;show_paises", "username;"+username, "alm;"+r.FormValue("almacen")))
 			fmt.Fprint(w, respuesta)
 		}
 	}

@@ -163,23 +163,16 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "id=%d&region=%s&pais=%d", id, region, pais_id)
 		}
 	}
-	//MOSTRAR UN SELECT DE PAISES SEGUN SU CREADOR (regiones.html)
-	if accion == "region_pais" {
-		var id int
-		var list string
-		user := r.FormValue("username")
-		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", user).Scan(&id)
-		if err != nil {
-			Error.Println(err)
-		}
-		//Muestra un select de paises por usuario
-		query, err := db.Query("SELECT id, pais FROM pais WHERE creador_id = ?", id)
+	//MOSTRAR UN SELECT DE PAISES SEGUN SU ALMACEN
+	if accion == "show_paises" {
+		var list, name string
+		var id_pais int
+		//Muestra un select de paises asociado a un almacen
+		query, err := db.Query("SELECT id, pais FROM pais WHERE almacen_id = ?", r.FormValue("alm"))
 		if err != nil {
 			Error.Println(err)
 		}
 		if query.Next() {
-			var id_pais int
-			var name string
 			err = query.Scan(&id_pais, &name)
 			if err != nil {
 				Error.Println(err)
@@ -196,15 +189,5 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			list += "<option value=''>No hay paises</option>"
 		}
 		fmt.Fprint(w, list)
-	}
-	//Busca las organizaciones padre de un determinado país
-	if accion == "orgs_before" {
-		var ent_name, alm_name, pais_name string
-		err := db.QueryRow("SELECT entidades.nombre, almacenes.almacen, pais.pais FROM pais INNER JOIN almacenes ON pais.almacen_id = almacenes.id INNER JOIN entidades ON almacenes.entidad_id = entidades.id WHERE pais.id = ?", r.FormValue("pais_id")).Scan(&ent_name, &alm_name, &pais_name)
-		if err != nil {
-			Error.Println(err)
-		}
-		gen_orgs_before := fmt.Sprintf("<div class='form-group text-warning'>%s.%s.%s</div>", ent_name, alm_name, pais_name)
-		fmt.Fprint(w, gen_orgs_before)
 	}
 }
