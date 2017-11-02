@@ -153,7 +153,10 @@
                                 <div class="form-group">
                                     <input class="form-control" id="pais" placeholder='Nombre del País' name='pais' type='text' autofocus> 
                                 </div>
-                                <div id="alm"></div>
+                                <div class='panel-heading'>Almacen</div>
+                                <div class='panel-body'>
+                                    <select id='almacen' name='almacen'></select>
+                                </div>
                                 <br>
                                 <div class="form-group" align="center" id="stat">
                                 </div>      
@@ -222,7 +225,7 @@
             }
         });
         $.post("/paises.cgi?sid={{sid}}", {accion: "pais_almacen"}, function(data, status) {
-    		$("#alm").html(data);
+    		$("#almacen").html(data);
 		});
 		$("#enviar").click(function(){
 			$.post("/paises.cgi?sid={{sid}}&accion=pais", $("#testform").serialize(), function(data, status) {

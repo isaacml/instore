@@ -40,8 +40,8 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Generar un select de regiones para poder añadir una nueva provincia
-		if accion == "provincia_region" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;provincia_region", "username;"+username))
+		if accion == "show_region" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;show_region", "pais;"+r.FormValue("pais")))
 			fmt.Fprint(w, respuesta)
 		}
 	}

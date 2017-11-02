@@ -203,7 +203,7 @@
         table();
         $("#stat").hide();
         $("#modificar").hide();
-        $.post("/almacenes.cgi?sid={{sid}}&accion=almacen_entidad",  function(data, status) {
+        $.post("/almacenes.cgi?sid={{sid}}&accion=show_ent",  function(data, status) {
     		$("#ent").html(data);
 		});
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {

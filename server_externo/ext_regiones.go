@@ -16,12 +16,15 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		var output, reg_name string
 		var id, padre_id, id_admin, cont int
 		username := r.FormValue("username")
+		almacen := r.FormValue("almacen")
 		region := r.FormValue("region")
 		pais := r.FormValue("pais")
 		if region == "" {
-			output = "<div class='form-group text-warning'>El campo region no puede estar vacio</div>"
-		} else if pais == "" {
+			output = "<div class='form-group text-warning'>El campo región no puede estar vacío</div>"
+		} else if almacen == "" {
 			output = "<div class='form-group text-warning'>Debe haber almenos un almacen</div>"
+		} else if pais == "" {
+			output = "<div class='form-group text-warning'>Debe haber almenos un país</div>"
 		} else {
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
 			if err != nil {
@@ -149,18 +152,18 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 	//CARGA LOS DATOS DE UNA REGION EN UN FORMULARIO
 	if accion == "load_region" {
 		edit_id := r.FormValue("edit_id")
-		var id, pais_id int
+		var id, pais_id, alm_id int
 		var region string
-		query, err := db.Query("SELECT id, region, pais_id FROM region WHERE id = ?", edit_id)
+		query, err := db.Query("SELECT region.id, region.region, region.pais_id, pais.almacen_id FROM region INNER JOIN pais WHERE pais.id = region.pais_id AND region.id = ?", edit_id)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &region, &pais_id)
+			err = query.Scan(&id, &region, &pais_id, &alm_id)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&region=%s&pais=%d", id, region, pais_id)
+			fmt.Fprintf(w, "id=%d&region=%s&pais=%d&almacen=%d", id, region, pais_id, alm_id)
 		}
 	}
 	//MOSTRAR UN SELECT DE PAISES SEGUN SU ALMACEN
@@ -172,6 +175,7 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
+		list = "<option value=''>[Seleccionar País]</option>"
 		if query.Next() {
 			err = query.Scan(&id_pais, &name)
 			if err != nil {

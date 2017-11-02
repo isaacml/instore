@@ -90,7 +90,7 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 			}
 			if padre_id == 0 || padre_id == 1 {
 				//Select que muestra todos los almacenes de un usuario concreto
-				alms, err := db.Query("SELECT almacen FROM almacenes WHERE creador_id = ?", id_user)
+				alms, err := db.Query("SELECT almacen FROM almacenes WHERE creador_id = ? AND id != ?", id_user, edit_id)
 				if err != nil {
 					Error.Println(err)
 				}
@@ -166,7 +166,7 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//MOSTRAR UN SELECT DE ENTIDADES SEGUN SU CREADOR (almacenes.html)
-	if accion == "almacen_entidad" {
+	if accion == "show_ent" {
 		var id int
 		var list string
 		user := r.FormValue("username")

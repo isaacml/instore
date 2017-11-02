@@ -152,7 +152,22 @@
                                 <div class="form-group">
                                     <input class="form-control" id="provincia" placeholder='Nombre de la Provincia' name='provincia' type='text' autofocus> 
                                 </div>
-                                <div id="regiones"></div>
+                                <div class='panel-heading'>Almacen</div>
+                                <div class='panel-body'>
+                                    <select id='almacen' name='almacen'></select>
+                                </div>
+                                <div id="box_pais">
+                                    <div class='panel-heading'>País</div>
+                                    <div class='panel-body'>
+                                        <select id='pais' name='pais'></select>
+                                    </div>
+                                </div>
+                                <div id="box_region">
+                                    <div class='panel-heading'>Región</div>
+                                    <div class='panel-body'>
+                                        <select id='region' name='region'></select>
+                                    </div>
+                                </div>
                                 <br>
                                 <div class="form-group" align="center" id="stat">
                                 </div>      
@@ -220,9 +235,19 @@
                 $("#organizaciones").hide();
             }
         });
-        $.post("/provincias.cgi?sid={{sid}}&accion=provincia_region",  function(data, status) {
-    		$("#regiones").html(data);
-		});
+        $.post("/paises.cgi?sid={{sid}}&accion=pais_almacen", $("#testform").serialize(), function(data, status) {
+            $("#almacen").html(data);
+        });
+        $("#almacen").change(function(){
+            $.post("/regiones.cgi?sid={{sid}}&accion=show_paises",  $("#testform").serialize(), function(data, status) {
+                $("#pais").html(data);
+            });
+        });
+        $("#pais").change(function(){
+            $.post("/provincias.cgi?sid={{sid}}&accion=show_region",  $("#testform").serialize(), function(data, status) {
+                $("#region").html(data);
+            });
+        });
 		$("#enviar").click(function(){
 			$.post("/provincias.cgi?sid={{sid}}&accion=provincia", $("#testform").serialize(), function(data, status) {
                 $("#stat").show();

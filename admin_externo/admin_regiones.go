@@ -19,7 +19,7 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		if accion == "region" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("region"))
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;region", "pais;"+r.FormValue("pais"), "username;"+username, "region;"+correct_res))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;region", "pais;"+r.FormValue("pais"), "username;"+username, "region;"+correct_res, "almacen;"+r.FormValue("almacen")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Modificar una región concreta
@@ -41,7 +41,7 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		}
 		//Envio de datos al server_ext: Generar un select de paises para poder añadir una nueva region
 		if accion == "show_paises" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;show_paises", "username;"+username, "alm;"+r.FormValue("almacen")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;show_paises", "alm;"+r.FormValue("almacen")))
 			fmt.Fprint(w, respuesta)
 		}
 	}

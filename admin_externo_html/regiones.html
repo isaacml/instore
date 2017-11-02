@@ -212,7 +212,6 @@
 	$(document).ready(function(){
         table();
         $("#stat").hide();
-        $("#box_pais").hide();
         $("#modificar").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
@@ -235,7 +234,6 @@
             $("#almacen").html(data);
         });
         $("#almacen").change(function(){
-            $("#box_pais").show();
             $.post("/regiones.cgi?sid={{sid}}&accion=show_paises",  $("#testform").serialize(), function(data, status) {
                 $("#pais").html(data);
             });

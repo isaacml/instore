@@ -40,8 +40,8 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Generar un select de provincias para poder añadir una nueva tienda
-		if accion == "tienda_provincia" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;tienda_provincia", "username;"+username))
+		if accion == "show_prov" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;show_prov", "reg;"+r.FormValue("region")))
 			fmt.Fprint(w, respuesta)
 		}
 	}

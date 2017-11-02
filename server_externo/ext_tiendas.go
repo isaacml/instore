@@ -13,8 +13,8 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("accion")
 	//DAR DE ALTAR UNA NUEVA TIENDA
 	if accion == "tienda" {
-		var output string
-		var id, padre_id, id_admin int
+		var output, shop_name string
+		var id, padre_id, id_admin, cont int
 		username := r.FormValue("username")
 		tienda := r.FormValue("tienda")
 		provincia := r.FormValue("provincia")
@@ -37,15 +37,35 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 			}
 			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear tiendas
 			if padre_id == 0 || padre_id == id_admin {
-				timestamp := time.Now().Unix()
-				db_mu.Lock()
-				_, err1 := db.Exec("INSERT INTO tiendas (`tienda`, `creador_id`, `timestamp`, `provincia_id`, `address`, `phone`, `extra`) VALUES (?, ?, ?, ?, ?, ?, ?)", tienda, id, timestamp, provincia, address, phone, extra)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al añadir tienda</div>"
+				//Buscamos las tiendas asociadas a una provincia
+				shop, err := db.Query("SELECT tienda FROM tiendas WHERE provincia_id = ?", provincia)
+				if err != nil {
+					Error.Println(err)
+				}
+				for shop.Next() {
+					err = shop.Scan(&shop_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Se comprueba que no hay dos tiendas con el mismo nombre
+					if tienda == shop_name {
+						cont++ //Si hay alguna tienda, el contador incrementa
+					}
+				}
+				//Cont = 0, no hay ninguna region
+				if cont == 0 {
+					timestamp := time.Now().Unix()
+					db_mu.Lock()
+					_, err1 := db.Exec("INSERT INTO tiendas (`tienda`, `creador_id`, `timestamp`, `provincia_id`, `address`, `phone`, `extra`) VALUES (?, ?, ?, ?, ?, ?, ?)", tienda, id, timestamp, provincia, address, phone, extra)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al añadir tienda</div>"
+					} else {
+						output = "<div class='form-group text-success'>Tienda añadida correctamente</div>"
+					}
 				} else {
-					output = "<div class='form-group text-success'>Tienda añadida correctamente</div>"
+					output = "<div class='form-group text-danger'>Esa tienda ya existe</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede añadir una tienda</div>"
@@ -129,21 +149,15 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "id=%d&tienda=%s&provincia=%d&address=%s&phone=%s&extra=%s", id, tienda, prov_id, address, phone, extra)
 		}
 	}
-	//MOSTRAR UN SELECT DE PROVINCIAS SEGUN SU CREADOR (tiendas.html)
-	if accion == "tienda_provincia" {
-		var id int
+	//MOSTRAR UN SELECT DE PROVINCIAS SEGUN SU REGION
+	if accion == "show_prov" {
 		var list string
-		user := r.FormValue("username")
-		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", user).Scan(&id)
-		if err != nil {
-			Error.Println(err)
-		}
 		//Muestra un select de provincias por usuario
-		query, err := db.Query("SELECT id, provincia FROM provincia WHERE creador_id = ?", id)
+		query, err := db.Query("SELECT id, provincia FROM provincia WHERE region_id = ?", r.FormValue("reg"))
 		if err != nil {
 			Error.Println(err)
 		}
-		list = "<div class='panel-heading'>Provincia</div><div class='panel-body'><select id='provincia' name='provincia'>"
+		list = "<option value=''>[Seleccionar Provincia]</option>"
 		if query.Next() {
 			var id_prov int
 			var name string
@@ -159,7 +173,6 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_prov, name)
 			}
-			list += "</select></div>"
 		} else {
 			list += "<option value=''>No hay provincias</option></select></div>"
 		}

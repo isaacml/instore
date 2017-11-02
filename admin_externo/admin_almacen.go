@@ -40,8 +40,8 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext:  Generar un select de entidades para poder añadir un nuevo almacen
-		if accion == "almacen_entidad" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/almacenes.cgi", "accion;almacen_entidad", "username;"+username))
+		if accion == "show_ent" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/almacenes.cgi", "accion;show_ent", "username;"+username))
 			fmt.Fprint(w, respuesta)
 		}
 	}

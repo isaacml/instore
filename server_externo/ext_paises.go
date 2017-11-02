@@ -179,6 +179,7 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
+		list = "<option value=''>[Seleccionar Almacen]</option>"
 		if query.Next() {
 			var id_alm int
 			var name string

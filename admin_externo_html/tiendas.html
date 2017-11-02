@@ -153,8 +153,6 @@
                                 <div class="form-group">
                                     <input class="form-control" id="tienda" placeholder="Nombre de la Tienda" name="tienda" type="text">
                                 </div>
-                                <div id="provincias"></div>
-                                <br>
                                 <div class="form-group">
                                     <input class="form-control" id="address" placeholder="Dirección" name="address" type="text">
                                 </div> 
@@ -164,8 +162,30 @@
                                 <div class="form-group">
                                     <input class="form-control" id="extra" placeholder="Información Extra" name="extra" type="text">
                                 </div>
-                                <div class="form-group" align="center" id="stat">
-                                </div>      
+                                <div class='panel-heading'>Almacen</div>
+                                <div class='panel-body'>
+                                    <select id='almacen' name='almacen'></select>
+                                </div>
+                                <div id="box_pais">
+                                    <div class='panel-heading'>País</div>
+                                    <div class='panel-body'>
+                                        <select id='pais' name='pais'></select>
+                                    </div>
+                                </div>
+                                <div id="box_region">
+                                    <div class='panel-heading'>Región</div>
+                                    <div class='panel-body'>
+                                        <select id='region' name='region'></select>
+                                    </div>
+                                </div>
+                                <div id="box_provincia">
+                                    <div class='panel-heading'>Provincia</div>
+                                    <div class='panel-body'>
+                                        <select id='provincia' name='provincia'></select>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="form-group" align="center" id="stat"></div>      
                             </fieldset>
                         </form>
                         <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
@@ -233,9 +253,24 @@
                 $("#organizaciones").hide();
             }
         });
-        $.post("/tiendas.cgi?sid={{sid}}&accion=tienda_provincia",  function(data, status) {
-    		$("#provincias").html(data);
-		});
+        $.post("/paises.cgi?sid={{sid}}&accion=pais_almacen", $("#testform").serialize(), function(data, status) {
+            $("#almacen").html(data);
+        });
+        $("#almacen").change(function(){
+            $.post("/regiones.cgi?sid={{sid}}&accion=show_paises",  $("#testform").serialize(), function(data, status) {
+                $("#pais").html(data);
+            });
+        });
+        $("#pais").change(function(){
+            $.post("/provincias.cgi?sid={{sid}}&accion=show_region",  $("#testform").serialize(), function(data, status) {
+                $("#region").html(data);
+            });
+        });
+        $("#region").change(function(){
+            $.post("/tiendas.cgi?sid={{sid}}&accion=show_prov",  $("#testform").serialize(), function(data, status) {
+                $("#provincia").html(data);
+            });
+        });
 		$("#enviar").click(function(){
 			$.post("/tiendas.cgi?sid={{sid}}&accion=tienda", $("#testform").serialize(), function(data, status) {
                 $("#stat").show();
