@@ -77,12 +77,9 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		var id, padre_id int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
-		region := r.FormValue("region")
 		provincia := r.FormValue("provincia")
 		if provincia == "" {
 			output = "<div class='form-group text-warning'>El campo provincia no puede estar vacío</div>"
-		} else if region == "" {
-			output = "<div class='form-group text-warning'>El campo región no puede estar vacío</div>"
 		} else {
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
 			if err != nil {
@@ -90,7 +87,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			}
 			if padre_id == 0 || padre_id == 1 {
 				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE provincia SET provincia=?, region_id=? WHERE id = ?", provincia, region, edit_id)
+				_, err1 := db.Exec("UPDATE provincia SET provincia=? WHERE id = ?", provincia, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
@@ -131,19 +128,19 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 	}
 	//CARGA LOS DATOS DE UNA PROVINCIA EN UN FORMULARIO
 	if accion == "load_provincia" {
-		var id, region_id int
+		var id int
 		var provincia string
 		edit_id := r.FormValue("edit_id")
-		query, err := db.Query("SELECT id, provincia, region_id FROM provincia WHERE id = ?", edit_id)
+		query, err := db.Query("SELECT id, provincia FROM provincia WHERE id = ?", edit_id)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &provincia, &region_id)
+			err = query.Scan(&id, &provincia)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&provincia=%s&region=%d", id, provincia, region_id)
+			fmt.Fprintf(w, "id=%d&provincia=%s", id, provincia)
 		}
 	}
 	//MOSTRAR UN SELECT DE REGIONES SEGUN PAIS

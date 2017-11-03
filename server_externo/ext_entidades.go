@@ -112,7 +112,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 						output = "<div class='form-group text-success'>Entidad modificada correctamente</div>"
 					}
 				} else {
-					output = "<div class='form-group text-danger'>La entidad no se puede modificar o ya existe</div>"
+					output = "<div class='form-group text-danger'>Entidad existente, no se puede modificar</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una entidad</div>"

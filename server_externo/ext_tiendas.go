@@ -80,11 +80,10 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		tienda := r.FormValue("tienda")
-		provincia := r.FormValue("provincia")
 		address := r.FormValue("address")
 		phone := r.FormValue("phone")
 		extra := r.FormValue("extra")
-		if provincia == "" || tienda == "" || address == "" || phone == "" {
+		if tienda == "" || address == "" || phone == "" {
 			output = "<div class='form-group text-warning'>No puede haber campos vacíos</div>"
 		} else {
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
@@ -93,7 +92,7 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 			}
 			if padre_id == 0 || padre_id == 1 {
 				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE tiendas SET tienda=?, provincia_id=?, address=?, phone=?, extra=? WHERE id = ?", tienda, provincia, address, phone, extra, edit_id)
+				_, err1 := db.Exec("UPDATE tiendas SET tienda=?, address=?, phone=?, extra=? WHERE id = ?", tienda, address, phone, extra, edit_id)
 				db_mu.Unlock()
 				if err1 != nil {
 					Error.Println(err1)
@@ -134,19 +133,19 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 	}
 	//CARGA LOS DATOS DE UNA TIENDA EN UN FORMULARIO
 	if accion == "load_tienda" {
-		var id, prov_id int
+		var id int
 		var tienda, address, phone, extra string
 		edit_id := r.FormValue("edit_id")
-		query, err := db.Query("SELECT id, tienda, provincia_id, address, phone, extra FROM tiendas WHERE id = ?", edit_id)
+		query, err := db.Query("SELECT id, tienda, address, phone, extra FROM tiendas WHERE id = ?", edit_id)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &tienda, &prov_id, &address, &phone, &extra)
+			err = query.Scan(&id, &tienda, &address, &phone, &extra)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&tienda=%s&provincia=%d&address=%s&phone=%s&extra=%s", id, tienda, prov_id, address, phone, extra)
+			fmt.Fprintf(w, "id=%d&tienda=%s&address=%s&phone=%s&extra=%s", id, tienda, address, phone, extra)
 		}
 	}
 	//MOSTRAR UN SELECT DE PROVINCIAS SEGUN SU REGION

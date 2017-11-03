@@ -89,7 +89,7 @@ func paises(w http.ResponseWriter, r *http.Request) {
 			}
 			if padre_id == 0 || padre_id == 1 {
 				//Buscamos los paises asociados a un determinado almacen
-				query, err := db.Query("SELECT pais FROM pais WHERE almacen_id = ?", almacen)
+				query, err := db.Query("SELECT pais FROM pais WHERE almacen_id = ? AND id != ?", almacen, edit_id)
 				if err != nil {
 					Warning.Println(err)
 				}

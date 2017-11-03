@@ -75,48 +75,27 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICAR / EDITAR UNA REGION
 	if accion == "edit_region" {
-		var output, reg_name string
-		var id, padre_id, cont int
+		var output string
+		var id, padre_id int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		region := r.FormValue("region")
-		pais := r.FormValue("pais")
 		if region == "" {
-			output = "<div class='form-group text-warning'>El campo región no puede estar vacío</div>"
-		} else if pais == "" {
-			output = "<div class='form-group text-warning'>El campo país no puede estar vacío</div>"
+			output = "<div class='form-group text-warning'>La región no puede estar vacía</div>"
 		} else {
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
 			if err != nil {
 				Error.Println(err)
 			}
 			if padre_id == 0 || padre_id == 1 {
-				//Buscamos las regiones asociados a un determinado pais
-				regs, err := db.Query("SELECT region FROM region WHERE pais_id = ?", pais)
-				if err != nil {
-					Error.Println(err)
-				}
-				for regs.Next() {
-					err = regs.Scan(&reg_name)
-					if err != nil {
-						Error.Println(err)
-					}
-					//Se comprueba que no hay dos regiones con el mismo nombre
-					if region == reg_name {
-						cont++ //Si hay alguna region, el contador incrementa
-					}
-				}
-				//Cont = 0, no hay ninguna region
-				if cont == 0 {
-					db_mu.Lock()
-					_, err1 := db.Exec("UPDATE region SET region=?, pais_id=? WHERE id = ?", region, pais, edit_id)
-					db_mu.Unlock()
-					if err1 != nil {
-						Error.Println(err1)
-						output = "<div class='form-group text-danger'>Fallo al modificar región</div>"
-					} else {
-						output = "<div class='form-group text-success'>Región modificada correctamente</div>"
-					}
+				db_mu.Lock()
+				_, err1 := db.Exec("UPDATE region SET region=? WHERE id = ?", region, edit_id)
+				db_mu.Unlock()
+				if err1 != nil {
+					Error.Println(err1)
+					output = "<div class='form-group text-danger'>Fallo al modificar región</div>"
+				} else {
+					output = "<div class='form-group text-success'>Región modificada correctamente</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una región</div>"
@@ -152,19 +131,13 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 	//CARGA LOS DATOS DE UNA REGION EN UN FORMULARIO
 	if accion == "load_region" {
 		edit_id := r.FormValue("edit_id")
-		var id, pais_id, alm_id int
+		var id_reg int
 		var region string
-		query, err := db.Query("SELECT region.id, region.region, region.pais_id, pais.almacen_id FROM region INNER JOIN pais WHERE pais.id = region.pais_id AND region.id = ?", edit_id)
+		err := db.QueryRow("SELECT id, region FROM region WHERE id = ?", edit_id).Scan(&id_reg, &region)
 		if err != nil {
 			Error.Println(err)
 		}
-		for query.Next() {
-			err = query.Scan(&id, &region, &pais_id, &alm_id)
-			if err != nil {
-				Error.Println(err)
-			}
-			fmt.Fprintf(w, "id=%d&region=%s&pais=%d&almacen=%d", id, region, pais_id, alm_id)
-		}
+		fmt.Fprintf(w, "id=%d&region=%s", id_reg, region)
 	}
 	//MOSTRAR UN SELECT DE PAISES SEGUN SU ALMACEN
 	if accion == "show_paises" {

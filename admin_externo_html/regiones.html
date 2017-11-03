@@ -153,9 +153,11 @@
                                 <div class="form-group">
                                     <input class="form-control" id="region" placeholder='Nombre de la Región' name='region' type='text' autofocus> 
                                 </div>
-                                <div class='panel-heading'>Almacen</div>
-                                <div class='panel-body'>
-                                    <select id='almacen' name='almacen'></select>
+                                <div id="box_alm">
+                                    <div class='panel-heading'>Almacen</div>
+                                    <div class='panel-body'>
+                                        <select id='almacen' name='almacen'></select>
+                                    </div>
                                 </div>
                                 <div id="box_pais">
                                     <div class='panel-heading'>País</div>
@@ -267,6 +269,8 @@
     //Función que carga los datos de un almacen
 	function load(id){
         $("#stat").hide();
+        $("#box_alm").hide();
+        $("#box_pais").hide();
 		$("#modificar").show();
     	$("#enviar").hide();
         $.post("/regiones.cgi?sid={{sid}}&accion=load_region", "load="+id , function(data, status) {

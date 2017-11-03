@@ -162,9 +162,11 @@
                                 <div class="form-group">
                                     <input class="form-control" id="extra" placeholder="Información Extra" name="extra" type="text">
                                 </div>
-                                <div class='panel-heading'>Almacen</div>
-                                <div class='panel-body'>
-                                    <select id='almacen' name='almacen'></select>
+                                <div id="box_alm">
+                                    <div class='panel-heading'>Almacen</div>
+                                    <div class='panel-body'>
+                                        <select id='almacen' name='almacen'></select>
+                                    </div>
                                 </div>
                                 <div id="box_pais">
                                     <div class='panel-heading'>País</div>
@@ -307,6 +309,10 @@
 	function load(id){
         $("#stat").hide();
 		$("#modificar").show();
+        $("#box_alm").hide();
+        $("#box_pais").hide();
+        $("#box_region").hide();
+        $("#box_provincia").hide();
     	$("#enviar").hide();
         $.post("/tiendas.cgi?sid={{sid}}&accion=load_tienda", "load="+id , function(data, status) {
 	    	$.each(data.split('&'), function (index, elem) {
