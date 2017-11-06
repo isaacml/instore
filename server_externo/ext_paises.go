@@ -166,7 +166,7 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//MOSTRAR UN SELECT DE ALMACENES SEGUN SU CREADOR (almacenes.html)
-	if accion == "pais_almacen" {
+	if accion == "show_almacen" {
 		var id int
 		var list string
 		user := r.FormValue("username")

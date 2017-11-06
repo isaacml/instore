@@ -238,6 +238,9 @@
         table();
         $("#stat").hide();
         $("#modificar").hide();
+        $("#box_pais").hide();
+        $("#box_region").hide();
+        $("#box_provincia").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -255,20 +258,23 @@
                 $("#organizaciones").hide();
             }
         });
-        $.post("/paises.cgi?sid={{sid}}&accion=pais_almacen", $("#testform").serialize(), function(data, status) {
+        $.post("/paises.cgi?sid={{sid}}&accion=show_almacen", $("#testform").serialize(), function(data, status) {
             $("#almacen").html(data);
         });
         $("#almacen").change(function(){
+            $("#box_pais").show();
             $.post("/regiones.cgi?sid={{sid}}&accion=show_paises",  $("#testform").serialize(), function(data, status) {
                 $("#pais").html(data);
             });
         });
         $("#pais").change(function(){
+            $("#box_region").show();
             $.post("/provincias.cgi?sid={{sid}}&accion=show_region",  $("#testform").serialize(), function(data, status) {
                 $("#region").html(data);
             });
         });
         $("#region").change(function(){
+            $("#box_provincia").show();
             $.post("/tiendas.cgi?sid={{sid}}&accion=show_prov",  $("#testform").serialize(), function(data, status) {
                 $("#provincia").html(data);
             });
@@ -278,9 +284,13 @@
                 $("#stat").show();
 				$("#stat").html(data);
 				$("#tienda").val("");
+                $("#almacen").val("");
                 $("#address").val("");
                 $("#phone").val("");
                 $("#extra").val("");
+                $("#box_pais").hide();
+                $("#box_region").hide();
+                $("#box_provincia").hide();
                 table();
 	        });
         });

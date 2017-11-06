@@ -16,12 +16,12 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		var id, padre_id, id_admin, cont int
 		var output, prov_name string
 		username := r.FormValue("username")
+		almacen := r.FormValue("almacen")
+		pais := r.FormValue("pais")
 		region := r.FormValue("region")
 		provincia := r.FormValue("provincia")
-		if provincia == "" {
-			output = "<div class='form-group text-warning'>El campo provincia no puede estar vacio</div>"
-		} else if region == "" {
-			output = "<div class='form-group text-warning'>Debe haber almenos una región</div>"
+		if almacen == "" || pais == "" || region == "" || provincia == "" {
+			output = "<div class='form-group text-warning'>Los campos no pueden estar vacíos</div>"
 		} else {
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
 			if err != nil {
@@ -45,7 +45,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err)
 					}
 					//Se comprueba que no hay dos provincias con el mismo nombre
-					if region == prov_name {
+					if provincia == prov_name {
 						cont++ //Si hay alguna provincia, el contador incrementa
 					}
 				}

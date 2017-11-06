@@ -224,7 +224,7 @@
                 $("#organizaciones").hide();
             }
         });
-        $.post("/paises.cgi?sid={{sid}}", {accion: "pais_almacen"}, function(data, status) {
+        $.post("/paises.cgi?sid={{sid}}", {accion: "show_almacen"}, function(data, status) {
     		$("#almacen").html(data);
 		});
 		$("#enviar").click(function(){

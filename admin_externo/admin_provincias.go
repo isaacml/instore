@@ -19,7 +19,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		if accion == "provincia" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("provincia"))
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;provincia", "provincia;"+correct_res, "username;"+username, "region;"+r.FormValue("region")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;provincia", "almacen;"+r.FormValue("almacen"), "pais;"+r.FormValue("pais"), "provincia;"+correct_res, "username;"+username, "region;"+r.FormValue("region")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Modificar los datos de una provincia concreta

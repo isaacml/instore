@@ -453,3 +453,24 @@ func loadSettings(filename string, arr map[string]string) {
 		}
 	}
 }
+
+func loadMainDomain(filename string) string {
+	var dom string
+	fr, err := os.Open(filename)
+	defer fr.Close()
+	if err == nil {
+		reader := bufio.NewReader(fr)
+		for {
+			linea, rerr := reader.ReadString('\n')
+			if rerr != nil {
+				break
+			}
+			linea = strings.TrimRight(linea, "\r\n")
+			item := strings.Split(linea, " = ")
+			if item[0] == "shopdomain" {
+				dom = item[1]
+			}
+		}
+	}
+	return dom
+}

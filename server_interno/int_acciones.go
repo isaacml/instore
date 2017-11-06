@@ -65,6 +65,10 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	if accion == "send_domains" {
 		output = libs.GenerateFORM(serverext["serverexterno"]+"/recoger_dominio.cgi", "dominios;"+r.FormValue("dominios"))
 	}
+	//Envia la entidad tomada del dominio de la tienda, para obtener el estado de dicha entidad
+	if accion == "check_entidad" {
+		output = libs.GenerateFORM(serverext["serverexterno"]+"/acciones.cgi", "accion;check_entidad", "ent;"+r.FormValue("ent"))
+	}
 	fmt.Fprint(w, output)
 }
 

@@ -19,7 +19,7 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		if accion == "tienda" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("tienda"))
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;tienda", "tienda;"+correct_res, "username;"+username, "provincia;"+r.FormValue("provincia"), "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;tienda", "tienda;"+correct_res, "username;"+username, "almacen;"+r.FormValue("almacen"), "pais;"+r.FormValue("pais"), "region;"+r.FormValue("region"), "provincia;"+r.FormValue("provincia"), "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Modificar una tienda concreta

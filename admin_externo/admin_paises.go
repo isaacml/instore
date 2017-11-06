@@ -40,8 +40,8 @@ func paises(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Generar un select de almacenes para poder añadir un nuevo pais
-		if accion == "pais_almacen" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/paises.cgi", "accion;pais_almacen", "username;"+username))
+		if accion == "show_almacen" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/paises.cgi", "accion;show_almacen", "username;"+username))
 			fmt.Fprint(w, respuesta)
 		}
 	}

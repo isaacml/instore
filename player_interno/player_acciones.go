@@ -21,8 +21,10 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	if accion == "bitmaps" {
 		respuesta := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
 		bitmap := strings.Split(respuesta, ";")
+		db_mu.Lock()
 		//Guardamos el bitmap de programar musica
 		bitmap_prog_music = toInt(bitmap[1])
+		db_mu.Unlock()
 		fmt.Fprint(w, respuesta)
 	}
 	//Comprueba si el fichero de configuracion de la tienda existe o no

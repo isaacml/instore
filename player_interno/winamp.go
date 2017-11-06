@@ -6,171 +6,179 @@ import (
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 )
 
+var estado_entidad string
+
 func reproduccion() {
-	for {
-		var win winamp.Winamp
-		publi := make(map[int]string)
-		musica := make(map[int]string)
-		p, pl := 0, 1
-		var gap int
-		var song string
-		//Sacamos la fecha actual
-		y, m, d := time.Now().Date()
-		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
-		//INICIAL
-		fmt.Println("-" + statusProgammedMusic + "-")
-		//Obtenemos el GAP
-		publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
-		if errP != nil {
-			Error.Println(errP)
-			gap = 0
-		}
-		for publicidad.Next() {
-			var fichero string
-			//Tomamos el nombre del fichero mensaje
-			err := publicidad.Scan(&fichero, &gap)
-			if err != nil {
-				Error.Println(err)
-			}
-			//fmt.Printf("%s", fichero)
-			publi[p] = fichero
-			p++
-		}
-		//Comprobamos si winamp está abierto
-		isOpen := win.WinampIsOpen()
-		if isOpen == false {
-			//Rulamos el Winamp
-			win.RunWinamp()
-			time.Sleep(1 * time.Second)
-			win.Volume()
-		}
-		if statusProgammedMusic == "Inicial" {
-			for _, val := range programmedMusic {
-				//generamos la ruta completa a esas carpetas
-				full_route := music_files + val + "\\"
-				musica = libs.MusicToPlay(full_route)
-			}
-			rand.Seed(time.Now().UnixNano())
-			shuffle := rand.Perm(len(musica))
-			for _, v := range shuffle {
-				if statusProgammedMusic == "Actualizada" {
-					break
-				}
-				song = musica[v]
-				libs.PlaySong(song, win)
-				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
-				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
-				if pl == gap {
-					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-					rand.Seed(time.Now().UnixNano())
-					shuffle2 := rand.Perm(len(publi))
-					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-					for _, val := range shuffle2 {
-						publi_file := publi[val]
-						all_publi_file := publi_files_location + publi_file
-						libs.PlayPubli(all_publi_file, win)
-						break
-					}
-					//Volvemos a poner el contador de playlist 0
-					pl = 0
-				}
-				pl++
-			}
-		} else if statusProgammedMusic == "Actualizada" {
-			for _, val := range programmedMusic {
-				//generamos la ruta completa a esas carpetas
-				full_route := music_files + val + "\\"
-				musica = libs.MusicToPlay(full_route)
-			}
-			rand.Seed(time.Now().UnixNano())
-			shuffle := rand.Perm(len(musica))
-			for _, v := range shuffle {
-				if statusProgammedMusic == "Modificar" {
-					break
-				}
-				song = musica[v]
-				libs.PlaySong(song, win)
-				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
-				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
-				if pl == gap {
-					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-					rand.Seed(time.Now().UnixNano())
-					shuffle2 := rand.Perm(len(publi))
-					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-					for _, val := range shuffle2 {
-						publi_file := publi[val]
-						all_publi_file := publi_files_location + publi_file
-						libs.PlayPubli(all_publi_file, win)
-						break
-					}
-					//Volvemos a poner el contador de playlist 0
-					pl = 0
-				}
-				pl++
-			}
-		} else if statusProgammedMusic == "Modificar" {
-			for _, val := range programmedMusic {
-				//generamos la ruta completa a esas carpetas
-				full_route := music_files + val + "\\"
-				musica = libs.MusicToPlay(full_route)
-			}
-			rand.Seed(time.Now().UnixNano())
-			shuffle := rand.Perm(len(musica))
-			for _, v := range shuffle {
-				if statusProgammedMusic == "Actualizada" {
-					break
-				}
-				song = musica[v]
-				libs.PlaySong(song, win)
-				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
-				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
-				if pl == gap {
-					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-					rand.Seed(time.Now().UnixNano())
-					shuffle2 := rand.Perm(len(publi))
-					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-					for _, val := range shuffle2 {
-						publi_file := publi[val]
-						all_publi_file := publi_files_location + publi_file
-						libs.PlayPubli(all_publi_file, win)
-						break
-					}
-					//Volvemos a poner el contador de playlist 0
-					pl = 0
-				}
-				pl++
-			}
-		} else {
+	dom := loadMainDomain(configShop)
+	ent := strings.Split(dom, ".")
+	res := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
+	if res != "0" {
+		for {
+			var win winamp.Winamp
+			publi := make(map[int]string)
+			musica := make(map[int]string)
+			p, pl := 0, 1
+			var gap int
 			var song string
-			musica = libs.MusicToPlay(music_files)
-			rand.Seed(time.Now().UnixNano())
-			shuffle := rand.Perm(len(musica))
-			for _, v := range shuffle {
-				if statusProgammedMusic == "Inicial" {
-					break
+			//Sacamos la fecha actual
+			y, m, d := time.Now().Date()
+			fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+			//INICIAL
+			fmt.Println("-" + statusProgammedMusic + "-")
+			//Obtenemos el GAP
+			publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
+			if errP != nil {
+				Error.Println(errP)
+				gap = 0
+			}
+			for publicidad.Next() {
+				var fichero string
+				//Tomamos el nombre del fichero mensaje
+				err := publicidad.Scan(&fichero, &gap)
+				if err != nil {
+					Error.Println(err)
 				}
-				song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-				libs.PlaySong(song, win)
-				//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
-				//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
-				if pl == gap {
-					//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-					rand.Seed(time.Now().UnixNano())
-					shuffle2 := rand.Perm(len(publi))
-					//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-					for _, val := range shuffle2 {
-						publi_file := publi[val]
-						all_publi_file := publi_files_location + publi_file
-						libs.PlayPubli(all_publi_file, win)
+				//fmt.Printf("%s", fichero)
+				publi[p] = fichero
+				p++
+			}
+			//Comprobamos si winamp está abierto
+			isOpen := win.WinampIsOpen()
+			if isOpen == false {
+				//Rulamos el Winamp
+				win.RunWinamp()
+				time.Sleep(1 * time.Second)
+				win.Volume()
+			}
+			if statusProgammedMusic == "Inicial" {
+				for _, val := range programmedMusic {
+					//generamos la ruta completa a esas carpetas
+					full_route := music_files + val + "\\"
+					musica = libs.MusicToPlay(full_route)
+				}
+				rand.Seed(time.Now().UnixNano())
+				shuffle := rand.Perm(len(musica))
+				for _, v := range shuffle {
+					if statusProgammedMusic == "Actualizada" {
 						break
 					}
-					//Volvemos a poner el contador de playlist 0
-					pl = 0
+					song = musica[v]
+					libs.PlaySong(song, win)
+					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+					if pl == gap {
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							publi_file := publi[val]
+							all_publi_file := publi_files_location + publi_file
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
+						//Volvemos a poner el contador de playlist 0
+						pl = 0
+					}
+					pl++
 				}
-				pl++
+			} else if statusProgammedMusic == "Actualizada" {
+				for _, val := range programmedMusic {
+					//generamos la ruta completa a esas carpetas
+					full_route := music_files + val + "\\"
+					musica = libs.MusicToPlay(full_route)
+				}
+				rand.Seed(time.Now().UnixNano())
+				shuffle := rand.Perm(len(musica))
+				for _, v := range shuffle {
+					if statusProgammedMusic == "Modificar" {
+						break
+					}
+					song = musica[v]
+					libs.PlaySong(song, win)
+					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+					if pl == gap {
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							publi_file := publi[val]
+							all_publi_file := publi_files_location + publi_file
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
+						//Volvemos a poner el contador de playlist 0
+						pl = 0
+					}
+					pl++
+				}
+			} else if statusProgammedMusic == "Modificar" {
+				for _, val := range programmedMusic {
+					//generamos la ruta completa a esas carpetas
+					full_route := music_files + val + "\\"
+					musica = libs.MusicToPlay(full_route)
+				}
+				rand.Seed(time.Now().UnixNano())
+				shuffle := rand.Perm(len(musica))
+				for _, v := range shuffle {
+					if statusProgammedMusic == "Actualizada" {
+						break
+					}
+					song = musica[v]
+					libs.PlaySong(song, win)
+					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+					if pl == gap {
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							publi_file := publi[val]
+							all_publi_file := publi_files_location + publi_file
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
+						//Volvemos a poner el contador de playlist 0
+						pl = 0
+					}
+					pl++
+				}
+			} else {
+				var song string
+				musica = libs.MusicToPlay(music_files)
+				rand.Seed(time.Now().UnixNano())
+				shuffle := rand.Perm(len(musica))
+				for _, v := range shuffle {
+					if statusProgammedMusic == "Inicial" {
+						break
+					}
+					song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
+					libs.PlaySong(song, win)
+					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
+					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
+					if pl == gap {
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							publi_file := publi[val]
+							all_publi_file := publi_files_location + publi_file
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
+						//Volvemos a poner el contador de playlist 0
+						pl = 0
+					}
+					pl++
+				}
 			}
 		}
 	}

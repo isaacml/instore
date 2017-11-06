@@ -42,10 +42,18 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		if padre == 0 || padre == 1 {
 			output = "Mostrar"
-		}else{
+		} else {
 			output = "Ocultar"
 		}
 		fmt.Fprintf(w, output)
+	}
+	if accion == "check_entidad" {
+		var st_ent int
+		err := db.QueryRow("SELECT status FROM entidades WHERE nombre = ?", r.FormValue("ent")).Scan(&st_ent)
+		if err != nil {
+			Error.Println(err)
+		}
+		fmt.Fprint(w, st_ent)
 	}
 	//Proporciona la informacion necesaria para generar el explorador de destino (se genera en publi.html)
 	//La peticion es por parte del -explorador.go- del admin_externo

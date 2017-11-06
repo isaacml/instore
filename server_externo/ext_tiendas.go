@@ -17,14 +17,15 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		var id, padre_id, id_admin, cont int
 		username := r.FormValue("username")
 		tienda := r.FormValue("tienda")
+		almacen := r.FormValue("almacen")
+		pais := r.FormValue("pais")
+		region := r.FormValue("region")
 		provincia := r.FormValue("provincia")
 		address := r.FormValue("address")
 		phone := r.FormValue("phone")
 		extra := r.FormValue("extra")
-		if tienda == "" || address == "" || phone == "" {
-			output = "<div class='form-group text-warning'>No pueden haber campos vacíos</div>"
-		} else if provincia == "" {
-			output = "<div class='form-group text-warning'>Debe haber almenos una provincia</div>"
+		if tienda == "" || address == "" || phone == "" || almacen == "" || pais == "" || region == "" || provincia == "" {
+			output = "<div class='form-group text-warning'>Los campos no pueden estar vacíos</div>"
 		} else {
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
 			if err != nil {
