@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -550,6 +551,47 @@ func PlaySong(song string, win winamp.Winamp) {
 	win.Load("\"" + song_to_play + "\"")
 	win.Play()
 	time.Sleep(time.Duration(song_duration) * time.Second)
+}
+
+/*
+LoadMainDomain: Obtenemos solo el dominio principal de la tienda
+	filename:  Nombre del fichero que contiene el dominio (configShop)
+	win:   Objeto Winamp
+La cancion puede ser cifrada o no cifrada.
+*/
+//Obtenemos solo el dominio principal de la tienda
+func LoadMainDomain(filename string) string {
+	var dom string
+	fr, err := os.Open(filename)
+	defer fr.Close()
+	if err == nil {
+		reader := bufio.NewReader(fr)
+		for {
+			linea, rerr := reader.ReadString('\n')
+			if rerr != nil {
+				break
+			}
+			linea = strings.TrimRight(linea, "\r\n")
+			item := strings.Split(linea, " = ")
+			if item[0] == "shopdomain" {
+				dom = item[1]
+			}
+		}
+	}
+	return dom
+}
+
+//Encargado de tomar el estado de la entidad y guardarlo en una variable global
+func IsEntAvailable(file string, path string, global_var int, mutex sync.RWMutex) {
+	for {
+		dom := LoadMainDomain(file)
+		ent := strings.Split(dom, ".")
+		res := GenerateFORM(path+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
+		mutex.Lock()
+		global_var, _ = strconv.Atoi(res)
+		mutex.Unlock()
+		time.Sleep(10 * time.Minute)
+	}
 }
 
 /*

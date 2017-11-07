@@ -6,18 +6,16 @@ import (
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
 	"os"
-	"strings"
 	"time"
 )
 
-var estado_entidad string
-
+//Zona de reproduccion del player de la tienda
 func reproduccion() {
-	dom := loadMainDomain(configShop)
-	ent := strings.Split(dom, ".")
-	res := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
-	if res != "0" {
-		for {
+	for {
+		if estado_entidad != 0 {
+			if estado_entidad == 0 {
+				break
+			}
 			var win winamp.Winamp
 			publi := make(map[int]string)
 			musica := make(map[int]string)
@@ -63,7 +61,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" {
+					if statusProgammedMusic == "Actualizada" || estado_entidad == 0 {
 						break
 					}
 					song = musica[v]
@@ -95,7 +93,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Modificar" {
+					if statusProgammedMusic == "Modificar" || estado_entidad == 0 {
 						break
 					}
 					song = musica[v]
@@ -127,7 +125,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" {
+					if statusProgammedMusic == "Actualizada" || estado_entidad == 0 {
 						break
 					}
 					song = musica[v]
@@ -156,7 +154,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Inicial" {
+					if statusProgammedMusic == "Inicial" || estado_entidad == 0 {
 						break
 					}
 					song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif

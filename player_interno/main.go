@@ -28,6 +28,7 @@ var (
 	username             string                                      //Variable de usuario y estado global
 	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
+	estado_entidad       int                                         //Guarda el estado de activo de la entidad: 0 - OFF / 1 - ON
 
 )
 
@@ -59,6 +60,7 @@ func main() {
 	go saveListInBD()
 	go solicitudDeFicheros()
 	go reproduccion()
+	go libs.IsEntAvailable(configShop, serverint["serverinterno"], estado_entidad, db_mu)
 	go reproduccion_msgs()
 
 	// handlers del servidor HTTP
@@ -452,25 +454,4 @@ func loadSettings(filename string, arr map[string]string) {
 			}
 		}
 	}
-}
-
-func loadMainDomain(filename string) string {
-	var dom string
-	fr, err := os.Open(filename)
-	defer fr.Close()
-	if err == nil {
-		reader := bufio.NewReader(fr)
-		for {
-			linea, rerr := reader.ReadString('\n')
-			if rerr != nil {
-				break
-			}
-			linea = strings.TrimRight(linea, "\r\n")
-			item := strings.Split(linea, " = ")
-			if item[0] == "shopdomain" {
-				dom = item[1]
-			}
-		}
-	}
-	return dom
 }
