@@ -114,7 +114,6 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 				} else {
 					output = "<div class='form-group text-danger'>El país ya tiene esa región asociada</div>"
 				}
-				
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una región</div>"
 			}

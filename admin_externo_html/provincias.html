@@ -149,6 +149,7 @@
                             <form id="testform" action="" >
                             <fieldset>
                                 <input name="id" type="hidden">
+                                <input name="id_reg" type="hidden">
                                 <div class="form-group">
                                     <input class="form-control" id="provincia" placeholder='Nombre de la Provincia' name='provincia' type='text' autofocus> 
                                 </div>
@@ -298,6 +299,14 @@
     		});
 		});
 	}
+    //Borrar una provincia
+	function borrar(id){
+        if(confirm("¿Seguro que quieres borrar esta provincia?")){
+            $.post("/provincias.cgi?sid={{sid}}&accion=del_prov", "borrar="+id , function(data, status) {
+                location.reload();
+            });
+        }    
+    }
 	</script>
 </body>
 </html>

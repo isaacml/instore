@@ -73,11 +73,12 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICAR / EDITAR UNA PROVINCIA
 	if accion == "edit_provincia" {
-		var output string
-		var id, padre_id int
+		var output, prov_name string
+		var id, padre_id, cont int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		provincia := r.FormValue("provincia")
+		region := r.FormValue("region")
 		if provincia == "" {
 			output = "<div class='form-group text-warning'>El campo provincia no puede estar vacío</div>"
 		} else {
@@ -86,14 +87,34 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if padre_id == 0 || padre_id == 1 {
-				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE provincia SET provincia=? WHERE id = ?", provincia, edit_id)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al modificar provincia</div>"
+				//Buscamos las provincias asociadas a una region
+				query, err := db.Query("SELECT provincia FROM provincia WHERE region_id = ? AND id != ?", region, edit_id)
+				if err != nil {
+					Warning.Println(err)
+				}
+				for query.Next() {
+					err = query.Scan(&prov_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Si hay alguna, el contador incrementa
+					if prov_name == provincia {
+						cont++
+					}
+				}
+				//Cont = 0, no hay provincia asociada a region
+				if cont == 0 {
+					db_mu.Lock()
+					_, err1 := db.Exec("UPDATE provincia SET provincia=? WHERE id = ?", provincia, edit_id)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al modificar provincia</div>"
+					} else {
+						output = "<div class='form-group text-success'>Provincia modificada correctamente</div>"
+					}
 				} else {
-					output = "<div class='form-group text-success'>Provincia modificada correctamente</div>"
+					output = "<div class='form-group text-danger'>La región ya tiene esa provincia asociada</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una provincia</div>"
@@ -120,27 +141,50 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			//Se obtiene la fecha de creacion de un almacen
+			//Se obtiene la fecha de creacion de una provincia
 			f_creacion := libs.FechaCreacion(tiempo)
-			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar provincia'>%s</a></td><td>%s</td><td>%s</td></tr>",
-				id, provincia, f_creacion, region)
+			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar provincia'>%s</a>"
+			cadena += "<a href='#' onclick='borrar(%d)' title='Borrar provincia' style='float:right'><span class='fa fa-trash-o'></a></td>"
+			cadena += "<td>%s</td><td>%s</td></tr>"
+			fmt.Fprintf(w, cadena, id, provincia, id, f_creacion, region)
 		}
 	}
 	//CARGA LOS DATOS DE UNA PROVINCIA EN UN FORMULARIO
 	if accion == "load_provincia" {
-		var id int
+		var id, id_reg int
 		var provincia string
 		edit_id := r.FormValue("edit_id")
-		query, err := db.Query("SELECT id, provincia FROM provincia WHERE id = ?", edit_id)
+		query, err := db.Query("SELECT id, provincia, region_id FROM provincia WHERE id = ?", edit_id)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &provincia)
+			err = query.Scan(&id, &provincia, &id_reg)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&provincia=%s", id, provincia)
+			fmt.Fprintf(w, "id=%d&provincia=%s&id_reg=%d", id, provincia, id_reg)
+		}
+	}
+	//BORRAR UNA PROVINCIA
+	if accion == "del_prov" {
+		var cont int
+		query, err := db.Query("SELECT * FROM tiendas WHERE provincia_id = ?", r.FormValue("borrar"))
+		if err != nil {
+			Error.Println(err)
+		}
+		for query.Next() {
+			cont++
+		}
+		if cont == 0 {
+			db_mu.Lock()
+			_, err := db.Exec("DELETE FROM provincia WHERE id = ?", r.FormValue("borrar"))
+			db_mu.Unlock()
+			if err != nil {
+				Error.Println(err)
+			}
+		} else {
+			fmt.Fprint(w, "<div class='form-group text-danger'>Necesario borrar tiendas de las que depende</div>")
 		}
 	}
 	//MOSTRAR UN SELECT DE REGIONES SEGUN PAIS

@@ -76,14 +76,15 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICAR / EDITAR UNA TIENDA
 	if accion == "edit_tienda" {
-		var id, padre_id int
-		var output string
+		var id, padre_id, cont int
+		var output, shop_name string
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		tienda := r.FormValue("tienda")
 		address := r.FormValue("address")
 		phone := r.FormValue("phone")
 		extra := r.FormValue("extra")
+		provincia := r.FormValue("provincia")
 		if tienda == "" || address == "" || phone == "" {
 			output = "<div class='form-group text-warning'>No puede haber campos vacíos</div>"
 		} else {
@@ -92,14 +93,34 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if padre_id == 0 || padre_id == 1 {
-				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE tiendas SET tienda=?, address=?, phone=?, extra=? WHERE id = ?", tienda, address, phone, extra, edit_id)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al modificar tienda</div>"
+				//Buscamos las tiendas asociadas a una provincia
+				query, err := db.Query("SELECT tienda FROM tiendas WHERE provincia_id = ? AND id != ?", provincia, edit_id)
+				if err != nil {
+					Warning.Println(err)
+				}
+				for query.Next() {
+					err = query.Scan(&shop_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Si hay alguno, el contador incrementa
+					if shop_name == tienda {
+						cont++
+					}
+				}
+				//Cont = 0, no hay tienda asociada a provincia
+				if cont == 0 {
+					db_mu.Lock()
+					_, err1 := db.Exec("UPDATE tiendas SET tienda=?, address=?, phone=?, extra=? WHERE id = ?", tienda, address, phone, extra, edit_id)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al modificar tienda</div>"
+					} else {
+						output = "<div class='form-group text-success'>Tienda modificada correctamente</div>"
+					}
 				} else {
-					output = "<div class='form-group text-success'>Tienda modificada correctamente</div>"
+					output = "<div class='form-group text-danger'>La provincia ya tiene esa tienda asociada</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una tienda</div>"
@@ -128,25 +149,35 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 			}
 			//Se obtiene la fecha de creacion de un almacen
 			f_creacion := libs.FechaCreacion(tiempo)
-			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar tienda'>%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-				id, tienda, f_creacion, provincia, address, phone, extra)
+			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar tienda'>%s</a><a href='#' onclick='borrar(%d)' title='Borrar tienda' style='float:right'>"
+			cadena += "<span class='fa fa-trash-o'></a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
+			fmt.Fprintf(w, cadena, id, tienda, id, f_creacion, provincia, address, phone, extra)
 		}
 	}
 	//CARGA LOS DATOS DE UNA TIENDA EN UN FORMULARIO
 	if accion == "load_tienda" {
-		var id int
+		var id, id_prov int
 		var tienda, address, phone, extra string
 		edit_id := r.FormValue("edit_id")
-		query, err := db.Query("SELECT id, tienda, address, phone, extra FROM tiendas WHERE id = ?", edit_id)
+		query, err := db.Query("SELECT id, tienda, address, phone, extra, provincia_id FROM tiendas WHERE id = ?", edit_id)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &tienda, &address, &phone, &extra)
+			err = query.Scan(&id, &tienda, &address, &phone, &extra, &id_prov)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&tienda=%s&address=%s&phone=%s&extra=%s", id, tienda, address, phone, extra)
+			fmt.Fprintf(w, "id=%d&tienda=%s&address=%s&phone=%s&extra=%s&id_prov=%d", id, tienda, address, phone, extra, id_prov)
+		}
+	}
+	//BORRAR UNA TIENDA
+	if accion == "del_tienda" {
+		db_mu.Lock()
+		_, err := db.Exec("DELETE FROM tiendas WHERE id = ?", r.FormValue("borrar"))
+		db_mu.Unlock()
+		if err != nil {
+			Error.Println(err)
 		}
 	}
 	//MOSTRAR UN SELECT DE PROVINCIAS SEGUN SU REGION

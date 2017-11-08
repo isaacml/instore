@@ -150,6 +150,7 @@
                         <form id="testform" action="">
                             <fieldset>
                                <input name="id" type="hidden">
+                               <input name="id_prov" type="hidden">
                                 <div class="form-group">
                                     <input class="form-control" id="tienda" placeholder="Nombre de la Tienda" name="tienda" type="text">
                                 </div>
@@ -207,22 +208,24 @@
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
-                            <div class="dataTable_wrapper">
-                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
-                                    <thead>
-                                        <tr>
-                                            <th>Tienda</th>
-                                            <th class='hidden-xs'>Fecha de creación</th>
-                                            <th>Provincia</th>
-                                            <th>Dirección</th>
-                                            <th>Teléfono</th>
-                                            <th>InfoExtra</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tabla">
-                                    </tbody>
-                                </table> 
-                            </div>
+                            <form id="testform2" action="">
+                                <div class="dataTable_wrapper">
+                                    <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th>Tienda</th>
+                                                <th class='hidden-xs'>Fecha de creación</th>
+                                                <th>Provincia</th>
+                                                <th>Dirección</th>
+                                                <th>Teléfono</th>
+                                                <th>InfoExtra</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabla">
+                                        </tbody>
+                                    </table> 
+                                </div>
+                            </form>
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -331,6 +334,14 @@
     		});
 		});
 	}
+    //Borrar una tienda
+	function borrar(id){
+        if(confirm("¿Seguro que quieres borrar esta tienda?")){
+            $.post("/tiendas.cgi?sid={{sid}}&accion=del_tienda", "borrar="+id , function(data, status) {
+                location.reload();
+            });
+        }    
+    }
 	</script>
 </body>
 </html>

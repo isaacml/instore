@@ -26,7 +26,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		if accion == "edit_provincia" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("provincia"))
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;edit_provincia", "edit_id;"+r.FormValue("id"), "provincia;"+correct_res, "username;"+username, "region;"+r.FormValue("region")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;edit_provincia", "edit_id;"+r.FormValue("id"), "provincia;"+correct_res, "username;"+username, "region;"+r.FormValue("id_reg")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Mostrar una tabla de provincias
@@ -37,6 +37,11 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		//Envio de datos al server_ext: Cargar los datos de una provincia concreta
 		if accion == "load_provincia" {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;load_provincia", "edit_id;"+r.FormValue("load")))
+			fmt.Fprint(w, respuesta)
+		}
+		//Borrar una provincia concreta
+		if accion == "del_prov" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/provincias.cgi", "accion;del_prov", "borrar;"+r.FormValue("borrar")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Generar un select de regiones para poder añadir una nueva provincia

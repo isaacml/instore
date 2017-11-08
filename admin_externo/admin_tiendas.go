@@ -26,7 +26,7 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		if accion == "edit_tienda" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("tienda"))
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;edit_tienda", "edit_id;"+r.FormValue("id"), "tienda;"+correct_res, "provincia;"+r.FormValue("provincia"), "username;"+username, "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;edit_tienda", "edit_id;"+r.FormValue("id"), "tienda;"+correct_res, "provincia;"+r.FormValue("id_prov"), "username;"+username, "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Mostrar en una tabla las tiendas
@@ -37,6 +37,11 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		//Envio de datos al server_ext: Cargar una tienda concreta
 		if accion == "load_tienda" {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;load_tienda", "edit_id;"+r.FormValue("load")))
+			fmt.Fprint(w, respuesta)
+		}
+		//Borrar una tienda concreta
+		if accion == "del_tienda" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;del_tienda", "borrar;"+r.FormValue("borrar")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Generar un select de provincias para poder añadir una nueva tienda
