@@ -71,8 +71,8 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICAR / EDITAR UNA REGION
 	if accion == "edit_region" {
-		var output string
-		var id, padre_id int
+		var output, reg_name string
+		var id, padre_id, cont int
 		edit_id := r.FormValue("edit_id")
 		username := r.FormValue("username")
 		region := r.FormValue("region")
@@ -84,17 +84,37 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Println(region, pais)
 			if padre_id == 0 || padre_id == 1 {
-				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE region SET region=? WHERE id = ?", region, edit_id)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-					output = "<div class='form-group text-danger'>Fallo al modificar región</div>"
-				} else {
-					output = "<div class='form-group text-success'>Región modificada correctamente</div>"
+				//Buscamos las regiones asociadas a un determinado pais
+				query, err := db.Query("SELECT region FROM region WHERE pais_id = ? AND id != ?", pais, edit_id)
+				if err != nil {
+					Warning.Println(err)
 				}
+				for query.Next() {
+					err = query.Scan(&reg_name)
+					if err != nil {
+						Error.Println(err)
+					}
+					//Si hay alguno, el contador incrementa
+					if reg_name == region {
+						cont++
+					}
+				}
+				//Cont = 0, no hay region asociada a pais
+				if cont == 0 {
+					db_mu.Lock()
+					_, err1 := db.Exec("UPDATE region SET region=? WHERE id = ?", region, edit_id)
+					db_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
+						output = "<div class='form-group text-danger'>Fallo al modificar región</div>"
+					} else {
+						output = "<div class='form-group text-success'>Región modificada correctamente</div>"
+					}
+				} else {
+					output = "<div class='form-group text-danger'>El país ya tiene esa región asociada</div>"
+				}
+				
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una región</div>"
 			}
@@ -135,7 +155,7 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
-		fmt.Fprintf(w, "id=%d&region=%s&pais=%d", id_reg, region, id_pais)
+		fmt.Fprintf(w, "id=%d&region=%s&id_pais=%d", id_reg, region, id_pais)
 	}
 	//MOSTRAR UN SELECT DE PAISES SEGUN SU ALMACEN
 	if accion == "show_paises" {
