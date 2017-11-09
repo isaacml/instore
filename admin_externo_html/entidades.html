@@ -245,16 +245,6 @@
 				table();
 	        });
         });
-        $("#st_ent").change(function(){
-            $.post("/entidades.cgi?sid={{sid}}&accion=edit_status", $("#testform").serialize(), function(data, status) {
-                if (data == "OK"){
-                    $("#st_ent").hide();
-                    $("#id").val("");
-				    $("#entidad").val("");
-                    location.reload();
-                }
-            });
-        });
 	});
     //Función que carga los datos de las Entidades
 	function table(){
@@ -275,6 +265,16 @@
     		});
 		});
 	}
+    function status(){
+        $.post("/entidades.cgi?sid={{sid}}&accion=edit_status", $("#testform").serialize(), function(data, status) {
+            if (data == "OK"){
+                $("#st_ent").hide();
+                $("#id").val("");
+                $("#entidad").val("");
+                location.reload();
+            }
+        });
+    }
 	</script>
 </body>
 </html>
