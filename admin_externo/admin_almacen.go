@@ -39,6 +39,11 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/almacenes.cgi", "accion;load_almacen", "edit_id;"+r.FormValue("load")))
 			fmt.Fprint(w, respuesta)
 		}
+		//Borrar un almacen concreto
+		if accion == "del_alm" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/almacenes.cgi", "accion;del_alm", "borrar;"+r.FormValue("borrar")))
+			fmt.Fprint(w, respuesta)
+		}
 		//Envio de datos al server_ext:  Generar un select de entidades para poder añadir un nuevo almacen
 		if accion == "show_ent" {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/almacenes.cgi", "accion;show_ent", "username;"+username))

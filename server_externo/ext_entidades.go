@@ -144,12 +144,13 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			f_creacion = libs.FechaCreacion(tiempo)
 			//Se evalua el estado
 			if status == 1 {
-				st = "ON"
+				st = "<option value='1' selected>ON</option><option value='0'>OFF</option>"
 			} else {
-				st = "OFF"
+				st = "<option value='1'>ON</option><option value='0' selected>OFF</option>"
 			}
-			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td><td>%s</td><td>%s</td></tr>",
-				id, nombre, f_creacion, st)
+			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td>"
+			cadena += "<td>%s</td><td><select id='st_ent' name='st_ent'>%s</select></td></tr>"
+			fmt.Fprintf(w, cadena, id, nombre, f_creacion, st)
 		}
 	}
 	//CARGA LOS DATOS DE ENTIDAD EN UN FORMULARIO

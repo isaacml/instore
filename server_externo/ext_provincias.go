@@ -183,6 +183,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
+			fmt.Fprint(w, "OK")
 		} else {
 			fmt.Fprint(w, "<div class='form-group text-danger'>Necesario borrar tiendas de las que depende</div>")
 		}

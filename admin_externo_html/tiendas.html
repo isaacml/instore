@@ -336,6 +336,12 @@
 	}
     //Borrar una tienda
 	function borrar(id){
+        $("#modificar").hide();
+        $("#enviar").show();
+        $("#tienda").val("");
+        $("#address").val("");
+        $("#phone").val("");
+        $("#extra").val("");
         if(confirm("¿Seguro que quieres borrar esta tienda?")){
             $.post("/tiendas.cgi?sid={{sid}}&accion=del_tienda", "borrar="+id , function(data, status) {
                 location.reload();

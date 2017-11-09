@@ -39,6 +39,11 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;load_region", "edit_id;"+r.FormValue("load")))
 			fmt.Fprint(w, respuesta)
 		}
+		//Borrar una region concreta
+		if accion == "del_reg" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;del_reg", "borrar;"+r.FormValue("borrar")))
+			fmt.Fprint(w, respuesta)
+		}
 		//Envio de datos al server_ext: Generar un select de paises para poder añadir una nueva region
 		if accion == "show_paises" {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/regiones.cgi", "accion;show_paises", "alm;"+r.FormValue("almacen")))

@@ -39,6 +39,11 @@ func paises(w http.ResponseWriter, r *http.Request) {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/paises.cgi", "accion;load_pais", "edit_id;"+r.FormValue("load")))
 			fmt.Fprint(w, respuesta)
 		}
+		//Borrar un país concreto
+		if accion == "del_pais" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/paises.cgi", "accion;del_pais", "borrar;"+r.FormValue("borrar")))
+			fmt.Fprint(w, respuesta)
+		}
 		//Envio de datos al server_ext: Generar un select de almacenes para poder añadir un nuevo pais
 		if accion == "show_almacen" {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/paises.cgi", "accion;show_almacen", "username;"+username))

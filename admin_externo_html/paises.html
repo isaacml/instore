@@ -265,6 +265,24 @@
     		});
 		});
 	}
+    //Borrar un pais
+	function borrar(id){
+        $("#modificar").hide();
+        $("#enviar").show();
+        $("#id").val("");
+        $("#almacen").val("");
+        $("#pais").val("");
+        if(confirm("¿Seguro que quieres borrar este país?")){
+            $.post("/paises.cgi?sid={{sid}}&accion=del_pais", "borrar="+id , function(data, status) {
+                if (data == "OK"){ 
+                    location.reload();
+                }else{
+                    $("#stat").show();
+                    $("#stat").html(data); 
+                }
+            });
+        }    
+    }
 	</script>
 </body>
 </html>

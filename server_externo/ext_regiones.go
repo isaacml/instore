@@ -141,8 +141,10 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			}
 			//Se obtiene la fecha de creacion de un almacen
 			f_creacion := libs.FechaCreacion(tiempo)
-			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar región'>%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>",
-				id, region, f_creacion, almacen, pais)
+			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar región'>%s</a>"
+			cadena += "<a href='#' onclick='borrar(%d)' title='Borrar región' style='float:right'><span class='fa fa-trash-o'></a></td>"
+			cadena += "<td>%s</td><td>%s</td><td>%s</td></tr>"
+			fmt.Fprintf(w, cadena, id, region, id, f_creacion, almacen, pais)
 		}
 	}
 	//CARGA LOS DATOS DE UNA REGION EN UN FORMULARIO
@@ -155,6 +157,28 @@ func regiones(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		fmt.Fprintf(w, "id=%d&region=%s&id_pais=%d", id_reg, region, id_pais)
+	}
+	//BORRAR UNA REGION
+	if accion == "del_reg" {
+		var cont int
+		query, err := db.Query("SELECT * FROM provincia WHERE region_id = ?", r.FormValue("borrar"))
+		if err != nil {
+			Error.Println(err)
+		}
+		for query.Next() {
+			cont++
+		}
+		if cont == 0 {
+			db_mu.Lock()
+			_, err := db.Exec("DELETE FROM region WHERE id = ?", r.FormValue("borrar"))
+			db_mu.Unlock()
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Fprint(w, "OK")
+		} else {
+			fmt.Fprint(w, "<div class='form-group text-danger'>Necesario borrar provincias de las que depende</div>")
+		}
 	}
 	//MOSTRAR UN SELECT DE PAISES SEGUN SU ALMACEN
 	if accion == "show_paises" {

@@ -144,8 +144,10 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 			}
 			//Se obtiene la fecha de creacion de un almacen
 			f_creacion := libs.FechaCreacion(tiempo)
-			fmt.Fprintf(w, "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar almacen'>%s</a></td><td>%s</td><td>%s</td></tr>",
-				id, almacen, f_creacion, entidad)
+			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar almacen'>%s</a>"
+			cadena += "<a href='#' onclick='borrar(%d)' title='Borrar almacen' style='float:right'><span class='fa fa-trash-o'></a></td>"
+			cadena += "<td>%s</td><td>%s</td></tr>"
+			fmt.Fprintf(w, cadena, id, almacen, id, f_creacion, entidad)
 		}
 	}
 	//CARGA LOS DATOS DE UN ALMACEN EN UN FORMULARIO
@@ -163,6 +165,28 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			fmt.Fprintf(w, "id=%d&almacen=%s&entidad=%d", id, almacen, ent_id)
+		}
+	}
+	//BORRAR UN ALMACEN
+	if accion == "del_alm" {
+		var cont int
+		query, err := db.Query("SELECT * FROM pais WHERE almacen_id = ?", r.FormValue("borrar"))
+		if err != nil {
+			Error.Println(err)
+		}
+		for query.Next() {
+			cont++
+		}
+		if cont == 0 {
+			db_mu.Lock()
+			_, err := db.Exec("DELETE FROM almacenes WHERE id = ?", r.FormValue("borrar"))
+			db_mu.Unlock()
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Fprint(w, "OK")
+		} else {
+			fmt.Fprint(w, "<div class='form-group text-danger'>Necesario borrar paises de los que depende</div>")
 		}
 	}
 	//MOSTRAR UN SELECT DE ENTIDADES SEGUN SU CREADOR (almacenes.html)
