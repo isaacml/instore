@@ -149,8 +149,8 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 				st = "<option value='1'>ON</option><option value='0' selected>OFF</option>"
 			}
 			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar entidad'>%s</a></td>"
-			cadena += "<td>%s</td><td><select id='st_ent' name='st_ent'>%s</select></td></tr>"
-			fmt.Fprintf(w, cadena, id, nombre, f_creacion, st)
+			cadena += "<td>%s</td><td><select onchange='status(this.value, %d)'>%s</select></td></tr>"
+			fmt.Fprintf(w, cadena, id, nombre, f_creacion, id, st)
 		}
 	}
 	//CARGA LOS DATOS DE ENTIDAD EN UN FORMULARIO
@@ -172,7 +172,6 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 	}
 	//MODIFICA EL ESTADO DE LA ENTIDAD
 	if accion == "edit_status" {
-		var output string
 		edit_id := r.FormValue("edit_id")
 		st_ent := r.FormValue("st_ent")
 		db_mu.Lock()
@@ -180,10 +179,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err1 != nil {
 			Error.Println(err1)
-			output = "FAIL"
-		} else {
-			output = "OK"
 		}
-		fmt.Fprint(w, output)
+		fmt.Fprint(w, "<div class='form-group text-success'>Se ha cambiado el estado</div>")
 	}
 }

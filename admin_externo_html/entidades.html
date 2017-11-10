@@ -153,17 +153,13 @@
                                 <div class="form-group">
                                     <input class="form-control" id="entidad" placeholder='Nombre de la Entidad' name='entidad' type='text' autofocus> 
                                 </div>
-                                <div class="form-group" align="center">
-                                    <select id="st_ent" name="st_ent">
-                                        <option value='1'>ON</option>
-                                        <option value='0'>OFF</option>
-                                    </select>
-                                </div>
                                 <div class="form-group" align="center" id="stat"></div>
                             </fieldset>
                         </form>
                         <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
                         <button id="modificar" class="btn btn-lg btn-success btn-block" name="modificar">Modificar</button>
+                        <br>
+                        <div class="form-group" align="center" id="stat2"></div>
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -188,8 +184,7 @@
                                             <th>Estado</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabla">
-                                    </tbody>
+                                    <tbody id="tabla"></tbody>
                                 </table> 
                             </div>
                         </div>
@@ -206,6 +201,7 @@
 	$(document).ready(function(){
         table();
         $("#stat").hide();
+        $("#stat2").hide();
         $("#modificar").hide();
         $("#st_ent").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
@@ -265,15 +261,16 @@
     		});
 		});
 	}
-    function status(){
-        $.post("/entidades.cgi?sid={{sid}}&accion=edit_status", $("#testform").serialize(), function(data, status) {
-            if (data == "OK"){
-                $("#st_ent").hide();
-                $("#id").val("");
-                $("#entidad").val("");
-                location.reload();
-            }
-        });
+    //Función que cambia el estado de una entidad
+    function status(val, id){
+        if(confirm("¿Seguro que quiere cambiar el estado?")){
+            $.post("/entidades.cgi?sid={{sid}}&accion=edit_status", "st_ent="+val+"&id="+id, function(data, status) {
+                $("#stat2").show();
+                $("#stat2").html(data);
+            });
+        }else{
+            location.reload();
+        }
     }
 	</script>
 </body>
