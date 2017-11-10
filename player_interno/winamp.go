@@ -23,8 +23,7 @@ func reproduccion() {
 			var gap int
 			var song string
 			//Sacamos la fecha actual
-			y, m, d := time.Now().Date()
-			fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+			fecha := libs.MyCurrentDate()
 			//INICIAL
 			fmt.Println("-" + statusProgammedMusic + "-")
 			//Obtenemos el GAP
