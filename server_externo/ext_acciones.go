@@ -51,7 +51,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		var st_ent int
 		err := db.QueryRow("SELECT status FROM entidades WHERE nombre = ?", r.FormValue("ent")).Scan(&st_ent)
 		if err != nil {
-			Error.Println(err)
+			Warning.Println(err)
 		}
 		fmt.Fprint(w, st_ent)
 	}
