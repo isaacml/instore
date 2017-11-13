@@ -21,15 +21,17 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 		}
 		//Envio de datos al server_ext: Cambiar el usuario y contraseña del usuario activo/propio
 		if accion == "own_user" {
+			var output string
 			//Eliminamos puntos, dos puntos y puntos comas
 			clearUser := libs.DeleteSplitsChars(r.FormValue("username"))
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/usuarios.cgi", "accion;own_user", "username;"+clearUser, "old_user;"+username, "password;"+r.FormValue("pass"), "repeat-password;"+r.FormValue("repeat-password")))
 			if respuesta == "OK" {
-				fmt.Fprintf(w, "<div class='form-group text-success'>Datos modificados correctamente</div>", good)
 				username = clearUser //Al cambiar el nombre de usuario, es necesario actualizar la variable global username
+				output = "<div class='form-group text-success'>Datos modificados correctamente</div>"
 			} else {
-				fmt.Fprint(w, respuesta)
+				output = respuesta
 			}
+			fmt.Fprint(w, output)
 		}
 		//Envio de datos al server_ext: Alta de nuevo usuario
 		if accion == "new_user" {

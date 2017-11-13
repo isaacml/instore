@@ -54,13 +54,12 @@ func init() {
 
 // funcion principal del programa
 func main() {
-
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
-	go saveListInBD()
+	go estado_de_entidad()
 	go solicitudDeFicheros()
 	go reproduccion()
-	go libs.IsEntAvailable(configShop, serverint["serverinterno"], estado_entidad, db_mu)
+	go saveListInBD()
 	go reproduccion_msgs()
 
 	// handlers del servidor HTTP
@@ -424,6 +423,15 @@ func solicitudDeFicheros() {
 				}
 			}
 		}
+		time.Sleep(1 * time.Minute)
+	}
+}
+
+//Toma el estado del server_ext y lo guarda en una variable global
+func estado_de_entidad() {
+	for {
+		st := libs.IsEntAvailable(configShop, serverint["serverinterno"], db_mu)
+		estado_entidad = st
 		time.Sleep(1 * time.Minute)
 	}
 }

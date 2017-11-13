@@ -557,38 +557,36 @@ func PlaySong(song string, win winamp.Winamp) {
 IsEntAvailable: comprueba el estado de la entidad
 	file: Nombre del fichero que contiene el dominio (configShop)
 	path: Direccion IP+PUERTO
-	global_var: Variable global donde se guardará el resultado
 	mutex: Bloqueo de escritura en variable global
+Devuelve un entero con el valor del estado.
 */
-func IsEntAvailable(filename string, path string, global_var int, mutex sync.RWMutex) {
-	for {
-		var dom string
-		fr, err := os.Open(filename)
-		defer fr.Close()
-		if err == nil {
-			reader := bufio.NewReader(fr)
-			for {
-				linea, rerr := reader.ReadString('\n')
-				if rerr != nil {
-					break
-				}
-				linea = strings.TrimRight(linea, "\r\n")
-				item := strings.Split(linea, " = ")
-				//se obtiene el dominio principal
-				if item[0] == "shopdomain" {
-					dom = item[1]
-				}
+func IsEntAvailable(filename string, path string, mutex sync.RWMutex) int {
+	var dom string
+	fr, err := os.Open(filename)
+	defer fr.Close()
+	if err == nil {
+		reader := bufio.NewReader(fr)
+		for {
+			linea, rerr := reader.ReadString('\n')
+			if rerr != nil {
+				break
+			}
+			linea = strings.TrimRight(linea, "\r\n")
+			item := strings.Split(linea, " = ")
+			//se obtiene el dominio principal
+			if item[0] == "shopdomain" {
+				dom = item[1]
 			}
 		}
-		//Nos quedamos con el ent[0] que contiende el nombre de la entidad.
-		ent := strings.Split(dom, ".")
-		res := GenerateFORM(path+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
-		mutex.Lock()
-		//Se guarda el resultado en la variable global
-		global_var, _ = strconv.Atoi(res)
-		mutex.Unlock()
-		time.Sleep(10 * time.Minute)
 	}
+	//Nos quedamos con el ent[0] que contiende el nombre de la entidad.
+	ent := strings.Split(dom, ".")
+	res := GenerateFORM(path+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
+	mutex.Lock()
+	//Se guarda el resultado en la variable global
+	out, _ := strconv.Atoi(res)
+	mutex.Unlock()
+	return out
 }
 
 /*
