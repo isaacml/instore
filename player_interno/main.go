@@ -432,7 +432,7 @@ func estado_de_entidad() {
 	for {
 		st := libs.IsEntAvailable(configShop, serverint["serverinterno"], db_mu)
 		estado_entidad = st
-		time.Sleep(1 * time.Minute)
+		time.Sleep(10 * time.Minute)
 	}
 }
 

@@ -38,6 +38,27 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, existe)
 	}
+	//Muestra los datos de configuracion de la tienda: dominio principal y extras
+	if accion == "dataConfig" {
+		var dominios string
+		domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
+		loadSettings(configShop, domainint)
+		for key, val := range domainint {
+			if key == "shopdomain" {
+				dominios += fmt.Sprintf("<tr><th>Dominio Principal:</th><td>&nbsp;</td><td>%s</td></tr>", val)
+			} else {
+				dominios += fmt.Sprintf("<tr><th>Dominio Secundario:</th><td>&nbsp;</td><td>%s</td></tr>", val)
+			}
+		}
+		fmt.Fprint(w, dominios)
+	}
+	//Elimina el fichero de configuracion de la tienda para volver a ser configurada
+	if accion == "reconfigure" {
+		err := os.Remove(configShop)
+		if err != nil {
+			Error.Println(err)
+		}
+	}
 }
 
 //Reproductor de Mensajes Instantaneos

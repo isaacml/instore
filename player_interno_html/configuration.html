@@ -115,38 +115,19 @@
                 </div>
             </div>
         </nav>
-        <div id="page-wrapper">
-           <br>
+        <div id="page-wrapper"><br>
             <div class="row">
-                <div class="col-md-6 col-md-offset-3">
+                <div class="col-md-8 col-md-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Añadir Música Sin Cifrar
+                            Datos de Configuración Actual
                         </div>
                         <div class="panel-body" align="center">
-                            <form id="testform" action="" method="post">
-                                <fieldset>
-                                    <h5 class="text-muted">Unidades de Disco</h5>
-                                    <br>
-                                    <div class="form-group">
-                                        <select id="unidades" name="unidades" style="width:30%;"></select>
-                                    </div>   
-                                </fieldset>
-                            </form>
-                        </div>
-                        <div class="panel-body" align="center">
-                            <form id="testform1" action="" method="post">
-                                <fieldset>
-                                    <h5 class="text-muted">Selecciona los directorios que quieres añadir</h5>
-                                    <br>
-                                    <div class="form-group">
-                                        <select id="directory" name="directory" multiple></select>
-                                    </div>
-                                    <div class="form-group" id="statdir"></div>
-                                    <br>     
-                                </fieldset>
-                            </form>
-                            <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
+                            <fieldset>
+                                <table id="dataConfig"></table>
+                            </fieldset>
+                            <br>
+                            <button id="send" class="btn btn-lg btn-success" name="send">Reconfigurar</button>
                         </div>
                     </div>
                 </div>
@@ -155,9 +136,6 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
-            $("#statdir").hide();
-            $("#statsend").hide();
-            $("#dest_stat").hide();
             $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
                 var res = data.split(";");
                 if (res[1] == 0){
@@ -173,30 +151,20 @@
                     $("#zona_mNoCif_top").hide();
                     $("#zona_CifNoCif").hide();
                 }
+            });            
+            $.post("/acciones.cgi?sid={{sid}}&accion=dataConfig", function(data, status) {
+                $("#dataConfig").html(data);
             });
-            $.post("/explorerMusic.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
-                $("#unidades").html(data);
-            });
-            $("#unidades").change(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
-                    var res = data.split(";");
-                    $("#directory").html(res[0]);
-                    $("#statdir").show();
-                    $("#statdir").html(res[1]);
-                });
-            });
-            $("#directory").dblclick(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
-                    var res = data.split(";");
-                    $("#directory").html(res[0]);
-                    $("#statdir").show();
-                    $("#statdir").html(res[1]);
-                });
-            });
-            $("#enviar").click(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=noCifDirs", $("#testform1").serialize(), function(data, status) {});
+            $("#send").click(function(){
+                if(confirm("¿Seguro que quiere volver a configurar la tienda?")){
+                    $.post("/acciones.cgi?sid={{sid}}&accion=reconfigure", function(data, status) {
+                        $.post("/logout.cgi?sid={{sid}}", function(data, status) {
+                           location.reload(); 
+                        });
+                    });
+                }
             });
         });
-	</script>
+    </script>
 </body>
 </html>
