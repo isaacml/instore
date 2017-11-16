@@ -71,6 +71,7 @@
                             <li id="zona_mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
                             <li id="prog_music_top"><a href="prog.html?{{sid}}"><i class="fa fa-bars fa-fw"></i> Programar</a></li>
                             <li><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Instantaneos</a></li>
+                            <li><a href="configuration.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a></li>
                             <li class="divider"></li>
                             <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
                         </ul>
@@ -103,10 +104,7 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="adddomain.html?{{sid}}">Más Dominios</a>
-                        </li>
-                        <li>
-                            <a href="configuration.html?{{sid}}">Configuración</a>
+                            <a href="configuration.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a>
                         </li>
                         <li class="visible-xs">
                             <a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i>Desconectar</a>
@@ -120,15 +118,37 @@
                 <div class="col-md-8 col-md-offset-2">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Datos de Configuración Actual
+                            Añadir Dominios Adicionales
                         </div>
                         <div class="panel-body" align="center">
-                            <fieldset>
-                                <table id="dataConfig"></table>
-                            </fieldset>
-                            <br>
-                            <button id="send" class="btn btn-lg btn-success" name="send">Reconfigurar</button>
+                            <form id="testform" action="/config_shop.cgi?sid={{sid}}&accion=extra_domains" method="post">
+                                <fieldset>
+                                    <div id='entidad'></div>
+                                    <div id='almacen'></div>
+                                    <div id='pais'></div>
+                                    <div id='region'></div>
+                                    <div id='provincia'></div>
+                                    <div id='tienda'></div>
+                                    <div class='panel-body' id="dom_container"></div>
+                                </fieldset>
+                                <br>
+                                <input id="enviar" type="submit" class="btn btn-lg btn-success" value="Enviar"/>
+                            </form>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10 col-md-offset-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Dominios Actuales
+                    </div>
+                    <div class="panel-body" align="center">
+                        <fieldset>
+                            <table id="dataConfig"></table>
+                        </fieldset>
+                        <br>
+                        <button id="send" class="btn btn-lg btn-success" name="send">Reconfigurar</button>
                     </div>
                 </div>
             </div>
@@ -136,6 +156,9 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
+            $("#statdir").hide();
+            $("#statsend").hide();
+            $("#dest_stat").hide();
             $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
                 var res = data.split(";");
                 if (res[1] == 0){
@@ -154,6 +177,64 @@
             });            
             $.post("/acciones.cgi?sid={{sid}}&accion=dataConfig", function(data, status) {
                 $("#dataConfig").html(data);
+            });
+            $.post("/get_orgs.cgi?sid={{sid}}&action=entidades", function(data, status) {
+                $("#entidad").html(data);
+            });
+            $("#entidad").change(function() {
+                $("#pais").hide();
+                $("#region").hide();
+                $("#provincia").hide();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=almacenes", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#almacen").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#almacen").change(function() {
+                $("#pais").show();
+                $("#region").hide();
+                $("#provincia").hide();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=paises", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#pais").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#pais").change(function() {
+                $("#region").show();
+                $("#provincia").hide();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=regiones", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#region").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#region").change(function() {
+                $("#provincia").show();
+                $("#tienda").hide();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=provincias", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#provincia").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#provincia").change(function() {
+                $("#tienda").show();
+                $.post("/get_orgs.cgi?sid={{sid}}&action=tiendas", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#tienda").html(res[0]);
+                    $("#dom_container").html(res[1]);
+                });
+            });
+            $("#tienda").change(function() {
+                $.post("/get_orgs.cgi?sid={{sid}}&action=cod_tienda", $("#testform").serialize(), function(data, status) {
+                    var res = data.split(";");
+                    $("#dom_container").html(res[1]);
+                });
             });
             $("#send").click(function(){
                 if(confirm("¿Seguro que quiere volver a configurar la tienda?")){

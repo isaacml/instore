@@ -14,7 +14,7 @@ func reproduccion() {
 	for {
 		if estado_entidad != 0 {
 			if estado_entidad == 0 {
-				break
+				continue
 			}
 			var win winamp.Winamp
 			publi := make(map[int]string)
@@ -178,6 +178,7 @@ func reproduccion() {
 				}
 			}
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
