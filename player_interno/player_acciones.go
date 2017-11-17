@@ -9,9 +9,10 @@ import (
 	"strings"
 )
 
-//Bitmap de programacion de musica: con el se decide el tipo de reproduccion de la tienda
-//Reproduccion de música previamente programada o reproduccion de musica sin programar
-var bitmap_prog_music int
+//Bitmap de música no cifrada: valores posibles 0 o 1
+//0: solo se puede escuchar musica no cifrada
+//1: tanto música cifrada como no cifrada
+var st_music int
 
 func acciones(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -20,10 +21,9 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//Enviamos el nombre del usuario al server_interno y este lo pasará al server_externo
 	if accion == "bitmaps" {
 		respuesta := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
-		bitmap := strings.Split(respuesta, ";")
+		bit := strings.Split(respuesta, ";")
 		db_mu.Lock()
-		//Guardamos el bitmap de programar musica
-		bitmap_prog_music = toInt(bitmap[1])
+		st_music = toInt(bit[3])
 		db_mu.Unlock()
 		fmt.Fprint(w, respuesta)
 	}

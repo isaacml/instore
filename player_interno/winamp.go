@@ -55,7 +55,7 @@ func reproduccion() {
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					musica = libs.MusicToPlay(full_route)
+					musica = libs.MusicToPlay(full_route, st_music)
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -87,7 +87,7 @@ func reproduccion() {
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					musica = libs.MusicToPlay(full_route)
+					musica = libs.MusicToPlay(full_route, st_music)
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -119,7 +119,7 @@ func reproduccion() {
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					musica = libs.MusicToPlay(full_route)
+					musica = libs.MusicToPlay(full_route, st_music)
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -149,7 +149,7 @@ func reproduccion() {
 				}
 			} else {
 				var song string
-				musica = libs.MusicToPlay(music_files)
+				musica = libs.MusicToPlay(music_files, st_music)
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {

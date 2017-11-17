@@ -65,7 +65,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 						//Una vez generado el fichero configuracion de la tienda, redirigimos a menu.html con el SID correspondiente
 						_, ok := user[sid]
 						if ok {
-							estado_de_entidad()
+							estado_entidad = 1
 							http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusSeeOther)
 						}
 					}

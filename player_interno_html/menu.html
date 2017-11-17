@@ -83,10 +83,9 @@
                             <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li id="zona_mCif_top"><a href="musicCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Cifrada</a></li>
-                            <li id="zona_mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> No Cifrada</a></li>
+                            <li id="mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Añadir</a></li>
                             <li id="prog_music_top"><a href="prog.html?{{sid}}"><i class="fa fa-bars fa-fw"></i> Programar</a></li>
-                            <li><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Instantaneos</a></li>
+                            <li id="normalMsg_top"><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Mensaje Normal</a></li>
                             <li><a href="configuration.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a></li>
                             <li class="divider"></li>
                             <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
@@ -106,27 +105,19 @@
             <div class="navbar-default sidebar" role="navigation" id="action_shop">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        <li id="zona_CifNoCif">
+                        <li id="zona_musica">
                             <a href="#"><i class="fa fa-bars fa-fw"></i> Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li id="zona_mCif">
-                                    <a href="musicCif.html?{{sid}}">Cifrada</a>
-                                </li>
-                                <li id="zona_mNoCif">
-                                    <a href="musicNoCif.html?{{sid}}">No Cifrada</a>
+                                <li id="mNoCif">
+                                    <a href="musicNoCif.html?{{sid}}">Añadir</a>
                                 </li>
                                 <li id="prog_music">
                                     <a href="prog.html?{{sid}}">Programar</a>
                                 </li>
                             </ul>
                         </li>
-                        <li>
-                            <a href="#"><i class="fa fa-bars fa-fw"></i> Mensajes<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li>
-                                    <a href="msgIns.html?{{sid}}">Instantaneos</a>
-                                </li>
-                            </ul>
+                        <li id="normalMsg">
+                            <a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Mensaje Normal</a>
                         </li>
                         <li>
                             <a href="configuration.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a>
@@ -147,18 +138,26 @@
         $(document).ready(function(){
             $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
                 var res = data.split(";");
+                //Programar Música
                 if (res[1] == 0){
-                    $("#zona_mCif").hide();
-                    $("#zona_mCif_top").hide();
+                    $("#prog_music").hide();
+                    $("#prog_music_top").hide();
                 }
+                //Añadir Música
                 if (res[3] == 0){
-                    $("#zona_mNoCif").hide();
-                    $("#zona_mNoCif_top").hide();
+                    $("#mNoCif").hide();
+                    $("#mNoCif_top").hide();
                 }
-                if (res[3] == 0 && res[1] == 0){
-                    $("#zona_mCif_top").hide();
-                    $("#zona_mNoCif_top").hide();
-                    $("#zona_CifNoCif").hide();
+                //Mensajes Normales
+                if (res[5] == 0){
+                    $("#normalMsg").hide();
+                    $("#normalMsg_top").hide();
+                }
+                //Deshabilitar panel de musica completo
+                if (res[1] == 0 && res[3] == 0){
+                    $("#mNoCif_top").hide();
+                    $("#prog_music_top").hide();
+                    $("#zona_musica").hide();
                 }
             });
             $.post("/acciones.cgi?sid={{sid}}&accion=check_config", function(data, status) {

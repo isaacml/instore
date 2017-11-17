@@ -499,13 +499,20 @@ func Existencia(ruta string) bool {
 /*
 MusicToPlay: Esta función determina los ficheros que va a reproducir el player de la tienda.
 	ruta:  Ruta del directorio que va a contener los ficheros de música
+	st:    Estado de la música cifrada
 Devuelve un mapa con todos los ficheros a reproducir.
 */
-func MusicToPlay(ruta string) map[int]string {
+func MusicToPlay(ruta string, st int) map[int]string {
+	var cmd *exec.Cmd
 	a := 0
 	music := make(map[int]string)
-	//Se obtienen los ficheros del directorio y subdirectorios
-	cmd := exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx")
+	if st == 1 {
+		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
+		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx")
+	} else {
+		//Se obtienen los ficheros del directorio y subdirectorios (solo música cif)
+		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.xxx")
+	}
 	//comienza la ejecucion del pipe
 	stdoutRead, _ := cmd.StdoutPipe()
 	reader := bufio.NewReader(stdoutRead)
@@ -518,6 +525,7 @@ func MusicToPlay(ruta string) map[int]string {
 		music[a] = strings.TrimRight(line, "\r\n")
 		a++
 	}
+	fmt.Println("MUSICA: ", music)
 	return music
 }
 
