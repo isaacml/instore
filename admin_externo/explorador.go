@@ -34,7 +34,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 		}
 		output = "<option value='' selected>[Selecciona una unidad]</option>"
 		res := strings.Split(string(drives), ": ")
-		limpiar := strings.TrimSpace(string(limpiar_matriz([]byte(res[1]))))
+		limpiar := strings.TrimSpace(string(libs.LimpiarMatriz([]byte(res[1]))))
 		unidades := strings.Split(limpiar, "\\")
 		for _, v := range unidades {
 			v = strings.TrimSpace(v)
@@ -133,7 +133,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			for k, v := range ruta {
 				if v == "" {
 					//Borramos el valor nulo, y volvemos a formar un nuevo array
-					arr_sin_vacios = RemoveIndex(ruta, k)
+					arr_sin_vacios = libs.RemoveIndex(ruta, k)
 				}
 			}
 			contador = len(arr_sin_vacios) - 1
@@ -656,20 +656,4 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-}
-
-//Función que limpia de carácteres nulos la matriz salida de windows
-func limpiar_matriz(matriz []byte) []byte {
-	var matriz_limpiada []byte
-	for _, v := range matriz {
-		if v != 0 {
-			matriz_limpiada = append(matriz_limpiada, v)
-		}
-	}
-	return matriz_limpiada
-}
-
-//Función para borrar un slice vacio
-func RemoveIndex(s []string, index int) []string {
-	return append(s[:index], s[index+1:]...)
 }

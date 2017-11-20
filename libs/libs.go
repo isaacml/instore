@@ -370,6 +370,7 @@ func RemoveDuplicates(domains []string) []string {
 
 /*
 LimpiarMatriz: Limpia de carácteres nulos la matriz salida de windows
+	matriz: nombre de la matriz
 */
 func LimpiarMatriz(matriz []byte) []byte {
 	var matriz_limpiada []byte
@@ -525,7 +526,6 @@ func MusicToPlay(ruta string, st int) map[int]string {
 		music[a] = strings.TrimRight(line, "\r\n")
 		a++
 	}
-	fmt.Println("MUSICA: ", music)
 	return music
 }
 
@@ -562,13 +562,11 @@ func PlaySong(song string, win winamp.Winamp) {
 }
 
 /*
-IsEntAvailable: comprueba el estado de la entidad
+MainDomain: Obtener el dominio principal de la tienda
 	file: Nombre del fichero que contiene el dominio (configShop)
-	path: Direccion IP+PUERTO
-	mutex: Bloqueo de escritura en variable global
-Devuelve un entero con el valor del estado.
+Devuelve el dominio principal de la tienda al completo
 */
-func IsEntAvailable(filename string, path string, mutex sync.RWMutex) int {
+func MainDomain(filename string) string {
 	var dom string
 	fr, err := os.Open(filename)
 	defer fr.Close()
@@ -587,6 +585,19 @@ func IsEntAvailable(filename string, path string, mutex sync.RWMutex) int {
 			}
 		}
 	}
+	return dom
+}
+
+/*
+IsEntAvailable: comprueba el estado de la entidad
+	file: Nombre del fichero que contiene el dominio (configShop)
+	path: Direccion IP+PUERTO
+	mutex: Bloqueo de escritura en variable global
+Devuelve un entero con el valor del estado.
+*/
+func IsEntAvailable(filename string, path string, mutex sync.RWMutex) int {
+	//Se obtiene el dominio completo
+	dom := MainDomain(filename)
 	//Nos quedamos con el ent[0] que contiende el nombre de la entidad.
 	ent := strings.Split(dom, ".")
 	res := GenerateFORM(path+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])

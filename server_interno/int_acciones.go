@@ -51,7 +51,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//Envia user y pass hacia el server_externo
 	if accion == "login_tienda" {
 		//Se pasan las variables de autenticación
-		output = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/login.cgi", "user;"+r.FormValue("user"), "pass;"+r.FormValue("pass")))
+		output = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/login.cgi", "user;"+r.FormValue("user"), "pass;"+r.FormValue("pass"), "domain;"+r.FormValue("domain")))
 	}
 	//Pasa el nombre de usuario al servidor externo, nos devuelve los permisos para ese usuario
 	if accion == "bitmaps" {

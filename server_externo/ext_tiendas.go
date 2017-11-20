@@ -53,11 +53,11 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 						cont++ //Si hay alguna tienda, el contador incrementa
 					}
 				}
-				//Cont = 0, no hay ninguna region
+				//Cont = 0, no hay ninguna tienda
 				if cont == 0 {
 					timestamp := time.Now().Unix()
 					db_mu.Lock()
-					_, err1 := db.Exec("INSERT INTO tiendas (`tienda`, `creador_id`, `timestamp`, `provincia_id`, `address`, `phone`, `extra`) VALUES (?, ?, ?, ?, ?, ?, ?)", tienda, id, timestamp, provincia, address, phone, extra)
+					_, err1 := db.Exec("INSERT INTO tiendas (`tienda`, `creador_id`, `timestamp`, `provincia_id`, `address`, `phone`, `extra`, `last_connect`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", tienda, id, timestamp, provincia, address, phone, extra, timestamp)
 					db_mu.Unlock()
 					if err1 != nil {
 						Error.Println(err1)

@@ -12,7 +12,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	var publicidad, mensajes string
 	accion := r.FormValue("accion") //De aqui tomamos la opcion de servir un fichero publi o msg
 	//ZONA DE PUBLICIDAD
-	if accion == "publicidad"{
+	if accion == "publicidad" {
 		publicidad = strings.TrimRight(publi_files_location+r.URL.Path[1:], "/")
 		filepubliinfo, err := os.Stat(publicidad)
 		if err != nil {
@@ -35,7 +35,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 			//Se sirven todos los ficheros de publicidad
 			http.ServeContent(w, r, publicidad, filepubliinfo.ModTime(), fr)
 		}
-	}else if accion == "mensaje"{
+	} else if accion == "mensaje" {
 		//ZONA DE MENSAJES
 		mensajes = strings.TrimRight(msg_files_location+r.URL.Path[1:], "/")
 		filemsginfo, err := os.Stat(mensajes)
