@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 //Función que tramita el formulario de la página(config_shop.html)
@@ -42,6 +43,7 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 func config_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	accion := r.FormValue("accion")
+	timestamp := time.Now().Unix()
 	//Guarda el dominio principal(de un usuario) en el fichero de configuracion
 	if accion == "gen_config_file" {
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;save_domain"))
@@ -66,6 +68,17 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 						_, ok := user[sid]
 						if ok {
 							estado_entidad = 1
+							//Guardamos en la base de datos interna de la tienda, el dominio y la ultima conexion
+							shop, err := db.Prepare("INSERT INTO tienda (`dominio`, `last_connect`) VALUES (?,?)")
+							if err != nil {
+								Error.Println(err)
+							}
+							db_mu.Lock()
+							_, err1 := shop.Exec(domain, timestamp)
+							db_mu.Unlock()
+							if err1 != nil {
+								Error.Println(err1)
+							}
 							http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusSeeOther)
 						}
 					}

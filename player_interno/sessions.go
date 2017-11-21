@@ -61,10 +61,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 			agente = v[0]
 		}
 	}
-	//Dominio completo de la tienda
-	dom := libs.MainDomain(configShop)
 	//SE PASAN LAS VARIABLES POST AL SERVIDOR INTERNO
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;login_tienda", "user;"+username, "pass;"+password, "domain;"+dom))
+	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;login_tienda", "user;"+username, "pass;"+password))
 	//RECOGEMOS LA RESPUESTA
 	if respuesta == "OK" {
 		//Cuando se repite autenticacion de usuario
@@ -88,7 +86,16 @@ func login(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		// Guardamos constancia de la session en nuestros mapas internos, si es la primera vez que se autentica
+		timestamp := time.Now().Unix()
+		//Dominio principal de la tienda guardado en el fichero de configuracion
+		domain := libs.MainDomain(configShop)
+		db_mu.Lock()
+		_, err1 := db.Exec("UPDATE tienda SET last_connect = ? WHERE dominio = ?", timestamp, domain)
+		db_mu.Unlock()
+		if err1 != nil {
+			Error.Println(err1)
+		}
+		//Guardamos constancia de la session en nuestros mapas internos, si es la primera vez que se autentica
 		user[sid] = username
 		ip[sid] = ipReal
 		tiempo[sid] = expiration

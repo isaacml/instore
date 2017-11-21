@@ -57,6 +57,7 @@ func main() {
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go estado_de_entidad()
+	go estado_de_tienda()
 	go solicitudDeFicheros()
 	go reproduccion()
 	go saveListInBD()
@@ -434,6 +435,32 @@ func estado_de_entidad() {
 		estado_entidad = st
 		time.Sleep(10 * time.Minute)
 	}
+}
+
+func estado_de_tienda() {
+	for {
+		if estado_entidad == 0 {
+
+		} else {
+			var last_connect int64
+			var seg_del_mes int64
+			year, mes, _ := time.Now().Date()
+			timestamp := time.Now().Unix()
+			dias_del_mes := int64(daysIn(mes, year))
+			seg_del_mes = dias_del_mes * 4
+			dom := libs.MainDomain(configShop)
+			//tomamos la ultima conexion de la tienda
+			db.QueryRow("SELECT last_connect FROM tienda WHERE dominio=?", dom).Scan(&last_connect)
+			if last_connect-(timestamp-seg_del_mes) < 0 {
+				fmt.Println("Desconectamos")
+			}
+		}
+		time.Sleep(5 * time.Second)
+	}
+}
+func daysIn(m time.Month, year int) int {
+	// This is equivalent to time.daysIn(m, year).
+	return time.Date(year, m+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
 
 /*
