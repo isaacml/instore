@@ -12,8 +12,10 @@ import (
 //Zona de reproduccion del player de la tienda
 func reproduccion() {
 	for {
-		if estado_entidad != 0 {
-			if estado_entidad == 0 {
+		if block == false {
+			fmt.Println("aqui1")
+			if block == true {
+				fmt.Println("aqui2")
 				continue
 			}
 			var win winamp.Winamp
@@ -46,6 +48,7 @@ func reproduccion() {
 			//Comprobamos si winamp está abierto
 			isOpen := win.WinampIsOpen()
 			if isOpen == false {
+				fmt.Println("aqui3")
 				//Rulamos el Winamp
 				win.RunWinamp()
 				time.Sleep(1 * time.Second)
@@ -60,7 +63,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" || estado_entidad == 0 {
+					if statusProgammedMusic == "Actualizada" || block == true {
 						break
 					}
 					song = musica[v]
@@ -92,7 +95,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Modificar" || estado_entidad == 0 {
+					if statusProgammedMusic == "Modificar" || block == true {
 						break
 					}
 					song = musica[v]
@@ -124,7 +127,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" || estado_entidad == 0 {
+					if statusProgammedMusic == "Actualizada" || block == true {
 						break
 					}
 					song = musica[v]
@@ -153,7 +156,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Inicial" || estado_entidad == 0 {
+					if statusProgammedMusic == "Inicial" || block == true {
 						break
 					}
 					song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif

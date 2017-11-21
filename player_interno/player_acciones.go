@@ -58,7 +58,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Error.Println(err)
 		}
-		estado_entidad = 0
+		block = true
 	}
 }
 

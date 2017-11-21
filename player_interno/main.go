@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -28,7 +29,7 @@ var (
 	username             string                                      //Variable de usuario y estado global
 	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
-	estado_entidad       int                                         //Guarda el estado de activo de la entidad: 0 - OFF / 1 - ON
+	block       		 bool	                                     //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
 
 )
 
@@ -57,7 +58,6 @@ func main() {
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go estado_de_entidad()
-	go estado_de_tienda()
 	go solicitudDeFicheros()
 	go reproduccion()
 	go saveListInBD()
@@ -105,7 +105,7 @@ func saveListInBD() {
 		fecha := libs.MyCurrentDate()
 		//Si el fichero de configuracion existe, enviamos dominio/os de la tienda
 		if existe == true {
-			if estado_entidad == 1 {
+			if block == false {
 				var dominios string
 				domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
 				loadSettings(configShop, domainint)
@@ -428,39 +428,37 @@ func solicitudDeFicheros() {
 	}
 }
 
-//Toma el estado del server_ext y lo guarda en una variable global
+//Toma el estado de entidad y se desarrolla el proceso de bloqueo de la tienda
 func estado_de_entidad() {
 	for {
-		st := libs.IsEntAvailable(configShop, serverint["serverinterno"], db_mu)
-		estado_entidad = st
-		time.Sleep(10 * time.Minute)
-	}
-}
-
-func estado_de_tienda() {
-	for {
-		if estado_entidad == 0 {
-
-		} else {
+		//Se obtiene el dominio completo
+		dom := libs.MainDomain(configShop)
+		//Nos quedamos con el ent[0] que contiende el nombre de la entidad.
+		ent := strings.Split(dom, ".")
+		res := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
+		db_mu.Lock()
+		//Guarda el estado de activo de la entidad: 0 - OFF / 1 - ON
+		estado_entidad, _ := strconv.Atoi(res)
+		db_mu.Unlock()
+		if estado_entidad == 1 { //ON
 			var last_connect int64
 			var seg_del_mes int64
 			year, mes, _ := time.Now().Date()
 			timestamp := time.Now().Unix()
-			dias_del_mes := int64(daysIn(mes, year))
+			dias_del_mes := libs.DaysIn(mes, year)
 			seg_del_mes = dias_del_mes * 4
-			dom := libs.MainDomain(configShop)
-			//tomamos la ultima conexion de la tienda
+			//Tomamos la ultima conexion de la tienda
 			db.QueryRow("SELECT last_connect FROM tienda WHERE dominio=?", dom).Scan(&last_connect)
 			if last_connect-(timestamp-seg_del_mes) < 0 {
-				fmt.Println("Desconectamos")
+				block = true
+			}else{
+				block = false
 			}
+		}else{
+			block = true
 		}
 		time.Sleep(5 * time.Second)
 	}
-}
-func daysIn(m time.Month, year int) int {
-	// This is equivalent to time.daysIn(m, year).
-	return time.Date(year, m+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
 
 /*

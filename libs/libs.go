@@ -15,7 +15,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -589,26 +588,6 @@ func MainDomain(filename string) string {
 }
 
 /*
-IsEntAvailable: comprueba el estado de la entidad
-	file: Nombre del fichero que contiene el dominio (configShop)
-	path: Direccion IP+PUERTO
-	mutex: Bloqueo de escritura en variable global
-Devuelve un entero con el valor del estado.
-*/
-func IsEntAvailable(filename string, path string, mutex sync.RWMutex) int {
-	//Se obtiene el dominio completo
-	dom := MainDomain(filename)
-	//Nos quedamos con el ent[0] que contiende el nombre de la entidad.
-	ent := strings.Split(dom, ".")
-	res := GenerateFORM(path+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
-	mutex.Lock()
-	//Se guarda el resultado en la variable global
-	out, _ := strconv.Atoi(res)
-	mutex.Unlock()
-	return out
-}
-
-/*
 PlayPubli: Toma un fichero de publicidad del listado y lo reproduce.
 	publi_file:  Nombre del fichero de publicidad
 	win:   Objeto Winamp
@@ -628,6 +607,15 @@ func MyCurrentDate() string {
 	fecha_actual := time.Now()
 	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 	return string_fecha
+}
+/*
+DaysIn: los dias que tiene un mes específico
+	m: mes
+	year: año
+Salida --> numero de dias
+*/
+func DaysIn(m time.Month, year int) int64 {
+	return int64(time.Date(year, m+1, 0, 0, 0, 0, 0, time.UTC).Day())
 }
 
 /*
