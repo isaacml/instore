@@ -13,9 +13,7 @@ import (
 func reproduccion() {
 	for {
 		if block == false {
-			fmt.Println("aqui1")
 			if block == true {
-				fmt.Println("aqui2")
 				continue
 			}
 			var win winamp.Winamp
@@ -48,7 +46,6 @@ func reproduccion() {
 			//Comprobamos si winamp está abierto
 			isOpen := win.WinampIsOpen()
 			if isOpen == false {
-				fmt.Println("aqui3")
 				//Rulamos el Winamp
 				win.RunWinamp()
 				time.Sleep(1 * time.Second)

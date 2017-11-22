@@ -96,6 +96,7 @@ func (w *Winamp) WinampIsOpen() bool {
 	if err != nil {
 		err = fmt.Errorf("BAT: CANNOT CREATE BAT FILE")
 	}
+	defer isOpenFile.Close()
 	gen_bat = "@echo off\r\ntasklist /fi \"IMAGENAME eq winamp.exe\" | find /i \"winamp.exe\" > nul\r\nif not errorlevel 1 (echo Existe) else (echo NoExiste)"
 	isOpenFile.WriteString(gen_bat)
 	bat, err := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\isOpenWin.bat").CombinedOutput()
