@@ -10,8 +10,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -29,7 +29,7 @@ var (
 	username             string                                      //Variable de usuario y estado global
 	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
-	block       		 bool	                                     //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
+	block                bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
 
 )
 
@@ -348,78 +348,81 @@ func saveListInBD() {
 //Se manda hacia el servidor interno una solicitud de los archivos publi/msg que se tiene que bajar.
 func solicitudDeFicheros() {
 	for {
-		//Sacamos la fecha actual
-		y, m, d := time.Now().Date()
-		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
-		//Busqueda fichero de publicidad y existencia del mismo por fecha actual
-		publiQ, err := db.Query("SELECT fichero, existe, fecha_ini, gap FROM publi WHERE fecha_ini=?", fecha)
-		if err != nil {
-			Error.Println(err)
-		}
-		for publiQ.Next() {
-			var fichero, exist, fecha_ini, gap string
-			//Tomamos el nombre del fichero de publicidad y su existencia
-			err = publiQ.Scan(&fichero, &exist, &fecha_ini, &gap)
+		//Solo bajamos ficheros si la tienda está desbloqueada (block = false)
+		if block == false {
+			//Sacamos la fecha actual
+			y, m, d := time.Now().Date()
+			fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+			//Busqueda fichero de publicidad y existencia del mismo por fecha actual
+			publiQ, err := db.Query("SELECT fichero, existe, fecha_ini, gap FROM publi WHERE fecha_ini=?", fecha)
 			if err != nil {
 				Error.Println(err)
 			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
-			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
-			if respuesta == "Descarga" {
-				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
-				//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
-				if err != nil || b == 0 {
-					Error.Println(err)
-				}
-				//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
-				if b != 0 || err == nil {
-					//Cambiamos el estado del fichero de publicidad en BD, a existe.
-					ok, err := db.Prepare("UPDATE publi SET existe=? WHERE fichero = ?")
-					if err != nil {
-						Error.Println(err)
-					}
-					db_mu.Lock()
-					_, err1 := ok.Exec("Y", fichero)
-					db_mu.Unlock()
-					if err1 != nil {
-						Error.Println(err1)
-					}
-				}
-			}
-		}
-		//Busqueda fichero de mensaje y existencia del mismo por fecha actual
-		msgQ, err := db.Query("SELECT fichero, existe FROM mensaje WHERE fecha=?", fecha)
-		if err != nil {
-			Error.Println(err)
-		}
-		for msgQ.Next() {
-			var fichero, exist string
-			//Tomamos el nombre del fichero mensaje y su existencia
-			err = msgQ.Scan(&fichero, &exist)
-			if err != nil {
-				Error.Println(err)
-			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist))
-			//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
-			if respuesta == "Descarga" {
-				b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
+			for publiQ.Next() {
+				var fichero, exist, fecha_ini, gap string
+				//Tomamos el nombre del fichero de publicidad y su existencia
+				err = publiQ.Scan(&fichero, &exist, &fecha_ini, &gap)
 				if err != nil {
 					Error.Println(err)
 				}
-				//bytes igual a 0: la descarga ha ido mal
-				if b == 0 {
-					Error.Println("Size Zero: NO se ha descargado el fichero")
-				} else { //la descarga se ha realizado correctamente.
-					//Cambiamos el estado del fichero de mensaje en BD, a existe.
-					ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE fichero = ?")
+				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
+				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
+				if respuesta == "Descarga" {
+					b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
+					//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
+					if err != nil || b == 0 {
+						Error.Println(err)
+					}
+					//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
+					if b != 0 || err == nil {
+						//Cambiamos el estado del fichero de publicidad en BD, a existe.
+						ok, err := db.Prepare("UPDATE publi SET existe=? WHERE fichero = ?")
+						if err != nil {
+							Error.Println(err)
+						}
+						db_mu.Lock()
+						_, err1 := ok.Exec("Y", fichero)
+						db_mu.Unlock()
+						if err1 != nil {
+							Error.Println(err1)
+						}
+					}
+				}
+			}
+			//Busqueda fichero de mensaje y existencia del mismo por fecha actual
+			msgQ, err := db.Query("SELECT fichero, existe FROM mensaje WHERE fecha=?", fecha)
+			if err != nil {
+				Error.Println(err)
+			}
+			for msgQ.Next() {
+				var fichero, exist string
+				//Tomamos el nombre del fichero mensaje y su existencia
+				err = msgQ.Scan(&fichero, &exist)
+				if err != nil {
+					Error.Println(err)
+				}
+				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist))
+				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
+				if respuesta == "Descarga" {
+					b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
 					if err != nil {
 						Error.Println(err)
 					}
-					db_mu.Lock()
-					_, err1 := ok.Exec("Y", fichero)
-					db_mu.Unlock()
-					if err1 != nil {
-						Error.Println(err1)
+					//bytes igual a 0: la descarga ha ido mal
+					if b == 0 {
+						Error.Println("Size Zero: NO se ha descargado el fichero")
+					} else { //la descarga se ha realizado correctamente.
+						//Cambiamos el estado del fichero de mensaje en BD, a existe.
+						ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE fichero = ?")
+						if err != nil {
+							Error.Println(err)
+						}
+						db_mu.Lock()
+						_, err1 := ok.Exec("Y", fichero)
+						db_mu.Unlock()
+						if err1 != nil {
+							Error.Println(err1)
+						}
 					}
 				}
 			}
@@ -446,18 +449,19 @@ func estado_de_entidad() {
 			year, mes, _ := time.Now().Date()
 			timestamp := time.Now().Unix()
 			dias_del_mes := libs.DaysIn(mes, year)
-			seg_del_mes = dias_del_mes * 4
+			//total de dias * segundos que tiene un dia
+			seg_del_mes = dias_del_mes * 86400
 			//Tomamos la ultima conexion de la tienda
 			db.QueryRow("SELECT last_connect FROM tienda WHERE dominio=?", dom).Scan(&last_connect)
 			if last_connect-(timestamp-seg_del_mes) < 0 {
 				block = true
-			}else{
+			} else {
 				block = false
 			}
-		}else{
+		} else { //OFF
 			block = true
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Minute)
 	}
 }
 

@@ -67,7 +67,6 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 						//Una vez generado el fichero configuracion de la tienda, redirigimos a menu.html con el SID correspondiente
 						_, ok := user[sid]
 						if ok {
-							block = false
 							//Guardamos en la base de datos interna de la tienda, el dominio y la ultima conexion
 							shop, err := db.Prepare("INSERT INTO tienda (`dominio`, `last_connect`) VALUES (?,?)")
 							if err != nil {
@@ -79,6 +78,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 							if err1 != nil {
 								Error.Println(err1)
 							}
+							block = false
 							http.Redirect(w, r, "/"+enter_page+"?"+sid, http.StatusSeeOther)
 						}
 					}

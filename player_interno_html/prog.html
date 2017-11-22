@@ -71,7 +71,8 @@
                             <li id="mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Añadir</a></li>
                             <li id="prog_music_top"><a href="prog.html?{{sid}}"><i class="fa fa-bars fa-fw"></i> Programar</a></li>
                             <li id="normalMsg_top"><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Mensaje Normal</a></li>
-                            <li><a href="configuration.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a></li>
+                            <li><a href="dominios.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Dominios</a></li>
+                            <li><a href="shop_status.html?{{sid}}"><i class="fa fa-th-large fa-fw"></i> Tienda</a></li>
                             <li class="divider"></li>
                             <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
                         </ul>
@@ -96,7 +97,10 @@
                             <a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Mensaje Normal</a>
                         </li>
                         <li>
-                            <a href="configuration.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a>
+                            <a href="dominios.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Dominios</a>
+                        </li>
+                        <li>
+                            <a href="shop_status.html?{{sid}}"><i class="fa fa-th-large fa-fw"></i> Tienda</a>
                         </li>
                         <li class="visible-xs">
                             <a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i>Desconectar</a>
@@ -146,7 +150,7 @@
                     $("#mNoCif_top").hide();
                 }
                 //Mensajes Normales
-                if (res[5] == 0){
+                if (res[4] == 0){
                     $("#normalMsg").hide();
                     $("#normalMsg_top").hide();
                 }

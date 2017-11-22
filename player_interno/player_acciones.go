@@ -60,6 +60,16 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		block = true
 	}
+	//Muestra cada cierto tiempo el estado de la tienda
+	if accion == "estado_de_tienda" {
+		output := "<tr><td>Conexión de la tienda: </td><td>&nbsp;</td>"
+		if block == true {
+			output += "<td class='text-danger'> Desactivada</td></tr>"
+		} else {
+			output += "<td class='text-success'> Activada</td></tr>"
+		}
+		fmt.Fprint(w, output)
+	}
 }
 
 //Reproductor de Mensajes Instantaneos

@@ -92,9 +92,6 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				if r.FormValue("add_mus") != "" {
 					bitmap = bitmap + ADD_MUS
 				}
-				if r.FormValue("msg_auto") != "" {
-					bitmap = bitmap + MSG_AUTO
-				}
 				if r.FormValue("msg_normal") != "" {
 					bitmap = bitmap + MSG_NORMAL
 				}
@@ -240,13 +237,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 		} else {
 			output += "<input type='checkbox' name='add_mus_edit' value='8'/> Añadir Música No Cifrada<br>"
 		}
-		msg_auto := libs.BitmapParsing(bitmap, MSG_AUTO) //res[4]
-		if msg_auto != 0 {
-			output += "<input type='checkbox' name='msg_auto_edit' value='16' checked/> Reproducir Mensajes Automatizados<br>"
-		} else {
-			output += "<input type='checkbox' name='msg_auto_edit' value='16'/> Reproducir Mensajes Automatizados<br>"
-		}
-		msg_normal := libs.BitmapParsing(bitmap, MSG_NORMAL) //res[5]
+		msg_normal := libs.BitmapParsing(bitmap, MSG_NORMAL) //res[4]
 		if msg_normal != 0 {
 			output += "<input type='checkbox' name='msg_normal_edit' value='32' checked/> Reproducir Mensajes Normales<br>"
 		} else {
@@ -280,9 +271,6 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 			}
 			if r.FormValue("add_mus_edit") != "" {
 				bitmap = bitmap + ADD_MUS
-			}
-			if r.FormValue("msg_auto_edit") != "" {
-				bitmap = bitmap + MSG_AUTO
 			}
 			if r.FormValue("msg_normal_edit") != "" {
 				bitmap = bitmap + MSG_NORMAL

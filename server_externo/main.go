@@ -29,7 +29,6 @@ const (
 	PROG_MUS
 	PROG_MSG
 	ADD_MUS
-	MSG_AUTO
 	MSG_NORMAL
 )
 

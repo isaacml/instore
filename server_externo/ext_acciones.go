@@ -27,10 +27,9 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			prog_mus := libs.BitmapParsing(bitmap_hex, PROG_MUS)     //res[1]
 			prog_msg := libs.BitmapParsing(bitmap_hex, PROG_MSG)     //res[2]
 			add_mus := libs.BitmapParsing(bitmap_hex, ADD_MUS)       //res[3]
-			msg_auto := libs.BitmapParsing(bitmap_hex, MSG_AUTO)     //res[4]
-			msg_normal := libs.BitmapParsing(bitmap_hex, MSG_NORMAL) //res[5]
+			msg_normal := libs.BitmapParsing(bitmap_hex, MSG_NORMAL) //res[4]
 			//Pasamos los valores al html
-			fmt.Fprintf(w, "%d;%d;%d;%d;%d;%d", prog_pub, prog_mus, prog_msg, add_mus, msg_auto, msg_normal)
+			fmt.Fprintf(w, "%d;%d;%d;%d;%d", prog_pub, prog_mus, prog_msg, add_mus, msg_normal)
 		}
 	}
 	if accion == "show_org" {
