@@ -5,14 +5,19 @@
     border: 1px solid #ddd;
 }
 
-th, td {
-    border: none;
-    text-align: left;
-    padding: 8px;
-}
-
 #directory { 
     width: 50%;
     height: 20em;
-    
+}
+
+#listados{
+    width: 50%;
+}
+
+#del_enc{
+ float: right;   
+}
+
+#del_enc:hover{
+    color:brown;
 }

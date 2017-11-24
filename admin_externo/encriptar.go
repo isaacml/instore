@@ -276,7 +276,7 @@ func encriptar_musica(w http.ResponseWriter, r *http.Request) {
 		for k, v := range encripts_dirs {
 			partir_direccion := strings.Split(v, "\\")
 			mp3 := partir_direccion[len(partir_direccion)-1] // De aquí obtenemos el nombre de fichero y su extensión
-			output += fmt.Sprintf("<tr><td> %s </td><td><button title='Borra este archivo del listado' class='btn btn-md btn-warning' onclick=\"delfile(%d)\"><i class='fa fa-trash-o'></i></button></td></tr>", mp3, k)
+			output += fmt.Sprintf("<tr><td> %s <a id='del_enc' title='Borra este archivo del listado' onclick=\"delfile(%d)\"><i class='fa fa-trash-o'></i></a></td></tr>", mp3, k)
 		}
 		fmt.Fprint(w, output)
 	}
