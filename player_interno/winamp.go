@@ -24,8 +24,8 @@ func reproduccion() {
 			var song string
 			//Sacamos la fecha actual
 			fecha := libs.MyCurrentDate()
-			//INICIAL
-			fmt.Println("-" + statusProgammedMusic + "-")
+			//INICIAL 
+			//fmt.Println(statusProgammedMusic)
 			//Obtenemos el GAP
 			publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
 			if errP != nil {

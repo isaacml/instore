@@ -285,7 +285,7 @@ BitmapParsing: Parsea el valor tomado de la base de datos a INT y le aplica la m
 Devuelve:  = 0  accion activada; != 0 no tiene la acción activada
 */
 func BitmapParsing(bitmap_hex string, mascara int64) (res int64) {
-	bitmap_parsed, err := strconv.ParseInt(bitmap_hex, 16, 32)
+	bitmap_parsed, err := strconv.ParseInt(bitmap_hex, 16, 16)
 	if err != nil {
 		err = fmt.Errorf("fail to parsing")
 	}
@@ -506,7 +506,7 @@ func MusicToPlay(ruta string, st int) map[int]string {
 	var cmd *exec.Cmd
 	a := 0
 	music := make(map[int]string)
-	if st == 1 {
+	if st != 0 {
 		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
 		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx")
 	} else {

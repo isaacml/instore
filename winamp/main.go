@@ -135,6 +135,7 @@ func (w *Winamp) Load(file string) error {
 	}
 	return err
 }
+
 func (w *Winamp) Play() {
 	w.mu.Lock()
 	w.play = true
