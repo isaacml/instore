@@ -62,7 +62,7 @@ func (w *Winamp) Status() *Status {
 //Función que arranca Winamp, si no está arrancado
 func (w *Winamp) RunWinamp() {
 	if w.run == false {
-		exec.Command("cmd", "/c", "C:\\instore\\Winamp\\winamp.exe").Start()
+		exec.Command("cmd", "/c", "winamp\\winamp.exe").Start()
 		w.mu.Lock()
 		w.volume = volMax
 		w.run = true
@@ -73,7 +73,7 @@ func (w *Winamp) RunWinamp() {
 
 //Función que establece el volumen del Winamp
 func (w *Winamp) Volume() {
-	cmd := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", w.volume)
+	cmd := fmt.Sprintf("apps\\CLEvER.exe volume %d", w.volume)
 	err := exec.Command("cmd", "/c", cmd).Run()
 	if err != nil {
 		err = fmt.Errorf("VOL: FAIL TO SEND VOLUME")
@@ -92,14 +92,14 @@ func (w *Winamp) WinampClose() {
 func (w *Winamp) WinampIsOpen() bool {
 	var gen_bat string
 	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
-	isOpenFile, err := os.Create("C:\\instore\\Winamp\\isOpenWin.bat")
+	isOpenFile, err := os.Create("winamp\\isOpenWin.bat")
 	if err != nil {
 		err = fmt.Errorf("BAT: CANNOT CREATE BAT FILE")
 	}
 	defer isOpenFile.Close()
 	gen_bat = "@echo off\r\ntasklist /fi \"IMAGENAME eq winamp.exe\" | find /i \"winamp.exe\" > nul\r\nif not errorlevel 1 (echo Existe) else (echo NoExiste)"
 	isOpenFile.WriteString(gen_bat)
-	bat, err := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\isOpenWin.bat").CombinedOutput()
+	bat, err := exec.Command("cmd", "/c", "winamp\\isOpenWin.bat").CombinedOutput()
 	if err != nil {
 		err = fmt.Errorf("bat: CANNOT OPEN BAT")
 	}
@@ -124,7 +124,7 @@ func (w *Winamp) Load(file string) error {
 			err = fmt.Errorf("bat: CANNOT CREATE BAT FILE")
 		}
 		defer bat.Close()
-		gen_fich = "@echo off\r\nC:\\instore\\Winamp\\CLEvER.exe loadnew " + file
+		gen_fich = "@echo off\r\napps\\CLEvER.exe loadnew " + file
 		bat.WriteString(gen_fich)
 		err = exec.Command("cmd", "/c", "song.bat").Run()
 		if err != nil {
@@ -142,7 +142,7 @@ func (w *Winamp) Play() {
 	w.pause = false
 	w.stop = false
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe play").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe play").Run()
 }
 func (w *Winamp) Stop() {
 	w.mu.Lock()
@@ -150,7 +150,7 @@ func (w *Winamp) Stop() {
 	w.pause = false
 	w.stop = true
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe stop").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe stop").Run()
 }
 func (w *Winamp) Pause() {
 	w.mu.Lock()
@@ -158,13 +158,13 @@ func (w *Winamp) Pause() {
 	w.pause = true
 	w.stop = false
 	w.mu.Unlock()
-	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe  pause").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe  pause").Run()
 }
 
 //Muestra el tiempo de reproducción (en seg) de la canción
 func (w *Winamp) SongPlay() int {
 	var min, sec int
-	lector, _ := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe position").CombinedOutput()
+	lector, _ := exec.Command("cmd", "/c", "apps\\CLEvER.exe position").CombinedOutput()
 	//formato de timeplay -> 02:12
 	timeplay := strings.Split(fmt.Sprintf("%s", string(lector)), ":")
 	//hago un split para sacar los minutos y los segundos
@@ -178,7 +178,7 @@ func (w *Winamp) SongPlay() int {
 //Muestra el tiempo(en seg) que queda para acabar la cancion
 func (w *Winamp) SongEnd() int {
 	var min, sec int
-	lector, _ := exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe timeleft").CombinedOutput()
+	lector, _ := exec.Command("cmd", "/c", "apps\\CLEvER.exe timeleft").CombinedOutput()
 	//formato de timend -> 05:02
 	timend := strings.Split(fmt.Sprintf("%s", string(lector)), ":")
 	//hago un split para sacar los minutos y los segundos
@@ -191,7 +191,7 @@ func (w *Winamp) SongEnd() int {
 func (w *Winamp) VolumeUp() {
 	var cont int
 	for i := 1; i <= volMax; i += 25 {
-		exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe volup").Run()
+		exec.Command("cmd", "/c", "apps\\CLEvER.exe volup").Run()
 		cont++
 	}
 	if w.volume >= volMax {
@@ -209,7 +209,7 @@ func (w *Winamp) VolumeUp() {
 func (w *Winamp) VolumeDown() {
 	var cont int
 	for i := 1; i <= volMax; i += 25 {
-		exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe voldn").Run()
+		exec.Command("cmd", "/c", "apps\\CLEvER.exe voldn").Run()
 		cont++
 	}
 	if w.volume < 10 {
@@ -227,7 +227,7 @@ func (w *Winamp) VolumeDown() {
 
 //Limpia la playlist
 func (w *Winamp) Clear() {
-	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe clear").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe clear").Run()
 }
 
 //Tiempo total de un fichero de musica en segundos
@@ -239,7 +239,7 @@ func (w *Winamp) SongLenght(file string) int {
 		err = fmt.Errorf("lenght_bat: CANNOT CREATE BAT FILE")
 	}
 	defer song_lenght_bat.Close()
-	gen_bat = "@echo off\r\nC:\\instore\\ffprobe.exe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"" + file + "\""
+	gen_bat = "@echo off\r\napps\\ffprobe.exe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"" + file + "\""
 	song_lenght_bat.WriteString(gen_bat)
 	//Una vez creado el fichero, lo ejecutamos y tomamos su salida
 	seg, _ := exec.Command("cmd", "/c", "song_lenght.bat").CombinedOutput()
@@ -256,12 +256,12 @@ func (w *Winamp) SongLenght(file string) int {
 func (w *Winamp) PlayFFplay(publi string) string {
 	var st string
 	//Bajo el volumen del reproductor Winamp a 0
-	exec.Command("cmd", "/c", "C:\\instore\\Winamp\\CLEvER.exe volume 0").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
 	//Reproduzco la publicidad del ffplay
-	play := fmt.Sprintf("C:\\instore\\ffplay.exe -nodisp %s -autoexit", publi)
+	play := fmt.Sprintf("apps\\ffplay.exe -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
 	//Vuelvo a subir el volumen a como estaba
-	inc := fmt.Sprintf("C:\\instore\\Winamp\\CLEvER.exe volume %d", volMax)
+	inc := fmt.Sprintf("apps\\Winamp\\CLEvER.exe volume %d", volMax)
 	exec.Command("cmd", "/c", inc).Run()
 	st = "END"
 	return st

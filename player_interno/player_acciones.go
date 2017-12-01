@@ -20,7 +20,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//Obtener los valores de bitmap para el usuario de la tienda
 	//Enviamos el nombre del usuario al server_interno y este lo pasará al server_externo
 	if accion == "bitmaps" {
-		respuesta := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
+		respuesta := libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
 		bit := strings.Split(respuesta, ";")
 		db_mu.Lock()
 		st_music = toInt(bit[3])

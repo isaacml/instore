@@ -22,7 +22,7 @@ var (
 	Error                *log.Logger
 	db                   *sql.DB
 	db_mu                sync.RWMutex
-	serverint            map[string]string = make(map[string]string) //Mapa que guarda la direccion del servidor interno
+	settings             map[string]string = make(map[string]string) //Guarda los settings de la tienda
 	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
 	copy_arr             []string                                    //Contenedor que va a guardar los ficheros que van a ser copiados a "C:\instore\\Music\"
 	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
@@ -44,13 +44,13 @@ func init() {
 	Warning = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(io.MultiWriter(file, os.Stderr), "ERROR :", log.Ldate|log.Ltime|log.Lshortfile)
 	//Base de datos del admin externo
-	db, err_db = sql.Open("sqlite3", "C:\\instore\\shop.db") //WINDB: C:\\instore\\shop.db
+	db, err_db = sql.Open("sqlite3", bd_name)
 	if err_db != nil {
 		Error.Println(err_db)
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
-	loadSettings(serverRoot, serverint) // Se carga los valores del fichero playerint.reg
+	loadSettings(serverRoot, settings) // Se carga los valores del fichero playerint.reg
 }
 
 // funcion principal del programa
@@ -76,6 +76,8 @@ func main() {
 	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
+
+	fmt.Println(settings["port"])
 
 	s := &http.Server{
 		Addr:           ":" + http_port,
@@ -112,7 +114,7 @@ func saveListInBD() {
 				for _, val := range domainint {
 					dominios += val + ":.:"
 				}
-				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
+				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
 				fmt.Println("La respuesta: ", respuesta)
 				//Si la respuesta NO está vacía, comprobamos la respuesta.
 				if respuesta != "" {
@@ -365,10 +367,10 @@ func solicitudDeFicheros() {
 				if err != nil {
 					Error.Println(err)
 				}
-				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
+				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
 				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 				if respuesta == "Descarga" {
-					b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
+					b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
 					//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
 					if err != nil || b == 0 {
 						Error.Println(err)
@@ -401,10 +403,10 @@ func solicitudDeFicheros() {
 				if err != nil {
 					Error.Println(err)
 				}
-				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist))
+				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist))
 				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 				if respuesta == "Descarga" {
-					b, err := libs.DownloadFile(serverint["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
+					b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
 					if err != nil {
 						Error.Println(err)
 					}
@@ -438,7 +440,7 @@ func estado_de_entidad() {
 		dom := libs.MainDomain(configShop)
 		//Nos quedamos con el ent[0] que contiende el nombre de la entidad.
 		ent := strings.Split(dom, ".")
-		res := libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
+		res := libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
 		db_mu.Lock()
 		//Guarda el estado de activo de la entidad: 0 - OFF / 1 - ON
 		estado_entidad, _ := strconv.Atoi(res)

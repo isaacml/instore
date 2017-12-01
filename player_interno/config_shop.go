@@ -16,25 +16,25 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 	var respuesta string
 	accion := r.FormValue("action")
 	if accion == "entidades" {
-		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+username))
 	}
 	if accion == "almacenes" {
-		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
 	}
 	if accion == "paises" {
-		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;pais", "almacen;"+r.FormValue("almacen")))
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;pais", "almacen;"+r.FormValue("almacen")))
 	}
 	if accion == "regiones" {
-		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;region", "pais;"+r.FormValue("pais")))
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;region", "pais;"+r.FormValue("pais")))
 	}
 	if accion == "provincias" {
-		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;provincia", "region;"+r.FormValue("region")))
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;provincia", "region;"+r.FormValue("region")))
 	}
 	if accion == "tiendas" {
-		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;tienda", "provincia;"+r.FormValue("provincia")))
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;tienda", "provincia;"+r.FormValue("provincia")))
 	}
 	if accion == "cod_tienda" {
-		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/transf_orgs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
 	}
 	fmt.Fprint(w, respuesta)
 }
@@ -46,7 +46,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	timestamp := time.Now().Unix()
 	//Guarda el dominio principal(de un usuario) en el fichero de configuracion
 	if accion == "gen_config_file" {
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;save_domain"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;save_domain"))
 		//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
 		gen_domain := strings.Split(respuesta, ";")
 		gen := gen_domain[0]
@@ -102,7 +102,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	//Añade nuevos dominios adiccionales a la tienda
 	if accion == "extra_domains" {
 		cont := 0
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverint["serverinterno"]+"/acciones.cgi", "action;save_domain"))
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;save_domain"))
 		//Partimos las respuesta para obtener: estado (OK o NOOK) y el dominio
 		gen_domain := strings.Split(respuesta, ";")
 		gen := gen_domain[0]
