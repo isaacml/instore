@@ -3,7 +3,7 @@ package main
 const (
 	// variables de configuracion del servidor HTTP
 	rootdir              = "player_interno_html\\"       // raiz de nuestro sitio web = C:\\instore\\player_interno_html\\"
-	session_timeout      = 600                           // segundos de timeout de una session
+	session_timeout      = 1200                          // segundos de timeout de una session
 	first_page           = "index"                       // Sería la página de login (siempre es .html)
 	enter_page           = "menu.html"                   // Sería la página de entrada tras el login
 	shop_config_page     = "config_shop.html"            // Página de configuración de la tienda
@@ -18,8 +18,8 @@ const (
 	logFile              = "player_interno.log"          // ruta del archivo de errores
 	serverRoot           = "SettingsShop.reg"            // fichero que contiene la ruta hacia el servidor interno y el puerto que usa la tienda
 	configShop           = "configshop.reg"              // fichero que el dominio de la tienda: entidad.almacen.pais.region.provincia.tienda
-	publi_files_location = "PubliShop\\"                 // ruta donde se van a alojar la publicidad de la tienda
-	msg_files_location   = "MessagesShop\\"              // ruta donde se van a alojar los mensajes de la tienda
+	publi_files_location = "Publi\\"                     // ruta donde se van a alojar la publicidad de la tienda
+	msg_files_location   = "Messages\\"                  // ruta donde se van a alojar los mensajes de la tienda
 	music_files          = "Music\\"                     // ruta donde se van a alojar la música de la tienda
 	bd_name              = "sql\\shop.db"                // WINDB: C:\\ProgramFiles\\instore\\sql\\shop.db
 )
