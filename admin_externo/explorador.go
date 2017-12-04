@@ -15,7 +15,6 @@ var last_entidad, last_almacen, last_pais, last_region, last_prov, last_tienda s
 //Función principal del explorador windows
 func explorer(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-
 	var output string //variable para imprimir los datos hacia JavaScript
 
 	//Muestra por primera vez las Unidades de Disco que tiene el Sistema
@@ -41,8 +40,10 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 	//EXPLORADOR DE DIRECTORIOS --> FORMULARIO 1(testform)
 	if r.FormValue("action") == "dir_unidad" {
 		if r.FormValue("unidades") != "" {
+			db_mu.Lock()
 			//Mostramos los directorios de la unidad seleccionada
 			directorio_actual = r.FormValue("unidades") + "\\"
+			db_mu.Unlock()
 			file, err := os.Open(directorio_actual)
 			defer file.Close()
 			if err != nil {
@@ -65,7 +66,9 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, output)
 
 		} else {
+			db_mu.Lock()
 			directorio_actual = ""
+			db_mu.Unlock()
 			output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
 			fmt.Fprint(w, output)
 		}
@@ -73,7 +76,9 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 	//EXPLORADOR DE DIRECTORIOS --> FORMULARIO 1(testform)
 	if r.FormValue("action") == "directorios" {
 		if r.FormValue("directory") != "" && r.FormValue("directory") != "..." {
+			db_mu.Lock()
 			directorio_actual = directorio_actual + r.FormValue("directory") + "\\"
+			db_mu.Unlock()
 			file, err := os.Open(directorio_actual)
 			defer file.Close()
 			if err != nil {
@@ -81,7 +86,9 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 				//Volvemos a tomar el archivo anterior y lo abrimos
 				old := strings.Split(directorio_actual, r.FormValue("directory")+"\\")
+				db_mu.Lock()
 				directorio_actual = old[0]
+				db_mu.Unlock()
 				file2, err := os.Open(old[0])
 				defer file.Close()
 				directorios, err := file2.Readdir(0)
@@ -136,8 +143,10 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 				for _, v := range nueva_ruta {
 					contenedor += v + "\\"
 				}
+				db_mu.Lock()
 				//Guardamos la ruta que nos genera
 				directorio_actual = contenedor
+				db_mu.Unlock()
 				//Abrimos el directorio y mostramos sus carpetas
 				file, err := os.Open(directorio_actual)
 				defer file.Close()
@@ -165,8 +174,10 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 				for _, v := range nueva_ruta {
 					contenedor += v + "\\"
 				}
+				db_mu.Lock()
 				//Guardamos la ruta que nos genera
 				directorio_actual = contenedor
+				db_mu.Unlock()
 				//Abrimos el directorio y mostramos sus carpetas
 				file, err := os.Open(directorio_actual)
 				defer file.Close()
@@ -334,7 +345,6 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 	_, ok := user[sid]
 	if ok {
 		var output string
-		loadSettings(serverRoot)
 		updateExpires(sid) //Actualizamos el tiempo de expiración de la clave
 		if r.FormValue("action") == "destinos" {
 			var arr_entidad []string
@@ -345,10 +355,14 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				if val != "" {
 					arr_entidad = strings.Split(val, ";")
 					output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
+					db_mu.Lock()
 					back_org = "entidad"
+					db_mu.Unlock()
 				}
 			}
+			db_mu.Lock()
 			estado_destino = "*"
+			db_mu.Unlock()
 			output += ";<span style='color: #1A5276'>" + estado_destino + "</span>"
 			fmt.Fprint(w, output)
 		}
@@ -369,11 +383,13 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+ident)
 				if resultado != "" {
 					output, st_entidad = libs.GenerateSelectOrg(resultado, "almacen")
+					db_mu.Lock()
 					//Se guarda el identificador, para poder volver atrás
 					last_entidad = ident
 					//Se forma el nuevo estado
 					estado_destino = st_entidad + ".*"
 					back_org = "almacen"
+					db_mu.Unlock()
 					output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 					fmt.Fprint(w, output)
 				} else {
@@ -388,8 +404,10 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 								output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
 							}
 						}
+						db_mu.Lock()
 						estado_destino = "*"
 						back_org = "entidad"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 						fmt.Fprint(w, output)
 					}
@@ -409,8 +427,10 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 								output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
 							}
 						}
+						db_mu.Lock()
 						estado_destino = "*"
 						back_org = "entidad"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -419,6 +439,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+ident)
 					if resultado != "" {
 						output, st_almacen = libs.GenerateSelectOrg(resultado, "pais")
+						db_mu.Lock()
 						//Se guarda el identificador, para poder volver atrás
 						last_almacen = ident
 						//Se borra el asterisco(*)
@@ -426,6 +447,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						//Se forma el nuevo estado
 						estado_destino = res + st_almacen + ".*"
 						back_org = "pais"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -433,9 +455,11 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
 						if resultado2 != "" {
 							output, st_almacen = libs.GenerateSelectOrg(resultado2, "almacen")
+							db_mu.Lock()
 							//Se forma el nuevo estado
 							estado_destino = st_almacen + ".*"
 							back_org = "almacen"
+							db_mu.Unlock()
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -449,8 +473,10 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
 					if resultado2 != "" {
 						output, st_pais = libs.GenerateSelectOrg(resultado2, "almacen")
+						db_mu.Lock()
 						estado_destino = st_pais + ".*"
 						back_org = "almacen"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -459,6 +485,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+ident)
 					if resultado != "" {
 						output, st_pais = libs.GenerateSelectOrg(resultado, "region")
+						db_mu.Lock()
 						//Se guarda el identificador, para poder volver atrás
 						last_pais = ident
 						//Se borra el asterisco(*)
@@ -466,6 +493,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						//Se forma el nuevo estado
 						estado_destino = res + st_pais + ".*"
 						back_org = "region"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -473,11 +501,13 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
 						if resultado2 != "" {
 							output, st_pais = libs.GenerateSelectOrg(resultado2, "pais")
+							db_mu.Lock()
 							//Se borra el asterisco(*) y se retrocede en una ORG.
 							res := libs.BackDestOrg(estado_destino, 2)
 							//Se forma el nuevo estado
 							estado_destino = res + st_pais + ".*"
 							back_org = "pais"
+							db_mu.Unlock()
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -491,10 +521,12 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
 					if resultado2 != "" {
 						output, st_region = libs.GenerateSelectOrg(resultado2, "pais")
+						db_mu.Lock()
 						res := libs.BackDestOrg(estado_destino, 3)
 						//Se forma el nuevo estado
 						estado_destino = res + st_region + ".*"
 						back_org = "pais"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -503,12 +535,14 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+ident)
 					if resultado != "" {
 						output, st_region = libs.GenerateSelectOrg(resultado, "provincia")
+						db_mu.Lock()
 						//Se guarda el identificador, para poder volver atrás
 						last_region = ident
 						//Se borra el asterisco(*)
 						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + st_region + ".*"
 						back_org = "provincia"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -516,10 +550,12 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
 						if resultado2 != "" {
 							output, st_region = libs.GenerateSelectOrg(resultado2, "region")
+							db_mu.Lock()
 							//Se borra el asterisco(*) y se retrocede en una ORG.
 							res := libs.BackDestOrg(estado_destino, 2)
 							estado_destino = res + st_region + ".*"
 							back_org = "region"
+							db_mu.Unlock()
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -533,10 +569,12 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
 					if resultado2 != "" {
 						output, st_provincia = libs.GenerateSelectOrg(resultado2, "region")
+						db_mu.Lock()
 						res := libs.BackDestOrg(estado_destino, 3)
 						//Se forma el nuevo estado
 						estado_destino = res + st_provincia + ".*"
 						back_org = "region"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -545,6 +583,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;provincias", "userAdmin;"+username, "id_provincia;"+ident)
 					if resultado != "" {
 						output, st_provincia = libs.GenerateSelectOrg(resultado, "tienda")
+						db_mu.Lock()
 						//Se guarda el identificador, para poder volver atrás
 						last_prov = ident
 						//Se borra el asterisco(*)
@@ -552,6 +591,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						//Se forma el nuevo estado
 						estado_destino = res + st_provincia + ".*"
 						back_org = "tienda"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -559,11 +599,13 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+last_region)
 						if resultado2 != "" {
 							output, st_provincia = libs.GenerateSelectOrg(resultado2, "provincia")
+							db_mu.Lock()
 							//Se borra el asterisco(*) y se retrocede en una ORG.
 							res := libs.BackDestOrg(estado_destino, 2)
 							//Se forma el nuevo estado
 							estado_destino = res + st_provincia + ".*"
 							back_org = "provincia"
+							db_mu.Unlock()
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -577,10 +619,12 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+last_region)
 					if resultado2 != "" {
 						output, st_tienda = libs.GenerateSelectOrg(resultado2, "provincia")
+						db_mu.Lock()
 						res := libs.BackDestOrg(estado_destino, 3)
 						//Se forma el nuevo estado
 						estado_destino = res + st_tienda + ".*"
 						back_org = "provincia"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
@@ -589,12 +633,14 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;tiendas", "userAdmin;"+username, "id_tienda;"+ident)
 					if resultado != "" {
 						output = "<option value='destino_final:.:0'>...</option>"
+						db_mu.Lock()
 						//Se guarda el identificador, para poder volver atrás
 						last_tienda = ident
 						//Se borra el asterisco(*)
 						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + resultado
 						back_org = "destino_final"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					} else {
@@ -610,9 +656,11 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 									output += fmt.Sprintf("<option value='tienda:.:%s'>%s</option>", arr_tienda[0], arr_tienda[1])
 								}
 							}
+							db_mu.Lock()
 							res := libs.BackDestOrg(estado_destino, 1)
 							estado_destino = res + "*"
 							back_org = "tienda"
+							db_mu.Unlock()
 							output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>No hay sub-organizaciones</span>"
 							fmt.Fprint(w, output)
 						}
@@ -633,16 +681,20 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 								output += fmt.Sprintf("<option value='tienda:.:%s'>%s</option>", arr_tienda[0], arr_tienda[1])
 							}
 						}
+						db_mu.Lock()
 						res := libs.BackDestOrg(estado_destino, 1)
 						estado_destino = res + "*"
 						back_org = "tienda"
+						db_mu.Unlock()
 						output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 						fmt.Fprint(w, output)
 					}
 				}
 				//El destino ya se ha generado, solo hay opcion de volver atrás
 				if ident == "" {
+					db_mu.Lock()
 					back_org = "destino_final"
+					db_mu.Unlock()
 					output = "<option title='Volver Atrás' value='destino_final:.:0'>...</option>;<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #FF0303'>El destino ya está formado</span>"
 					fmt.Fprint(w, output)
 				}
