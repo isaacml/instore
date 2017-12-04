@@ -62,7 +62,7 @@ func (w *Winamp) Status() *Status {
 //Función que arranca Winamp, si no está arrancado
 func (w *Winamp) RunWinamp() {
 	if w.run == false {
-		exec.Command("cmd", "/c", "winamp\\winamp.exe").Start()
+		exec.Command("cmd", "/c", "start /MIN winamp\\winamp.exe").Start()
 		w.mu.Lock()
 		w.volume = volMax
 		w.run = true
