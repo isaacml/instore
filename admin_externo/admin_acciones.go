@@ -22,12 +22,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		accion := r.FormValue("accion")
 		//Pasamos el nombre de usuario al servidor para obtener los bitmaps de acciones
 		if accion == "bitmap_perm" {
-			respuesta := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;bitmap_perm", "user;"+username)
+			respuesta := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;bitmap_perm", "user;"+username)
 			fmt.Fprint(w, respuesta)
 		}
 		//Indica si mostrar o no el mantenimiento de las organizaciones
 		if accion == "show_org" {
-			respuesta := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;show_org", "user;"+username)
+			respuesta := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;show_org", "user;"+username)
 			fmt.Fprint(w, respuesta)
 		}
 		//Envia un select para mostrar las horas en el panel de mensajes.html

@@ -9,13 +9,6 @@ import (
 	"strings"
 	"time"
 )
-
-//Variable que guarda el estado del destino
-var estado_destino string
-
-//Variable para retroceder en una organizacion cuando se pulsa fuera del text-area
-var back_org string
-
 //Variables para guardar el identificador anterior, en caso de no encontrar datos.
 var last_entidad, last_almacen, last_pais, last_region, last_prov, last_tienda string
 
@@ -346,7 +339,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("action") == "destinos" {
 			var arr_entidad []string
 			//Enviamos nombre de usuario recogido en el formulario hacia el server para generar los destinos
-			resultado := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
+			resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
 			arr := strings.Split(resultado, "::")
 			for _, val := range arr {
 				if val != "" {
@@ -373,7 +366,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 			if destino == "entidad" {
 				var st_entidad string //variable que va a contener el estado de la entidad
 				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos
-				resultado := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+ident)
+				resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+ident)
 				if resultado != "" {
 					output, st_entidad = libs.GenerateSelectOrg(resultado, "almacen")
 					//Se guarda el identificador, para poder volver atrás
@@ -386,7 +379,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				} else {
 					//Si no hay resultado, volvemos a cargar las entidades
 					var arr_entidad []string
-					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
+					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
 					if resultado2 != "" {
 						arr := strings.Split(resultado2, "::")
 						for _, val := range arr {
@@ -407,7 +400,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las entidades
 					var arr_entidad []string
-					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
+					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
 					if resultado2 != "" {
 						arr := strings.Split(resultado2, "::")
 						for _, val := range arr {
@@ -423,7 +416,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					}
 				} else {
 					//Enviamos nombre de usuario e id_almacen recogido en el formulario hacia el server para generar los destinos
-					resultado := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+ident)
+					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+ident)
 					if resultado != "" {
 						output, st_almacen = libs.GenerateSelectOrg(resultado, "pais")
 						//Se guarda el identificador, para poder volver atrás
@@ -437,7 +430,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar los almacenes
-						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
+						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
 						if resultado2 != "" {
 							output, st_almacen = libs.GenerateSelectOrg(resultado2, "almacen")
 							//Se forma el nuevo estado
@@ -453,7 +446,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				var st_pais string //variable que va a contener el estado del pais
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar los almacenes
-					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
+					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+last_entidad)
 					if resultado2 != "" {
 						output, st_pais = libs.GenerateSelectOrg(resultado2, "almacen")
 						estado_destino = st_pais + ".*"
@@ -463,7 +456,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					}
 				} else {
 					//Enviamos nombre de usuario e id_pais recogido en el formulario hacia el server para generar los destinos
-					resultado := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+ident)
+					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+ident)
 					if resultado != "" {
 						output, st_pais = libs.GenerateSelectOrg(resultado, "region")
 						//Se guarda el identificador, para poder volver atrás
@@ -477,7 +470,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar los paises
-						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
+						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
 						if resultado2 != "" {
 							output, st_pais = libs.GenerateSelectOrg(resultado2, "pais")
 							//Se borra el asterisco(*) y se retrocede en una ORG.
@@ -495,7 +488,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				var st_region string //variable que va a contener el estado de la región
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar los paises
-					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
+					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;almacenes", "userAdmin;"+username, "id_almacen;"+last_almacen)
 					if resultado2 != "" {
 						output, st_region = libs.GenerateSelectOrg(resultado2, "pais")
 						res := libs.BackDestOrg(estado_destino, 3)
@@ -507,7 +500,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					}
 				} else {
 					//Enviamos nombre de usuario e id_region recogido en el formulario hacia el server para generar los destinos
-					resultado := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+ident)
+					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+ident)
 					if resultado != "" {
 						output, st_region = libs.GenerateSelectOrg(resultado, "provincia")
 						//Se guarda el identificador, para poder volver atrás
@@ -520,7 +513,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar las regiones
-						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
+						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
 						if resultado2 != "" {
 							output, st_region = libs.GenerateSelectOrg(resultado2, "region")
 							//Se borra el asterisco(*) y se retrocede en una ORG.
@@ -537,7 +530,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				var st_provincia string //variable que va a contener el estado de la provincia
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las regiones
-					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
+					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;paises", "userAdmin;"+username, "id_pais;"+last_pais)
 					if resultado2 != "" {
 						output, st_provincia = libs.GenerateSelectOrg(resultado2, "region")
 						res := libs.BackDestOrg(estado_destino, 3)
@@ -549,7 +542,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					}
 				} else {
 					//Enviamos nombre de usuario e id_provincia recogido en el formulario hacia el server para generar los destinos
-					resultado := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;provincias", "userAdmin;"+username, "id_provincia;"+ident)
+					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;provincias", "userAdmin;"+username, "id_provincia;"+ident)
 					if resultado != "" {
 						output, st_provincia = libs.GenerateSelectOrg(resultado, "tienda")
 						//Se guarda el identificador, para poder volver atrás
@@ -563,7 +556,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 						fmt.Fprint(w, output)
 					} else {
 						//Si no hay resultado, volvemos a cargar las regiones
-						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+last_region)
+						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+last_region)
 						if resultado2 != "" {
 							output, st_provincia = libs.GenerateSelectOrg(resultado2, "provincia")
 							//Se borra el asterisco(*) y se retrocede en una ORG.
@@ -581,7 +574,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				var st_tienda string //variable que va a contener el estado de la tienda
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las regiones
-					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+last_region)
+					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;regiones", "userAdmin;"+username, "id_region;"+last_region)
 					if resultado2 != "" {
 						output, st_tienda = libs.GenerateSelectOrg(resultado2, "provincia")
 						res := libs.BackDestOrg(estado_destino, 3)
@@ -593,7 +586,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					}
 				} else {
 					//Enviamos nombre de usuario e id_provincia recogido en el formulario hacia el server para generar los destinos
-					resultado := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;tiendas", "userAdmin;"+username, "id_tienda;"+ident)
+					resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;tiendas", "userAdmin;"+username, "id_tienda;"+ident)
 					if resultado != "" {
 						output = "<option value='destino_final:.:0'>...</option>"
 						//Se guarda el identificador, para poder volver atrás
@@ -607,7 +600,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					} else {
 						//Si no hay resultado, volvemos a cargar las provincias
 						var arr_tienda []string
-						resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
+						resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
 						if resultado2 != "" {
 							output = "<option value='tienda:.:0'>...</option>"
 							arr := strings.Split(resultado2, "::")
@@ -630,7 +623,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				if ident == "0" {
 					//value = 0 : volvemos a cargar las tiendas
 					var arr_tienda []string
-					resultado2 := libs.GenerateFORM(serverext["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
+					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;provincias", "userAdmin;"+username, "id_provincia;"+last_prov)
 					if resultado2 != "" {
 						output = "<option value='tienda:.:0'>...</option>"
 						arr := strings.Split(resultado2, "::")

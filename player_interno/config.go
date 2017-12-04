@@ -7,7 +7,6 @@ const (
 	first_page           = "index"                       // Sería la página de login (siempre es .html)
 	enter_page           = "menu.html"                   // Sería la página de entrada tras el login
 	shop_config_page     = "config_shop.html"            // Página de configuración de la tienda
-	http_port            = "9119"                        // puerto del server HTTP
 	name_username        = "user"                        // name del input username en la página de login
 	name_password        = "password"                    // name del input password en la página de login
 	CookieName           = "GOSESSID"                    // nombre del cookie que guardamos en el navegador del usuario
@@ -22,5 +21,5 @@ const (
 	publi_files_location = "PubliShop\\"                 // ruta donde se van a alojar la publicidad de la tienda
 	msg_files_location   = "MessagesShop\\"              // ruta donde se van a alojar los mensajes de la tienda
 	music_files          = "Music\\"                     // ruta donde se van a alojar la música de la tienda
-	bd_name              = "sql\\shop.db"                // WINDB: C:\\instore\\shop.db
+	bd_name              = "sql\\shop.db"                // WINDB: C:\\ProgramFiles\\instore\\sql\\shop.db
 )

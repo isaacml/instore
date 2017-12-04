@@ -55,7 +55,7 @@ func init() {
 
 // funcion principal del programa
 func main() {
-	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
+	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", settings["port"])
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go estado_de_entidad()
 	go solicitudDeFicheros()
@@ -77,10 +77,8 @@ func main() {
 	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
 
-	fmt.Println(settings["port"])
-
 	s := &http.Server{
-		Addr:           ":" + http_port,
+		Addr:           ":" + settings["port"],
 		Handler:        nil,
 		ReadTimeout:    20 * time.Second,
 		WriteTimeout:   20 * time.Second,

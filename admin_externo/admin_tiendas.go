@@ -13,40 +13,39 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 	_, ok := user[sid]
 	if ok {
 		accion := r.FormValue("accion")
-		loadSettings(serverRoot)
 		updateExpires(sid)
 		//Envio de datos al server_ext: Dar de alta una nueva tienda
 		if accion == "tienda" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("tienda"))
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;tienda", "tienda;"+correct_res, "username;"+username, "almacen;"+r.FormValue("almacen"), "pais;"+r.FormValue("pais"), "region;"+r.FormValue("region"), "provincia;"+r.FormValue("provincia"), "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/tiendas.cgi", "accion;tienda", "tienda;"+correct_res, "username;"+username, "almacen;"+r.FormValue("almacen"), "pais;"+r.FormValue("pais"), "region;"+r.FormValue("region"), "provincia;"+r.FormValue("provincia"), "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Modificar una tienda concreta
 		if accion == "edit_tienda" {
 			//Eliminamos puntos, dos puntos y puntos comas
 			correct_res := libs.DeleteSplitsChars(r.FormValue("tienda"))
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;edit_tienda", "edit_id;"+r.FormValue("id"), "tienda;"+correct_res, "provincia;"+r.FormValue("id_prov"), "username;"+username, "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/tiendas.cgi", "accion;edit_tienda", "edit_id;"+r.FormValue("id"), "tienda;"+correct_res, "provincia;"+r.FormValue("id_prov"), "username;"+username, "address;"+r.FormValue("address"), "phone;"+r.FormValue("phone"), "extra;"+r.FormValue("extra")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Mostrar en una tabla las tiendas
 		if accion == "get_tienda" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;tabla_tienda", "username;"+username))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/tiendas.cgi", "accion;tabla_tienda", "username;"+username))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Cargar una tienda concreta
 		if accion == "load_tienda" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;load_tienda", "edit_id;"+r.FormValue("load")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/tiendas.cgi", "accion;load_tienda", "edit_id;"+r.FormValue("load")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Borrar una tienda concreta
 		if accion == "del_tienda" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;del_tienda", "borrar;"+r.FormValue("borrar")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/tiendas.cgi", "accion;del_tienda", "borrar;"+r.FormValue("borrar")))
 			fmt.Fprint(w, respuesta)
 		}
 		//Envio de datos al server_ext: Generar un select de provincias para poder añadir una nueva tienda
 		if accion == "show_prov" {
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverroot"]+"/tiendas.cgi", "accion;show_prov", "reg;"+r.FormValue("region")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/tiendas.cgi", "accion;show_prov", "reg;"+r.FormValue("region")))
 			fmt.Fprint(w, respuesta)
 		}
 	}
