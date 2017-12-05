@@ -24,7 +24,7 @@ func reproduccion() {
 			var song string
 			//Sacamos la fecha actual
 			fecha := libs.MyCurrentDate()
-			//INICIAL 
+			//INICIAL
 			//fmt.Println(statusProgammedMusic)
 			//Obtenemos el GAP
 			publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
@@ -42,14 +42,6 @@ func reproduccion() {
 				//fmt.Printf("%s", fichero)
 				publi[p] = fichero
 				p++
-			}
-			//Comprobamos si winamp está abierto
-			isOpen := win.WinampIsOpen()
-			if isOpen == false {
-				//Rulamos el Winamp
-				win.RunWinamp()
-				time.Sleep(1 * time.Second)
-				win.Volume()
 			}
 			if statusProgammedMusic == "Inicial" {
 				for _, val := range programmedMusic {

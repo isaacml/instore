@@ -535,6 +535,15 @@ PlaySongs: Toma una cancion del listado y la reproduce.
 La cancion puede ser cifrada o no cifrada.
 */
 func PlaySong(song string, win winamp.Winamp) {
+	//Comprobamos si winamp está abierto
+	isOpen := win.WinampIsOpen()
+	if isOpen == false {
+		//Rulamos el Winamp
+		win.RunWinamp()
+		time.Sleep(1 * time.Second)
+		win.Volume()
+	}
+	//En caso de reproducir archivos cifrados
 	if strings.Contains(song, ".xxx") {
 		del_ext := strings.Split(song, ".xxx")
 		song_to_play := del_ext[0] + ".mp3"
@@ -608,6 +617,7 @@ func MyCurrentDate() string {
 	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 	return string_fecha
 }
+
 /*
 DaysIn: los dias que tiene un mes específico
 	m: mes
