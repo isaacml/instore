@@ -50,6 +50,7 @@ func main() {
 	//servidor de ficheros
 	http.HandleFunc("/", root)
 	//Actions del servidor externo
+	http.HandleFunc("/auth.cgi", auth)
 	http.HandleFunc("/acciones.cgi", acciones)
 	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
 	http.HandleFunc("/publi_msg.cgi", publi_msg)

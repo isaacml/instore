@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/todostreaming/realip"
 	"math/rand"
@@ -49,8 +48,9 @@ func sessionid(r *rand.Rand, n int) string {
 func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var agente string
+	var username, password string
 	username = r.FormValue(name_username)
-	password := r.FormValue(name_password)
+	password = r.FormValue(name_password)
 	aleat := rand.New(rand.NewSource(time.Now().UnixNano()))
 	sid := sessionid(aleat, session_value_len)
 	expiration := time.Now().Unix() + int64(session_timeout)
@@ -60,10 +60,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 			agente = v[0]
 		}
 	}
-	libs.LoadSettingsWin(serverRoot, settings)
-	//SE PASAN LAS VARIABLES POST AL SERVIDOR INTERNO
-	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;login_tienda", "user;"+username, "pass;"+password))
 	//RECOGEMOS LA RESPUESTA
+	respuesta := authentication(username, password)
 	if respuesta == "OK" {
 		//Cuando se repite autenticacion de usuario
 		for key, _ := range user {
