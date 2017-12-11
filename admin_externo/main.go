@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"github.com/isaacml/instore/libs"
@@ -11,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"sync"
 	"time"
 )
@@ -46,7 +44,7 @@ func init() {
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
-	loadSettings(serverRoot)
+	libs.LoadSettingsWin(serverRoot, settings)
 }
 
 // funcion principal del programa
@@ -159,28 +157,5 @@ func mantenimiento() {
 			}
 		}
 		time.Sleep(30 * time.Second)
-	}
-}
-
-/*
-loadSettings: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa.
-	filename: ruta completa donde se encuentra nuestro fichero(C:\instore\SettingAdmin.reg)
-*/
-func loadSettings(filename string) {
-	fr, err := os.Open(filename)
-	defer fr.Close()
-	if err == nil {
-		reader := bufio.NewReader(fr)
-		for {
-			linea, rerr := reader.ReadString('\n')
-			if rerr != nil {
-				break
-			}
-			linea = strings.TrimRight(linea, "\n")
-			item := strings.Split(linea, " = ")
-			if len(item) == 2 {
-				settings[item[0]] = item[1]
-			}
-		}
 	}
 }

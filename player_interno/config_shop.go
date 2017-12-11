@@ -109,7 +109,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		domain := gen_domain[1]
 		if gen == "OK" {
 			domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
-			loadSettings(configShop, domainint)
+			loadDomains(configShop, domainint)
 			for _, val := range domainint {
 				if val == domain {
 					cont++

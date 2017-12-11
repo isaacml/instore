@@ -6,7 +6,6 @@ import (
 	"github.com/todostreaming/realip"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -61,6 +60,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			agente = v[0]
 		}
 	}
+	libs.LoadSettingsWin(serverRoot, settings)
 	//SE PASAN LAS VARIABLES POST AL SERVIDOR INTERNO
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;login_tienda", "user;"+username, "pass;"+password))
 	//RECOGEMOS LA RESPUESTA
@@ -124,12 +124,6 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/"+first_page+".html", http.StatusFound)
 	}
-}
-
-// convierte un string numérico en un entero int
-func toInt(cant string) (res int) {
-	res, _ = strconv.Atoi(cant)
-	return
 }
 
 //Función que actualiza el tiempo de expiración

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"github.com/isaacml/instore/libs"
@@ -10,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"sync"
 	"time"
 )
@@ -34,13 +32,13 @@ func init() {
 	Info = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Warning = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(io.MultiWriter(file, os.Stderr), "ERROR :", log.Ldate|log.Ltime|log.Lshortfile)
-	db, err_db = sql.Open("sqlite3", "/home/isaac/INSTORE_SQL/pruebas/servint.db")
+	db, err_db = sql.Open("sqlite3", sql_file)
 	if err_db != nil {
 		Error.Println(err_db)
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
-	loadSettings(serverRoot) // Se carga los valores del fichero serverint.reg
+	libs.LoadSettingsLin(serverRoot, serverext) // Se carga los valores del fichero serverint.reg
 }
 
 // funcion principal del programa
@@ -190,30 +188,6 @@ func BorrarFicherosAntiguos() {
 		db.Exec("DELETE FROM mensaje WHERE timestamp < ?", limit_time)
 		db_mu.Unlock()
 
-		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
-	}
-}
-
-/*
-loadSettings: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa.
-	filename: ruta completa donde se encuentra nuestro fichero(C:\instore\serverext.reg)
-*/
-
-func loadSettings(filename string) {
-	fr, err := os.Open(filename)
-	defer fr.Close()
-	if err == nil {
-		reader := bufio.NewReader(fr)
-		for {
-			linea, rerr := reader.ReadString('\n')
-			if rerr != nil {
-				break
-			}
-			linea = strings.TrimRight(linea, "\n")
-			item := strings.Split(linea, " = ")
-			if len(item) == 2 {
-				serverext[item[0]] = item[1]
-			}
-		}
+		time.Sleep(5 * time.Minute) //Cada 5 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
 	}
 }

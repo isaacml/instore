@@ -1,0 +1,13 @@
+[Unit]
+Description=Servidor Externo
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/server_externo
+Restart=always
+LimitNOFILE=500000
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target
+Alias=server_externo.service

@@ -6,6 +6,7 @@ import (
 	"github.com/isaacml/instore/winamp"
 	"net/http"
 	"os"
+	"io/ioutil"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		respuesta := libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
 		bit := strings.Split(respuesta, ";")
 		db_mu.Lock()
-		st_music = toInt(bit[3])
+		st_music = libs.ToInt(bit[3])
 		db_mu.Unlock()
 		fmt.Fprint(w, respuesta)
 	}
@@ -42,7 +43,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	if accion == "dataConfig" {
 		var dominios string
 		domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
-		loadSettings(configShop, domainint)
+		loadDomains(configShop, domainint)
 		for key, val := range domainint {
 			if key == "shopdomain" {
 				dominios += fmt.Sprintf("<tr><th>Dominio Principal:</th><td>&nbsp;</td><td>%s</td></tr>", val)
@@ -60,7 +61,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		block = true
 	}
-	//Muestra cada cierto tiempo el estado de la tienda
+	//Muestra cada segundo("setInterval") el estado de la tienda
 	if accion == "estado_de_tienda" {
 		output := "<tr><td>Conexión de la tienda: </td><td>&nbsp;</td>"
 		if block == true {
@@ -69,6 +70,33 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			output += "<td class='text-success'> Activada</td></tr>"
 		}
 		fmt.Fprint(w, output)
+	}
+	//Recoge de SettingsShop.reg la IP del servidor y la muestra en el html 
+	if accion == "send_ip" {
+		var ip1, ip2, ip3, ip4, port int
+		libs.LoadSettingsWin(serverRoot, settings)
+		fmt.Sscanf(settings["serverinterno"], "http://%d.%d.%d.%d:%d", &ip1, &ip2, &ip3, &ip4, &port)
+		output := fmt.Sprintf("%d;%d;%d;%d;%d", ip1, ip2, ip3, ip4, port)
+		fmt.Fprintf(w, output)
+	}
+	//Recoge del html la direccion ip de la tienda y la modifica en SettingsShop.reg
+	if accion == "edit_ip" {
+		input, err := ioutil.ReadFile(serverRoot)
+        if err != nil {
+        	Error.Println(err)
+        }
+        lines := strings.Split(string(input), "\r\n")
+        for i, line := range lines {
+        	if strings.Contains(line, "serverinterno") {
+        		lines[i] = fmt.Sprintf("serverinterno = http://%s.%s.%s.%s:%s", r.FormValue("ip1"),r.FormValue("ip2"),r.FormValue("ip3"),r.FormValue("ip4"),r.FormValue("port"))
+        	}
+        }
+		output := strings.Join(lines, "\r\n")
+        err = ioutil.WriteFile(serverRoot, []byte(output), 0644)
+        if err != nil {
+        	Error.Println(err)
+        }
+        fmt.Fprint(w, "<div class='text-success'>La IP del servidor se ha modificado</div>")
 	}
 }
 

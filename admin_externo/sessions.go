@@ -6,7 +6,6 @@ import (
 	"github.com/todostreaming/realip"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -49,7 +48,7 @@ func sessionid(r *rand.Rand, n int) string {
 // funcion q tramita el login correcto o erroneo
 func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
-	loadSettings(serverRoot)
+	libs.LoadSettingsWin(serverRoot, settings)
 	var agente string
 	username = r.FormValue(name_username)
 	password := r.FormValue(name_password)
@@ -116,10 +115,4 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/"+first_page+".html", http.StatusFound)
 	}
-}
-
-// convierte un string numérico en un entero int
-func toInt(cant string) (res int) {
-	res, _ = strconv.Atoi(cant)
-	return
 }

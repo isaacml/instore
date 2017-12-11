@@ -20,7 +20,6 @@ import (
 
 /*
 DownloadFile: función que se encarga de descargar un fichero desde una URL específica.
-
 	url: http://www.dreamscene.org/wallpapers/Aquadream.jpg
 	rutaFichero: /home/isaac/nuevasPruebas/new.jpg
 	timeout: segundos que tiene para descargarse el fichero, 2sec
@@ -89,10 +88,8 @@ func DownloadFile(link, rutaFichero string, timeout time.Duration, bitrate float
 
 /*
 DownloadPage: función encargada de descargar un página específica.
-
 	url: http://www.streamrus.com/en/index.php
 	timeout: segundos que tiene para descargarse el fichero, 2sec
-
 La función devuelve un io.Reader y un error, este io.Reader contiene el contenido de la página.
 */
 func DownloadPage(url string, timeout time.Duration) (resp io.Reader, err error) {
@@ -117,12 +114,10 @@ func DownloadPage(url string, timeout time.Duration) (resp io.Reader, err error)
 
 /*
 ClienteUpload: esta función va a realizar la subida de un fichero por parte del cliente, a un servidor específico.
-
 	filename: /home/isaac/Documentos/img1.jpg
 	targetUrl: url del servidor, junto con sus parametros, http://localhost:9090/upload.cgi?parametro1=par1&parametro2=par2
 	bitrate: velocidad de bajada del fichero, 100Kb
 	timeout: segundos que tiene para descargarse el fichero, 2sec
-
 La función devuelve un err=nil, si todo ha ido bien o un err = 'Nombre del error' si ha ido mal.
 */
 func ClienteUpload(filename, targetUrl string, bitrate float64, timeout time.Duration) (resp *http.Response, err error) {
@@ -166,10 +161,8 @@ func ClienteUpload(filename, targetUrl string, bitrate float64, timeout time.Dur
 
 /*
 SendFile: esta función determina que fichero se va a publicar por NATS
-
 	ruta: nombre de la ruta del fichero a subir --> /home/isaac/Documentos/
 	name: nombre del fichero con su extension --> google.jpg
-
 La función devuelve un array de bytes con el nombre y el contenido binario del fichero.
 */
 func SendFile(ruta, name string) []byte {
@@ -499,7 +492,7 @@ func Existencia(ruta string) bool {
 /*
 MusicToPlay: Esta función determina los ficheros que va a reproducir el player de la tienda.
 	ruta:  Ruta del directorio que va a contener los ficheros de música
-	st:    Estado de la música cifrada
+	st:    Estado de la música cifrada (0: solo cif / 1: cif y no cif)
 Devuelve un mapa con todos los ficheros a reproducir.
 */
 func MusicToPlay(ruta string, st int) map[int]string {
@@ -629,6 +622,16 @@ func DaysIn(m time.Month, year int) int64 {
 }
 
 /*
+ToInt: convierte un string numérico en un entero int
+	cant: valor de la cadena
+Salida --> valor convertido a entero
+*/
+func ToInt(cant string) (res int) {
+	res, _ = strconv.Atoi(cant)
+	return
+}
+
+/*
 FechaCreacion: Función para obtener la fecha y hora de creación
 	timestamp: cantidad de segundos
 Nos devuelve la fecha y la hora
@@ -640,4 +643,51 @@ func FechaCreacion(timestamp int64) string {
 	inSlice := strings.Split(toString, " ")
 	out = fmt.Sprintf("%s / %s", inSlice[0], inSlice[1])
 	return out
+}
+/*
+LoadSettingsLin: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa (PARA LINUX)
+	filename: ruta completa donde se encuentra nuestro fichero("serverext.reg")
+	mapa: donde guardamos los datos extraidos del fichero
+*/
+func LoadSettingsLin(filename string, mapa map[string]string) {
+	fr, err := os.Open(filename)
+	defer fr.Close()
+	if err == nil {
+		reader := bufio.NewReader(fr)
+		for {
+			linea, rerr := reader.ReadString('\n')
+			if rerr != nil {
+				break
+			}
+			linea = strings.TrimRight(linea, "\n")
+			item := strings.Split(linea, " = ")
+			if len(item) == 2 {
+				mapa[item[0]] = item[1]
+			}
+		}
+	}
+}
+
+/*
+LoadSettingsWin: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa (PARA WINDOWS)
+	filename: ruta donde se encuentra nuestro fichero "SettingsShop.reg, SettingAdmin.reg"
+	mapa: donde guardamos los datos extraidos del fichero
+*/
+func LoadSettingsWin(filename string, mapa map[string]string) {
+	fr, err := os.Open(filename)
+	defer fr.Close()
+	if err == nil {
+		reader := bufio.NewReader(fr)
+		for {
+			linea, rerr := reader.ReadString('\n')
+			if rerr != nil {
+				break
+			}
+			linea = strings.TrimRight(linea, "\r\n")
+			item := strings.Split(linea, " = ")
+			if len(item) == 2 {
+				mapa[item[0]] = item[1]
+			}
+		}
+	}
 }

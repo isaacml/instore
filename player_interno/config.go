@@ -17,7 +17,7 @@ const (
 	ErrorText            = "Error de Login"              // mensaje a mostrar tras un error de login en la pagina de login
 	logFile              = "player_interno.log"          // ruta del archivo de errores
 	serverRoot           = "SettingsShop.reg"            // fichero que contiene la ruta hacia el servidor interno y el puerto que usa la tienda
-	configShop           = "configshop.reg"              // fichero que el dominio de la tienda: entidad.almacen.pais.region.provincia.tienda
+	configShop           = "configshop.reg"              // fichero que contiene los dominios de la tienda: entidad.almacen.pais.region.provincia.tienda
 	publi_files_location = "Publi\\"                     // ruta donde se van a alojar la publicidad de la tienda
 	msg_files_location   = "Messages\\"                  // ruta donde se van a alojar los mensajes de la tienda
 	music_files          = "Music\\"                     // ruta donde se van a alojar la música de la tienda

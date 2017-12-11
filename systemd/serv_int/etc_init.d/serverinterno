@@ -1,0 +1,44 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          metalplayer
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop metalplayer
+### END INIT INFO
+#/usr/sbin/update-rc.d metalplayer defaults
+#/usr/sbin/update-rc.d -f metalplayer remove
+
+PATH=/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin
+ 
+. /lib/lsb/init-functions
+ 
+do_start () {
+    log_begin_msg "Starting Servidor Interno..."
+        start-stop-daemon --start --oknodo --make-pidfile /var/run/serverinterno.pid --background --pidfile /var/run/serverinterno.pid --startas /usr/local/bin/server_interno
+        log_end_msg $?
+}
+do_stop () {
+    log_begin_msg "Stopping Servidor Interno..."
+        start-stop-daemon --stop --oknodo --pidfile /var/run/serverinterno.pid
+        rm -f /var/run/serverinterno.pid
+        log_end_msg $?
+}
+ 
+case "$1" in
+  start)
+    do_start
+    ;;
+  restart|reload|force-reload)
+        do_stop
+        do_start
+    ;;
+  stop)
+    do_stop
+    ;;
+  *)
+    echo "Usage: $0 start|stop" >&2
+    exit 3
+    ;;
+esac

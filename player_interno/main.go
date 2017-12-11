@@ -50,7 +50,7 @@ func init() {
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
-	loadSettings(serverRoot, settings) // Se carga los valores del fichero playerint.reg
+	libs.LoadSettingsWin(serverRoot, settings) // Se carga los valores del fichero SettingsShop.reg
 }
 
 // funcion principal del programa
@@ -108,12 +108,13 @@ func saveListInBD() {
 			if block == false {
 				var dominios string
 				domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
-				loadSettings(configShop, domainint)
+				loadDomains(configShop, domainint)
 				for _, val := range domainint {
 					dominios += val + ":.:"
 				}
 				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
 				fmt.Println("La respuesta: ", respuesta)
+				fmt.Println(settings)
 				//Si la respuesta NO está vacía, comprobamos la respuesta.
 				if respuesta != "" {
 					//De la respuesta obtenemos el listado de mensajes y publicidad
@@ -466,10 +467,10 @@ func estado_de_entidad() {
 }
 
 /*
-loadSettings: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa.
-	filename: ruta completa donde se encuentra nuestro fichero(C:\instore\serverext.reg)
+loadDomains: abre el fichero de dominios, lee los dominios que contiene y los guarda en un mapa
+	filename: ruta donde se encuentra nuestro fichero(configshop.reg)
 */
-func loadSettings(filename string, arr map[string]string) {
+func loadDomains(filename string, arr map[string]string) {
 	cont := 1
 	fr, err := os.Open(filename)
 	defer fr.Close()
