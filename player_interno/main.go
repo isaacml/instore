@@ -114,7 +114,6 @@ func saveListInBD() {
 				}
 				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
 				fmt.Println("La respuesta: ", respuesta)
-				fmt.Println(settings)
 				//Si la respuesta NO está vacía, comprobamos la respuesta.
 				if respuesta != "" {
 					//De la respuesta obtenemos el listado de mensajes y publicidad

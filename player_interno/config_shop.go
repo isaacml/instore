@@ -132,7 +132,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					_, ok := user[sid]
 					if ok {
 						//Redirigimos a la página de añadir dominios extra(adddomain.html)
-						http.Redirect(w, r, "/configuration.html?"+sid, http.StatusSeeOther)
+						http.Redirect(w, r, "/dominios.html?"+sid, http.StatusSeeOther)
 					}
 				}
 			}

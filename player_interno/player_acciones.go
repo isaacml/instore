@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"io/ioutil"
 	"strings"
 )
 
@@ -22,7 +22,9 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//Enviamos el nombre del usuario al server_interno y este lo pasará al server_externo
 	if accion == "bitmaps" {
 		respuesta := libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
+		fmt.Println(username, respuesta)
 		bit := strings.Split(respuesta, ";")
+		fmt.Println(bit, len(bit))
 		db_mu.Lock()
 		st_music = libs.ToInt(bit[3])
 		db_mu.Unlock()
@@ -71,7 +73,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, output)
 	}
-	//Recoge de SettingsShop.reg la IP del servidor y la muestra en el html 
+	//Recoge de SettingsShop.reg la IP del servidor y la muestra en el html
 	if accion == "send_ip" {
 		var ip1, ip2, ip3, ip4, port int
 		libs.LoadSettingsWin(serverRoot, settings)
@@ -81,22 +83,23 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	}
 	//Recoge del html la direccion ip de la tienda y la modifica en SettingsShop.reg
 	if accion == "edit_ip" {
+		r.ParseForm()
 		input, err := ioutil.ReadFile(serverRoot)
-        if err != nil {
-        	Error.Println(err)
-        }
-        lines := strings.Split(string(input), "\r\n")
-        for i, line := range lines {
-        	if strings.Contains(line, "serverinterno") {
-        		lines[i] = fmt.Sprintf("serverinterno = http://%s.%s.%s.%s:%s", r.FormValue("ip1"),r.FormValue("ip2"),r.FormValue("ip3"),r.FormValue("ip4"),r.FormValue("port"))
-        	}
-        }
+		if err != nil {
+			Error.Println(err)
+		}
+		lines := strings.Split(string(input), "\r\n")
+		for i, line := range lines {
+			if strings.Contains(line, "serverinterno") {
+				lines[i] = fmt.Sprintf("serverinterno = http://%s.%s.%s.%s:%s", r.FormValue("ip1"), r.FormValue("ip2"), r.FormValue("ip3"), r.FormValue("ip4"), r.FormValue("port"))
+			}
+		}
 		output := strings.Join(lines, "\r\n")
-        err = ioutil.WriteFile(serverRoot, []byte(output), 0644)
-        if err != nil {
-        	Error.Println(err)
-        }
-        fmt.Fprint(w, "<div class='text-success'>La IP del servidor se ha modificado</div>")
+		err = ioutil.WriteFile(serverRoot, []byte(output), 0644)
+		if err != nil {
+			Error.Println(err)
+		}
+		fmt.Fprint(w, "<div class='text-success'>La IP del servidor se ha modificado</div>")
 	}
 }
 
@@ -167,7 +170,9 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, val := range musicDirs {
-			output += fmt.Sprintf("<tr><td><input type='checkbox' name='musicDirs' value='%s'></td><td>&nbsp;</td><td>%s</td>", val.Name(), val.Name())
+			if !strings.Contains(val.Name(), ".txt") {
+				output += fmt.Sprintf("<tr><td><input type='checkbox' name='musicDirs' value='%s'></td><td>&nbsp;</td><td>%s</td>", val.Name(), val.Name())
+			}
 		}
 	}
 	//Se recogen los datos de formulario (prog.html)

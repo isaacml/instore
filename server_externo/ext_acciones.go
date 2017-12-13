@@ -13,6 +13,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("accion")
 	//Toma los valores bitmap de un determinado usuario
 	if accion == "bitmap_perm" {
+		var output string
 		query, err := db.Query("SELECT bitmap_acciones FROM usuarios WHERE user = ?", r.FormValue("user"))
 		if err != nil {
 			Error.Println(err)
@@ -29,8 +30,9 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			add_mus := libs.BitmapParsing(bitmap_hex, ADD_MUS)       //res[3]
 			msg_normal := libs.BitmapParsing(bitmap_hex, MSG_NORMAL) //res[4]
 			//Pasamos los valores al html
-			fmt.Fprintf(w, "%d;%d;%d;%d;%d", prog_pub, prog_mus, prog_msg, add_mus, msg_normal)
+			output = fmt.Sprintf("%d;%d;%d;%d;%d", prog_pub, prog_mus, prog_msg, add_mus, msg_normal)
 		}
+		fmt.Fprint(w, output)
 	}
 	if accion == "show_org" {
 		var padre int
