@@ -22,11 +22,11 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//Enviamos el nombre del usuario al server_interno y este lo pasará al server_externo
 	if accion == "bitmaps" {
 		respuesta := libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;bitmaps", "user;"+username)
-		fmt.Println(username, respuesta)
 		bit := strings.Split(respuesta, ";")
-		fmt.Println(bit, len(bit))
 		db_mu.Lock()
-		st_music = libs.ToInt(bit[3])
+		if len(bit) > 1 {
+			st_music = libs.ToInt(bit[3])
+		}
 		db_mu.Unlock()
 		fmt.Fprint(w, respuesta)
 	}

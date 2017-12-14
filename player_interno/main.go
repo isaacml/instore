@@ -92,15 +92,7 @@ func main() {
 func saveListInBD() {
 	for {
 		//Comprobar que existe el fichero de configuracion de la tienda
-		var existe bool
-		_, err := os.Stat(configShop)
-		if err != nil {
-			if os.IsNotExist(err) {
-				existe = false
-			}
-		} else {
-			existe = true
-		}
+		existe := libs.Existencia(configShop)
 		//Fecha actual
 		fecha := libs.MyCurrentDate()
 		//Si el fichero de configuracion existe, enviamos dominio/os de la tienda
@@ -461,7 +453,7 @@ func estado_de_entidad() {
 		} else { //OFF
 			block = true
 		}
-		time.Sleep(10 * time.Minute)
+		time.Sleep(5 * time.Minute)
 	}
 }
 

@@ -175,12 +175,12 @@
                     $("#prog_music_top").hide();
                     $("#zona_musica").hide();
                 }
-                $("#modificar").click(function(){
-                    $.post("/acciones.cgi?sid={{sid}}&accion=edit_ip", $("#testform").serialize(), function(data, status) {
-                        $("#info_ip").html(data);
-                    });
+            });
+            $("#modificar").click(function(){
+                $.post("/acciones.cgi?sid={{sid}}&accion=edit_ip", $("#testform").serialize(), function(data, status) {
+                    $("#info_ip").html(data);
                 });
-            });   
+            });
         });
         function estado(){
             $.post("/acciones.cgi?sid={{sid}}&accion=estado_de_tienda", function(data, status) {

@@ -12,6 +12,7 @@ import (
 //Zona de reproduccion del player de la tienda
 func reproduccion() {
 	for {
+		fmt.Println(block)
 		if block == false {
 			if block == true {
 				continue
