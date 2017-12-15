@@ -6,6 +6,7 @@ import (
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -48,7 +49,7 @@ func reproduccion() {
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					musica = libs.MusicToPlay(full_route, st_music)
+					libs.MusicToPlay(full_route, st_music, musica)
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -80,7 +81,7 @@ func reproduccion() {
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					musica = libs.MusicToPlay(full_route, st_music)
+					libs.MusicToPlay(full_route, st_music, musica)
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -112,7 +113,7 @@ func reproduccion() {
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					musica = libs.MusicToPlay(full_route, st_music)
+					libs.MusicToPlay(full_route, st_music, musica)
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -142,15 +143,52 @@ func reproduccion() {
 				}
 			} else {
 				var song string
-				musica = libs.MusicToPlay(music_files, st_music)
+				var song_duration int
+				var song_to_play string
+				libs.MusicToPlay(music_files, st_music, musica)
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
 					if statusProgammedMusic == "Inicial" || block == true {
 						break
 					}
+					fmt.Println(v)
 					song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-					libs.PlaySong(song, win)
+					fmt.Println(song)
+					//Comprobamos si winamp está abierto
+					isOpen := win.WinampIsOpen()
+					if isOpen == false {
+						//Rulamos el Winamp
+						win.RunWinamp()
+						time.Sleep(1 * time.Second)
+						win.Volume()
+					}
+					//En caso de reproducir archivos cifrados
+					if strings.Contains(song, ".xxx") {
+						del_ext := strings.Split(song, ".xxx")
+						song_to_play = del_ext[0] + ".mp3"
+						//Proceso de descifrado de la cancion: ver en libreria de funciones.
+						libs.Cifrado(song, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+						//Guardamos la duracion total de la cancion
+						song_duration = win.SongLenght(song_to_play)
+						//Carga y reproduccion de cancion
+						win.Load("\"" + song_to_play + "\"")
+						win.Play()
+						time.Sleep(time.Duration(song_duration) * time.Second)
+						//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
+						win.Clear()
+						//Borramos el descifrado(.mp3)
+						os.Remove(song_to_play)
+					} else {
+						//musica sin cifrar
+						song_to_play = song
+						//Guardamos la duracion total de la cancion
+						song_duration = win.SongLenght(song_to_play)
+						//Carga y reproduccion de cancion
+						win.Load("\"" + song_to_play + "\"")
+						win.Play()
+						time.Sleep(time.Duration(song_duration) * time.Second)
+					}
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {

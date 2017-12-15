@@ -493,12 +493,12 @@ func Existencia(ruta string) bool {
 MusicToPlay: Esta función determina los ficheros que va a reproducir el player de la tienda.
 	ruta:  Ruta del directorio que va a contener los ficheros de música
 	st:    Estado de la música cifrada (0: solo cif / 1: cif y no cif)
+	mapa:  mapa donde se van a guardar los ficheros de música
 Devuelve un mapa con todos los ficheros a reproducir.
 */
-func MusicToPlay(ruta string, st int) map[int]string {
+func MusicToPlay(ruta string, st int, mapa map[int]string) {
 	var cmd *exec.Cmd
 	a := 0
-	music := make(map[int]string)
 	if st != 0 {
 		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
 		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx")
@@ -515,10 +515,9 @@ func MusicToPlay(ruta string, st int) map[int]string {
 		if err != nil {
 			break
 		}
-		music[a] = strings.TrimRight(line, "\r\n")
+		mapa[a] = strings.TrimRight(line, "\r\n")
 		a++
 	}
-	return music
 }
 
 /*
@@ -527,7 +526,10 @@ PlaySongs: Toma una cancion del listado y la reproduce.
 	win:   Objeto Winamp
 La cancion puede ser cifrada o no cifrada.
 */
-func PlaySong(song string, win winamp.Winamp) {
+func PlaySong(song string, win winamp.Winamp) (int, string) {
+	var song_to_play string
+	var song_duration int
+	var tipo string
 	//Comprobamos si winamp está abierto
 	isOpen := win.WinampIsOpen()
 	if isOpen == false {
@@ -539,27 +541,27 @@ func PlaySong(song string, win winamp.Winamp) {
 	//En caso de reproducir archivos cifrados
 	if strings.Contains(song, ".xxx") {
 		del_ext := strings.Split(song, ".xxx")
-		song_to_play := del_ext[0] + ".mp3"
+		song_to_play = del_ext[0] + ".mp3"
 		//Proceso de descifrado de la cancion: ver en libreria de funciones.
 		Cifrado(song, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
 		//Guardamos la duracion total de la cancion
-		song_duration := win.SongLenght(song_to_play)
+		song_duration = win.SongLenght(song_to_play)
 		//Carga y reproduccion de cancion
 		win.Load("\"" + song_to_play + "\"")
 		win.Play()
-		time.Sleep(time.Duration(song_duration+1) * time.Second)
-		//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
-		win.Clear()
-		//Borramos el descifrado(.mp3)
-		os.Remove(song_to_play)
+		tipo = "cif"
+
+	} else {
+		//musica sin cifrar
+		song_to_play = song
+		//Guardamos la duracion total de la cancion
+		song_duration = win.SongLenght(song_to_play)
+		//Carga y reproduccion de cancion
+		win.Load("\"" + song_to_play + "\"")
+		win.Play()
+		tipo = "nocif"
 	}
-	song_to_play := song
-	//Guardamos la duracion total de la cancion
-	song_duration := win.SongLenght(song_to_play)
-	//Carga y reproduccion de cancion
-	win.Load("\"" + song_to_play + "\"")
-	win.Play()
-	time.Sleep(time.Duration(song_duration) * time.Second)
+	return song_duration, tipo
 }
 
 /*
@@ -644,6 +646,7 @@ func FechaCreacion(timestamp int64) string {
 	out = fmt.Sprintf("%s / %s", inSlice[0], inSlice[1])
 	return out
 }
+
 /*
 LoadSettingsLin: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa (PARA LINUX)
 	filename: ruta completa donde se encuentra nuestro fichero("serverext.reg")
