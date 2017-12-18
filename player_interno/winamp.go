@@ -13,17 +13,15 @@ import (
 //Zona de reproduccion del player de la tienda
 func reproduccion() {
 	for {
-		fmt.Println(block)
 		if block == false {
 			if block == true {
 				continue
 			}
 			var win winamp.Winamp
+			var gap int
 			publi := make(map[int]string)
 			musica := make(map[int]string)
 			p, pl := 0, 1
-			var gap int
-			var song string
 			//Sacamos la fecha actual
 			fecha := libs.MyCurrentDate()
 			//INICIAL
@@ -57,21 +55,18 @@ func reproduccion() {
 					if statusProgammedMusic == "Actualizada" || block == true {
 						break
 					}
-					song = musica[v]
-					libs.PlaySong(song, win)
+					//Evaluamos cada una de las canciones: cif o nocif
+					if strings.Contains(musica[v], ".xxx") {
+						//Descifra y reproduce una cancion cifrada
+						libs.PlaySongCif(musica[v], win)  
+					}else{
+						//Reproduce una cancion sin cifrar
+						libs.PlaySong(musica[v], win)
+					}
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-						rand.Seed(time.Now().UnixNano())
-						shuffle2 := rand.Perm(len(publi))
-						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-						for _, val := range shuffle2 {
-							publi_file := publi[val]
-							all_publi_file := publi_files_location + publi_file
-							libs.PlayPubli(all_publi_file, win)
-							break
-						}
+						libs.PlayPubli(publi, publi_files_location, win)
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}
@@ -89,21 +84,18 @@ func reproduccion() {
 					if statusProgammedMusic == "Modificar" || block == true {
 						break
 					}
-					song = musica[v]
-					libs.PlaySong(song, win)
+					//Evaluamos cada una de las canciones: cif o nocif
+					if strings.Contains(musica[v], ".xxx") {
+						//Descifra y reproduce una cancion cifrada
+						libs.PlaySongCif(musica[v], win)  
+					}else{
+						//Reproduce una cancion sin cifrar
+						libs.PlaySong(musica[v], win)
+					}
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-						rand.Seed(time.Now().UnixNano())
-						shuffle2 := rand.Perm(len(publi))
-						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-						for _, val := range shuffle2 {
-							publi_file := publi[val]
-							all_publi_file := publi_files_location + publi_file
-							libs.PlayPubli(all_publi_file, win)
-							break
-						}
+						libs.PlayPubli(publi, publi_files_location, win)
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}
@@ -121,30 +113,24 @@ func reproduccion() {
 					if statusProgammedMusic == "Actualizada" || block == true {
 						break
 					}
-					song = musica[v]
-					libs.PlaySong(song, win)
+					//Evaluamos cada una de las canciones: cif o nocif
+					if strings.Contains(musica[v], ".xxx") {
+						//Descifra y reproduce una cancion cifrada
+						libs.PlaySongCif(musica[v], win)  
+					}else{
+						//Reproduce una cancion sin cifrar
+						libs.PlaySong(musica[v], win)
+					}
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-						rand.Seed(time.Now().UnixNano())
-						shuffle2 := rand.Perm(len(publi))
-						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-						for _, val := range shuffle2 {
-							publi_file := publi[val]
-							all_publi_file := publi_files_location + publi_file
-							libs.PlayPubli(all_publi_file, win)
-							break
-						}
+						libs.PlayPubli(publi, publi_files_location, win)
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}
 					pl++
 				}
 			} else {
-				var song string
-				var song_duration int
-				var song_to_play string
 				libs.MusicToPlay(music_files, st_music, musica)
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -152,56 +138,18 @@ func reproduccion() {
 					if statusProgammedMusic == "Inicial" || block == true {
 						break
 					}
-					fmt.Println(v)
-					song = musica[v] //Tomamos las canciones, teniendo en cuenta que hay musica cif/NO cif
-					fmt.Println(song)
-					//Comprobamos si winamp está abierto
-					isOpen := win.WinampIsOpen()
-					if isOpen == false {
-						//Rulamos el Winamp
-						win.RunWinamp()
-						time.Sleep(1 * time.Second)
-						win.Volume()
-					}
-					//En caso de reproducir archivos cifrados
-					if strings.Contains(song, ".xxx") {
-						del_ext := strings.Split(song, ".xxx")
-						song_to_play = del_ext[0] + ".mp3"
-						//Proceso de descifrado de la cancion: ver en libreria de funciones.
-						libs.Cifrado(song, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-						//Guardamos la duracion total de la cancion
-						song_duration = win.SongLenght(song_to_play)
-						//Carga y reproduccion de cancion
-						win.Load("\"" + song_to_play + "\"")
-						win.Play()
-						time.Sleep(time.Duration(song_duration) * time.Second)
-						//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
-						win.Clear()
-						//Borramos el descifrado(.mp3)
-						os.Remove(song_to_play)
-					} else {
-						//musica sin cifrar
-						song_to_play = song
-						//Guardamos la duracion total de la cancion
-						song_duration = win.SongLenght(song_to_play)
-						//Carga y reproduccion de cancion
-						win.Load("\"" + song_to_play + "\"")
-						win.Play()
-						time.Sleep(time.Duration(song_duration) * time.Second)
+					//Evaluamos cada una de las canciones: cif o nocif
+					if strings.Contains(musica[v], ".xxx") {
+						//Descifra y reproduce una cancion cifrada
+						libs.PlaySongCif(musica[v], win)  
+					}else{
+						//Reproduce una cancion sin cifrar
+						libs.PlaySong(musica[v], win)
 					}
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-						rand.Seed(time.Now().UnixNano())
-						shuffle2 := rand.Perm(len(publi))
-						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-						for _, val := range shuffle2 {
-							publi_file := publi[val]
-							all_publi_file := publi_files_location + publi_file
-							libs.PlayPubli(all_publi_file, win)
-							break
-						}
+						libs.PlayPubli(publi, publi_files_location, win)
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}
@@ -217,8 +165,7 @@ func reproduccion() {
 func reproduccion_msgs() {
 	for {
 		//Obtenemos la fecha actual
-		y, m, d := time.Now().Date()
-		fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+		fecha := libs.MyCurrentDate()
 		fecha_sql := fecha + "%"
 		//Obtenemos la hora local
 		hh, mm, _ := time.Now().Clock()

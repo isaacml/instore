@@ -357,7 +357,7 @@ func solicitudDeFicheros() {
 				if err != nil {
 					Error.Println(err)
 				}
-				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
+				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
 				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 				if respuesta == "Descarga" {
 					b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
@@ -393,7 +393,7 @@ func solicitudDeFicheros() {
 				if err != nil {
 					Error.Println(err)
 				}
-				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist))
+				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist))
 				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 				if respuesta == "Descarga" {
 					b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)

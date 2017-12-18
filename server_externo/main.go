@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/isaacml/instore/libs"
 	"io"
 	"log"
 	"net/http"
@@ -96,8 +97,7 @@ func main() {
 func BorrarFicherosAntiguos() {
 	for {
 		//fecha de ahora
-		yy, mm, dd := time.Now().Date()
-		now := fmt.Sprintf("%4d%02d%2d", yy, int(mm), dd)
+		now := libs.MyCurrentDate()
 		//tiempo limite = 1 mes 2592000
 		limit_time := time.Now().Unix() - 86400
 		//PUBLICIDAD

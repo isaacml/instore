@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"math/rand"
 	"time"
 )
 
@@ -521,15 +522,13 @@ func MusicToPlay(ruta string, st int, mapa map[int]string) {
 }
 
 /*
-PlaySongs: Toma una cancion del listado y la reproduce.
+PlaySong: Toma una cancion del listado y la reproduce.
 	song:  Nombre de la cancion
 	win:   Objeto Winamp
-La cancion puede ser cifrada o no cifrada.
+Canciones sin cifrar
 */
-func PlaySong(song string, win winamp.Winamp) (int, string) {
-	var song_to_play string
+func PlaySong(song string, win winamp.Winamp){
 	var song_duration int
-	var tipo string
 	//Comprobamos si winamp está abierto
 	isOpen := win.WinampIsOpen()
 	if isOpen == false {
@@ -538,32 +537,67 @@ func PlaySong(song string, win winamp.Winamp) (int, string) {
 		time.Sleep(1 * time.Second)
 		win.Volume()
 	}
-	//En caso de reproducir archivos cifrados
-	if strings.Contains(song, ".xxx") {
-		del_ext := strings.Split(song, ".xxx")
-		song_to_play = del_ext[0] + ".mp3"
-		//Proceso de descifrado de la cancion: ver en libreria de funciones.
-		Cifrado(song, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-		//Guardamos la duracion total de la cancion
-		song_duration = win.SongLenght(song_to_play)
-		//Carga y reproduccion de cancion
-		win.Load("\"" + song_to_play + "\"")
-		win.Play()
-		tipo = "cif"
-
-	} else {
-		//musica sin cifrar
-		song_to_play = song
-		//Guardamos la duracion total de la cancion
-		song_duration = win.SongLenght(song_to_play)
-		//Carga y reproduccion de cancion
-		win.Load("\"" + song_to_play + "\"")
-		win.Play()
-		tipo = "nocif"
-	}
-	return song_duration, tipo
+	//Guardamos la duracion total de la cancion
+	song_duration = win.SongLenght(song)
+	//Carga y reproduccion de cancion
+	win.Load("\"" + song + "\"")
+	win.Play()
+	time.Sleep(time.Duration(song_duration) * time.Second)
 }
-
+/*
+PlaySongCif: Toma una cancion cifrada del listado y la reproduce.
+	song:  Nombre de la cancion cifrada
+	win:   Objeto Winamp
+Solo se utiliza para música cifrada
+*/
+func PlaySongCif(song_cif string, win winamp.Winamp){
+	var song_to_play string
+	var song_duration int
+	//Comprobamos si winamp está abierto
+	isOpen := win.WinampIsOpen()
+	if isOpen == false {
+		//Rulamos el Winamp
+		win.RunWinamp()
+		time.Sleep(1 * time.Second)
+		win.Volume()
+	}
+	segment := strings.Split(song_cif, ".xxx")
+	song_to_play = segment[0] + ".mp3"
+	//Proceso de descifrado de la cancion: ver en libreria de funciones.
+	Cifrado(song_cif, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	//Guardamos la duracion total de la cancion
+	song_duration = win.SongLenght(song_to_play)
+	//Carga y reproduccion de cancion
+	win.Load("\"" + song_to_play + "\"")
+	win.Play()
+	time.Sleep(time.Duration(song_duration) * time.Second)
+	//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
+	win.Clear()
+	//Borramos el descifrado(.mp3)
+	os.Remove(song_to_play)
+}
+/*
+PlayPubli: Toma un fichero de publicidad del listado y lo reproduce.
+	mapa:  Contiene los ficheros de publicidad diarios.
+	ruta:  Directorio donde se encuentra la publicidad.
+	win:   Objeto Winamp
+*/
+func PlayPubli(mapa map[int]string, ruta string, win winamp.Winamp) {
+	//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+	rand.Seed(time.Now().UnixNano())
+	shuffle2 := rand.Perm(len(mapa))
+	fmt.Println("mapa de publicidad:", mapa)
+	//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+	for _, val := range shuffle2 {
+		publi_file := mapa[val]
+		all_publi_file := ruta + publi_file
+		win.Load("\"" + all_publi_file + "\"")
+		win.Play()
+		song_duration := win.SongLenght(all_publi_file)
+		time.Sleep(time.Duration(song_duration) * time.Second)
+		break
+	}
+}
 /*
 MainDomain: Obtener el dominio principal de la tienda
 	file: Nombre del fichero que contiene el dominio (configShop)
@@ -589,18 +623,6 @@ func MainDomain(filename string) string {
 		}
 	}
 	return dom
-}
-
-/*
-PlayPubli: Toma un fichero de publicidad del listado y lo reproduce.
-	publi_file:  Nombre del fichero de publicidad
-	win:   Objeto Winamp
-*/
-func PlayPubli(publi_file string, win winamp.Winamp) {
-	win.Load("\"" + publi_file + "\"")
-	win.Play()
-	song_duration := win.SongLenght(publi_file)
-	time.Sleep(time.Duration(song_duration) * time.Second)
 }
 
 /*
