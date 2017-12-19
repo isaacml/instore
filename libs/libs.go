@@ -499,10 +499,10 @@ Devuelve un mapa con todos los ficheros a reproducir.
 func MusicToPlay(ruta string, st int, mapa map[int]string) {
 	var cmd *exec.Cmd
 	a := 0
-	if st != 0 {
+	if st == 0 {
 		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
 		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx")
-	} else {
+	} else if st == 1 {
 		//Se obtienen los ficheros del directorio y subdirectorios (solo música cif)
 		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.xxx")
 	}
@@ -526,7 +526,7 @@ PlaySong: Toma una cancion del listado y la reproduce.
 	win:   Objeto Winamp
 Canciones sin cifrar
 */
-func PlaySong(song string, win winamp.Winamp){
+func PlaySong(song string, win winamp.Winamp) {
 	var song_duration int
 	//Comprobamos si winamp está abierto
 	isOpen := win.WinampIsOpen()
@@ -536,20 +536,22 @@ func PlaySong(song string, win winamp.Winamp){
 		time.Sleep(1 * time.Second)
 		win.Volume()
 	}
-	//Guardamos la duracion total de la cancion
-	song_duration = win.SongLenght(song)
+	fmt.Println(song)
 	//Carga y reproduccion de cancion
 	win.Load("\"" + song + "\"")
 	win.Play()
+	//Guardamos la duracion total de la cancion
+	song_duration = win.SongLenght(song)
 	time.Sleep(time.Duration(song_duration) * time.Second)
 }
+
 /*
 PlaySongCif: Toma una cancion cifrada del listado y la reproduce.
 	song:  Nombre de la cancion cifrada
 	win:   Objeto Winamp
 Solo se utiliza para música cifrada
 */
-func PlaySongCif(song_cif string, win winamp.Winamp){
+func PlaySongCif(song_cif string, win winamp.Winamp) {
 	var song_to_play string
 	var song_duration int
 	//Comprobamos si winamp está abierto
@@ -564,17 +566,18 @@ func PlaySongCif(song_cif string, win winamp.Winamp){
 	song_to_play = segment[0] + ".mp3"
 	//Proceso de descifrado de la cancion: ver en libreria de funciones.
 	Cifrado(song_cif, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-	//Guardamos la duracion total de la cancion
-	song_duration = win.SongLenght(song_to_play)
 	//Carga y reproduccion de cancion
 	win.Load("\"" + song_to_play + "\"")
 	win.Play()
+	//Guardamos la duracion total de la cancion
+	song_duration = win.SongLenght(song_to_play)
 	time.Sleep(time.Duration(song_duration) * time.Second)
 	//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
 	win.Clear()
 	//Borramos el descifrado(.mp3)
 	os.Remove(song_to_play)
 }
+
 /*
 PlayPubli: Reproduce un fichero de publicidad
 	f_publi: Fichero de publicidad
@@ -586,6 +589,7 @@ func PlayPubli(f_publi string, win winamp.Winamp) {
 	win.Play()
 	time.Sleep(time.Duration(song_duration) * time.Second)
 }
+
 /*
 MainDomain: Obtener el dominio principal de la tienda
 	file: Nombre del fichero que contiene el dominio (configShop)
