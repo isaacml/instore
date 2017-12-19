@@ -66,7 +66,16 @@ func reproduccion() {
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						libs.PlayPubli(publi, publi_files_location, win)
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							//Directorio publi + Fichero publi
+							all_publi_file := publi_files_location + publi[val]
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}
@@ -95,7 +104,16 @@ func reproduccion() {
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						libs.PlayPubli(publi, publi_files_location, win)
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							//Directorio publi + Fichero publi
+							all_publi_file := publi_files_location + publi[val]
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}
@@ -124,7 +142,16 @@ func reproduccion() {
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						libs.PlayPubli(publi, publi_files_location, win)
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							//Directorio publi + Fichero publi
+							all_publi_file := publi_files_location + publi[val]
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}
@@ -149,7 +176,16 @@ func reproduccion() {
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
-						libs.PlayPubli(publi, publi_files_location, win)
+						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
+						rand.Seed(time.Now().UnixNano())
+						shuffle2 := rand.Perm(len(publi))
+						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
+						for _, val := range shuffle2 {
+							//Directorio publi + Fichero publi
+							all_publi_file := publi_files_location + publi[val]
+							libs.PlayPubli(all_publi_file, win)
+							break
+						}
 						//Volvemos a poner el contador de playlist 0
 						pl = 0
 					}

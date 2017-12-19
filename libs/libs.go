@@ -15,7 +15,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"math/rand"
 	"time"
 )
 
@@ -577,26 +576,15 @@ func PlaySongCif(song_cif string, win winamp.Winamp){
 	os.Remove(song_to_play)
 }
 /*
-PlayPubli: Toma un fichero de publicidad del listado y lo reproduce.
-	mapa:  Contiene los ficheros de publicidad diarios.
-	ruta:  Directorio donde se encuentra la publicidad.
-	win:   Objeto Winamp
+PlayPubli: Reproduce un fichero de publicidad
+	f_publi: Fichero de publicidad
+	win:     Objeto Winamp
 */
-func PlayPubli(mapa map[int]string, ruta string, win winamp.Winamp) {
-	//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-	rand.Seed(time.Now().UnixNano())
-	shuffle2 := rand.Perm(len(mapa))
-	fmt.Println("mapa de publicidad:", mapa)
-	//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-	for _, val := range shuffle2 {
-		publi_file := mapa[val]
-		all_publi_file := ruta + publi_file
-		win.Load("\"" + all_publi_file + "\"")
-		win.Play()
-		song_duration := win.SongLenght(all_publi_file)
-		time.Sleep(time.Duration(song_duration) * time.Second)
-		break
-	}
+func PlayPubli(f_publi string, win winamp.Winamp) {
+	song_duration := win.SongLenght(f_publi)
+	win.Load("\"" + f_publi + "\"")
+	win.Play()
+	time.Sleep(time.Duration(song_duration) * time.Second)
 }
 /*
 MainDomain: Obtener el dominio principal de la tienda
