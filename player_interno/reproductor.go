@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+//Comparamos la hora guardada con la hora del sistema
+func horario_reproduccion() {
+	for {
+		fmt.Println(hora_inicial)
+		fmt.Println(hora_final)
+	}
+}
+
 //Zona de reproduccion del player de la tienda
 func reproduccion() {
 	for {
@@ -58,8 +66,8 @@ func reproduccion() {
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada
-						libs.PlaySongCif(musica[v], win)  
-					}else{
+						libs.PlaySongCif(musica[v], win)
+					} else {
 						//Reproduce una cancion sin cifrar
 						libs.PlaySong(musica[v], win)
 					}
@@ -96,8 +104,8 @@ func reproduccion() {
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada
-						libs.PlaySongCif(musica[v], win)  
-					}else{
+						libs.PlaySongCif(musica[v], win)
+					} else {
 						//Reproduce una cancion sin cifrar
 						libs.PlaySong(musica[v], win)
 					}
@@ -134,8 +142,8 @@ func reproduccion() {
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada
-						libs.PlaySongCif(musica[v], win)  
-					}else{
+						libs.PlaySongCif(musica[v], win)
+					} else {
 						//Reproduce una cancion sin cifrar
 						libs.PlaySong(musica[v], win)
 					}
@@ -168,8 +176,8 @@ func reproduccion() {
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada
-						libs.PlaySongCif(musica[v], win)  
-					}else{
+						libs.PlaySongCif(musica[v], win)
+					} else {
 						//Reproduce una cancion sin cifrar
 						libs.PlaySong(musica[v], win)
 					}

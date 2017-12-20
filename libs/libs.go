@@ -738,3 +738,19 @@ func LoadDomains(filename string, arr map[string]string) {
 		}
 	}
 }
+
+func MostrarHoras() string {
+	var str string
+	for i := 0; i <= 23; i++ {
+		str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+	}
+	return str
+}
+
+func MostrarMinutos() string {
+	var str string
+	for i := 0; i <= 59; i++ {
+		str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+	}
+	return str
+}

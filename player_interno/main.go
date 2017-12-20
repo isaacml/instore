@@ -25,6 +25,8 @@ var (
 	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
 	copy_arr             []string                                    //Contenedor que va a guardar los ficheros que van a ser copiados a "C:\instore\\Music\"
 	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
+	hora_inicial         string                                      //Hora de inicio --> 00:00
+	hora_final           string                                      //Hora de fin --> 00:00
 	username             string                                      //Variable de usuario y estado global
 	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
@@ -110,7 +112,7 @@ func saveListInBD() {
 					//De la respuesta obtenemos el listado de mensajes y publicidad
 					separar_publi := strings.Split(respuesta, "[publi];")
 					if len(separar_publi) > 1 { //Hay ficheros de publicidad
-						tiene_msg := strings.Contains(separar_publi[1], "[mensaje];") 
+						tiene_msg := strings.Contains(separar_publi[1], "[mensaje];")
 						if tiene_msg != true { //Se comprueba si el listado contiene mensajes
 							//SOLO ARCHIVOS DE PUBLICIDAD
 							var publi string
@@ -380,8 +382,9 @@ func estado_de_entidad() {
 		time.Sleep(5 * time.Minute)
 	}
 }
+
 //Inserta la publicidad en la base de datos de la tienda
-func insert_publi(f_pub, existe, fecha_ini, gap string){
+func insert_publi(f_pub, existe, fecha_ini, gap string) {
 	stm, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `gap`) VALUES (?,?,?,?)")
 	if err != nil {
 		Error.Println(err)
@@ -393,8 +396,9 @@ func insert_publi(f_pub, existe, fecha_ini, gap string){
 		Error.Println(err1)
 	}
 }
+
 //Inserta los mensajes en la base de datos de la tienda
-func insert_msg(msgname, playtime, existe, fecha string){
+func insert_msg(msgname, playtime, existe, fecha string) {
 	stm, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `existe`, `fecha`) VALUES (?,?,?,?)")
 	if err != nil {
 		Error.Println(err)

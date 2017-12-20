@@ -32,19 +32,13 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		//Envia un select para mostrar las horas en el panel de mensajes.html
 		if accion == "horas_msg" {
-			var str string
-			for i := 1; i <= 24; i++ {
-				str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
-			}
-			fmt.Fprint(w, str)
+			horas := libs.MostrarHoras()
+			fmt.Fprint(w, horas)
 		}
 		//Envia un select para mostrar los minutos en el panel de mensajes.html
 		if accion == "minutos_msg" {
-			var str string
-			for i := 0; i <= 59; i++ {
-				str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
-			}
-			fmt.Fprint(w, str)
+			mins := libs.MostrarMinutos()
+			fmt.Fprint(w, mins)
 		}
 	}
 }

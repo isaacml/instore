@@ -101,6 +101,21 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, "<div class='text-success'>La IP del servidor se ha modificado</div>")
 	}
+	//Muestra las horas en el fichero de programacion de música
+	if accion == "mostrar_horas" {
+		var output string
+		horas := libs.MostrarHoras()
+		minutos := libs.MostrarMinutos()
+		output = fmt.Sprintf("%s;%s;%s;%s", horas, minutos, horas, minutos)
+		fmt.Fprint(w, output)
+	}
+	if accion == "recoger_horas" {
+		r.ParseForm()
+		db_mu.Lock()
+		hora_inicial = fmt.Sprintf("%s:%s", r.FormValue("hora1"), r.FormValue("min1"))
+		hora_final = fmt.Sprintf("%s:%s", r.FormValue("hora2"), r.FormValue("min2"))
+		db_mu.Unlock()
+	}
 }
 
 //Reproductor de Mensajes Instantaneos
