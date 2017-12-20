@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"github.com/isaacml/instore/libs"
@@ -53,7 +52,7 @@ func init() {
 	libs.LoadSettingsWin(serverRoot, settings) // Se carga los valores del fichero SettingsShop.reg
 }
 
-// funcion principal del programa
+// Funcion principal del programa
 func main() {
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", settings["port"])
 	go controlinternalsessions() // Controla la caducidad de la sesion
@@ -100,7 +99,7 @@ func saveListInBD() {
 			if block == false {
 				var dominios string
 				domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
-				loadDomains(configShop, domainint)
+				libs.LoadDomains(configShop, domainint)
 				for _, val := range domainint {
 					dominios += val + ":.:"
 				}
@@ -110,11 +109,9 @@ func saveListInBD() {
 				if respuesta != "" {
 					//De la respuesta obtenemos el listado de mensajes y publicidad
 					separar_publi := strings.Split(respuesta, "[publi];")
-					//Hay ficheros de publicidad
-					if len(separar_publi) > 1 {
-						//Se comprueba si el listado contiene mensajes
-						tiene_msg := strings.Contains(separar_publi[1], "[mensaje];")
-						if tiene_msg != true {
+					if len(separar_publi) > 1 { //Hay ficheros de publicidad
+						tiene_msg := strings.Contains(separar_publi[1], "[mensaje];") 
+						if tiene_msg != true { //Se comprueba si el listado contiene mensajes
 							//SOLO ARCHIVOS DE PUBLICIDAD
 							var publi string
 							arch_publi := strings.Split(separar_publi[1], ";")
@@ -143,29 +140,11 @@ func saveListInBD() {
 									if err != nil {
 										//NO lo tiene, se guarda en la BD de player con el estado en N.
 										if os.IsNotExist(err) {
-											nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `gap`) VALUES (?,?,?,?)")
-											if err != nil {
-												Error.Println(err)
-											}
-											db_mu.Lock()
-											_, err1 := nook.Exec(f_pub, "N", fecha_ini, gap)
-											db_mu.Unlock()
-											if err1 != nil {
-												Error.Println(err1)
-											}
+											insert_publi(f_pub, "N", fecha_ini, gap)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `gap`) VALUES (?,?,?,?)")
-										if err != nil {
-											Error.Println(err)
-										}
-										db_mu.Lock()
-										_, err1 := ok.Exec(f_pub, "Y", fecha_ini, gap)
-										db_mu.Unlock()
-										if err1 != nil {
-											Error.Println(err1)
-										}
+										insert_publi(f_pub, "Y", fecha_ini, gap)
 									}
 								}
 							}
@@ -199,29 +178,11 @@ func saveListInBD() {
 									if err != nil {
 										//NO lo tiene, se guarda en la BD de player con el estado en N.
 										if os.IsNotExist(err) {
-											nook, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `gap`) VALUES (?,?,?,?)")
-											if err != nil {
-												Error.Println(err)
-											}
-											db_mu.Lock()
-											_, err1 := nook.Exec(f_pub, "N", fecha_ini, gap)
-											db_mu.Unlock()
-											if err1 != nil {
-												Error.Println(err1)
-											}
+											insert_publi(f_pub, "N", fecha_ini, gap)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										ok, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `gap`) VALUES (?,?,?,?)")
-										if err != nil {
-											Error.Println(err)
-										}
-										db_mu.Lock()
-										_, err1 := ok.Exec(f_pub, "Y", fecha_ini, gap)
-										db_mu.Unlock()
-										if err1 != nil {
-											Error.Println(err1)
-										}
+										insert_publi(f_pub, "Y", fecha_ini, gap)
 									}
 								}
 							}
@@ -248,29 +209,11 @@ func saveListInBD() {
 									if err != nil {
 										//NO lo tiene, se guarda en la BD de player con el estado en N.
 										if os.IsNotExist(err) {
-											nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `existe`, `fecha`) VALUES (?,?,?,?)")
-											if err != nil {
-												Error.Println(err)
-											}
-											db_mu.Lock()
-											_, err1 := nook.Exec(msgname, playtime, "N", fecha)
-											db_mu.Unlock()
-											if err1 != nil {
-												Error.Println(err1)
-											}
+											insert_msg(msgname, playtime, "N", fecha)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `existe`, `fecha`) VALUES (?,?,?,?)")
-										if err != nil {
-											Error.Println(err)
-										}
-										db_mu.Lock()
-										_, err1 := ok.Exec(msgname, playtime, "Y", fecha)
-										db_mu.Unlock()
-										if err1 != nil {
-											Error.Println(err1)
-										}
+										insert_msg(msgname, playtime, "Y", fecha)
 									}
 								}
 							}
@@ -302,29 +245,11 @@ func saveListInBD() {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if err != nil {
 										if os.IsNotExist(err) {
-											nook, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `existe`, `fecha`) VALUES (?,?,?,?)")
-											if err != nil {
-												Error.Println(err)
-											}
-											db_mu.Lock()
-											_, err1 := nook.Exec(msgname, playtime, "N", fecha)
-											db_mu.Unlock()
-											if err1 != nil {
-												Error.Println(err1)
-											}
+											insert_msg(msgname, playtime, "N", fecha)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										ok, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `existe`, `fecha`) VALUES (?,?,?,?)")
-										if err != nil {
-											Error.Println(err)
-										}
-										db_mu.Lock()
-										_, err1 := ok.Exec(msgname, playtime, "Y", fecha)
-										db_mu.Unlock()
-										if err1 != nil {
-											Error.Println(err1)
-										}
+										insert_msg(msgname, playtime, "Y", fecha)
 									}
 								}
 							}
@@ -343,8 +268,7 @@ func solicitudDeFicheros() {
 		//Solo bajamos ficheros si la tienda está desbloqueada (block = false)
 		if block == false {
 			//Sacamos la fecha actual
-			y, m, d := time.Now().Date()
-			fecha := fmt.Sprintf("%4d%02d%02d", y, int(m), d)
+			fecha := libs.MyCurrentDate()
 			//Busqueda fichero de publicidad y existencia del mismo por fecha actual
 			publiQ, err := db.Query("SELECT fichero, existe, fecha_ini, gap FROM publi WHERE fecha_ini=?", fecha)
 			if err != nil {
@@ -456,33 +380,29 @@ func estado_de_entidad() {
 		time.Sleep(5 * time.Minute)
 	}
 }
-
-/*
-loadDomains: abre el fichero de dominios, lee los dominios que contiene y los guarda en un mapa
-	filename: ruta donde se encuentra nuestro fichero(configshop.reg)
-*/
-func loadDomains(filename string, arr map[string]string) {
-	cont := 1
-	fr, err := os.Open(filename)
-	defer fr.Close()
-	if err == nil {
-		reader := bufio.NewReader(fr)
-		for {
-			linea, rerr := reader.ReadString('\n')
-			if rerr != nil {
-				break
-			}
-			linea = strings.TrimRight(linea, "\r\n")
-			item := strings.Split(linea, " = ")
-			if len(item) == 2 {
-				if _, ok := arr[item[0]]; ok {
-					clave := fmt.Sprintf("%s%d", item[0], cont)
-					arr[clave] = item[1]
-					cont++
-				} else {
-					arr[item[0]] = item[1]
-				}
-			}
-		}
+//Inserta la publicidad en la base de datos de la tienda
+func insert_publi(f_pub, existe, fecha_ini, gap string){
+	stm, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `gap`) VALUES (?,?,?,?)")
+	if err != nil {
+		Error.Println(err)
+	}
+	db_mu.Lock()
+	_, err1 := stm.Exec(f_pub, existe, fecha_ini, gap)
+	db_mu.Unlock()
+	if err1 != nil {
+		Error.Println(err1)
+	}
+}
+//Inserta los mensajes en la base de datos de la tienda
+func insert_msg(msgname, playtime, existe, fecha string){
+	stm, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `existe`, `fecha`) VALUES (?,?,?,?)")
+	if err != nil {
+		Error.Println(err)
+	}
+	db_mu.Lock()
+	_, err1 := stm.Exec(msgname, playtime, existe, fecha)
+	db_mu.Unlock()
+	if err1 != nil {
+		Error.Println(err1)
 	}
 }

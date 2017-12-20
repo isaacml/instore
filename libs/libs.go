@@ -708,3 +708,33 @@ func LoadSettingsWin(filename string, mapa map[string]string) {
 		}
 	}
 }
+
+/*
+LoadDomains: abre el fichero de dominios, lee los dominios que contiene y los guarda en un mapa
+	filename: ruta donde se encuentra nuestro fichero(configshop.reg)
+*/
+func LoadDomains(filename string, arr map[string]string) {
+	cont := 1
+	fr, err := os.Open(filename)
+	defer fr.Close()
+	if err == nil {
+		reader := bufio.NewReader(fr)
+		for {
+			linea, rerr := reader.ReadString('\n')
+			if rerr != nil {
+				break
+			}
+			linea = strings.TrimRight(linea, "\r\n")
+			item := strings.Split(linea, " = ")
+			if len(item) == 2 {
+				if _, ok := arr[item[0]]; ok {
+					clave := fmt.Sprintf("%s%d", item[0], cont)
+					arr[clave] = item[1]
+					cont++
+				} else {
+					arr[item[0]] = item[1]
+				}
+			}
+		}
+	}
+}

@@ -45,7 +45,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	if accion == "dataConfig" {
 		var dominios string
 		domainint := make(map[string]string) //Mapa que guarda el dominio de la tienda
-		loadDomains(configShop, domainint)
+		libs.LoadDomains(configShop, domainint)
 		for key, val := range domainint {
 			if key == "shopdomain" {
 				dominios += fmt.Sprintf("<tr><th>Dominio Principal:</th><td>&nbsp;</td><td>%s</td></tr>", val)
