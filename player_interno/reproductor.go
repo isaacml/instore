@@ -13,35 +13,16 @@ import (
 //Comparamos la hora guardada con la hora del sistema
 func horario_reproduccion() {
 	for {
-		var hora_actual, hora_ini, hora_fin int
-		var min_actual, min_ini, min_fin int
+		var hora_actual int
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
 		//Segmentamos para obtener horas y mins
 		arr_clock := strings.Split(clock, ":")
-		arr_ini := strings.Split(hora_inicial, ":")
-		arr_fin := strings.Split(hora_final, ":")
-		//Guardamos las diferentes variables
-		if len(arr_clock) > 1{
-			hora_actual = libs.ToInt(arr_clock[0])
-			min_actual = libs.ToInt(arr_clock[1])
+		//Pasamos las horas y los minutos a segundos
+		if len(arr_clock) > 1 {
+			hora_actual = (libs.ToInt(arr_clock[0]) * 3600) + (libs.ToInt(arr_clock[1]) * 60)
 		}
-		if len(arr_ini) > 1{
-			hora_ini = libs.ToInt(arr_ini[0])
-			min_ini = libs.ToInt(arr_ini[1])
-		}
-		if len(arr_fin) > 1{
-			hora_fin = libs.ToInt(arr_fin[0])
-			min_fin = libs.ToInt(arr_fin[1])
-		}
-		fmt.Println(hora_actual, hora_ini, "-", hora_fin)
-		fmt.Println(min_actual, min_ini, "-", min_fin)
-		if hora_actual == hora_ini && min_actual == min_ini {
-			block = false
-			reproduccion()
-		}else if hora_actual == hora_fin && min_actual == min_fin{
-			block = true
-		}
+		fmt.Println(hora_actual, hora_inicial, hora_final)
 		time.Sleep(1 * time.Minute)
 	}
 }
@@ -194,20 +175,25 @@ func reproduccion() {
 					pl++
 				}
 			} else {
+				fmt.Println(statusProgammedMusic, block)
 				libs.MusicToPlay(music_files, st_music, musica)
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
 					if statusProgammedMusic == "Inicial" || block == true {
+						fmt.Println("entro aquí")
 						break
 					}
+					fmt.Println("entro aquí0")
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada
 						libs.PlaySongCif(musica[v], win)
+						fmt.Println("entro aquí1")
 					} else {
 						//Reproduce una cancion sin cifrar
 						libs.PlaySong(musica[v], win)
+						fmt.Println("entro aquí2")
 					}
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.

@@ -27,7 +27,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		if len(bit) > 1 {
 			if libs.ToInt(bit[3]) == 0 {
 				st_music = 0
-			}else{
+			} else {
 				st_music = 1
 			}
 		}
@@ -116,9 +116,13 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//Recoge la hora del formulario de programación de música
 	if accion == "recoger_horas" {
 		r.ParseForm()
+		hIni := libs.ToInt(r.FormValue("hora1")) * 3600
+		mIni := libs.ToInt(r.FormValue("min1")) * 60
+		hFin := libs.ToInt(r.FormValue("hora2")) * 3600
+		mFin := libs.ToInt(r.FormValue("min2")) * 60
 		db_mu.Lock()
-		hora_inicial = fmt.Sprintf("%s:%s", r.FormValue("hora1"), r.FormValue("min1"))
-		hora_final = fmt.Sprintf("%s:%s", r.FormValue("hora2"), r.FormValue("min2"))
+		hora_inicial = hIni + mIni
+		hora_final = hFin + mFin
 		db_mu.Unlock()
 	}
 }

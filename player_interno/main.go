@@ -25,8 +25,8 @@ var (
 	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
 	copy_arr             []string                                    //Contenedor que va a guardar los ficheros que van a ser copiados a "C:\instore\\Music\"
 	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
-	hora_inicial         string                                      //Hora de inicio --> 00:00
-	hora_final           string                                      //Hora de fin --> 00:00
+	hora_inicial         int                                         //Hora de inicio en segs
+	hora_final           int                                         //Hora de fin en segs
 	username             string                                      //Variable de usuario y estado global
 	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
