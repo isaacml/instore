@@ -13,8 +13,36 @@ import (
 //Comparamos la hora guardada con la hora del sistema
 func horario_reproduccion() {
 	for {
-		fmt.Println(hora_inicial)
-		fmt.Println(hora_final)
+		var hora_actual, hora_ini, hora_fin int
+		var min_actual, min_ini, min_fin int
+		//Obtenemos la hora local
+		clock := libs.MyCurrentClock()
+		//Segmentamos para obtener horas y mins
+		arr_clock := strings.Split(clock, ":")
+		arr_ini := strings.Split(hora_inicial, ":")
+		arr_fin := strings.Split(hora_final, ":")
+		//Guardamos las diferentes variables
+		if len(arr_clock) > 1{
+			hora_actual = libs.ToInt(arr_clock[0])
+			min_actual = libs.ToInt(arr_clock[1])
+		}
+		if len(arr_ini) > 1{
+			hora_ini = libs.ToInt(arr_ini[0])
+			min_ini = libs.ToInt(arr_ini[1])
+		}
+		if len(arr_fin) > 1{
+			hora_fin = libs.ToInt(arr_fin[0])
+			min_fin = libs.ToInt(arr_fin[1])
+		}
+		fmt.Println(hora_actual, hora_ini, "-", hora_fin)
+		fmt.Println(min_actual, min_ini, "-", min_fin)
+		if hora_actual == hora_ini && min_actual == min_ini {
+			block = false
+			reproduccion()
+		}else if hora_actual == hora_fin && min_actual == min_fin{
+			block = true
+		}
+		time.Sleep(1 * time.Minute)
 	}
 }
 
@@ -212,8 +240,7 @@ func reproduccion_msgs() {
 		fecha := libs.MyCurrentDate()
 		fecha_sql := fecha + "%"
 		//Obtenemos la hora local
-		hh, mm, _ := time.Now().Clock()
-		clock := fmt.Sprintf("%02d:%02d", hh, mm)
+		clock := libs.MyCurrentClock()
 		//Obtenemos todos los mensajes
 		mensajes, errM := db.Query("SELECT id, fichero, playtime FROM mensaje WHERE fichero LIKE ?", fecha_sql)
 		if errM != nil {

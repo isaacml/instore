@@ -60,9 +60,9 @@ func main() {
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go estado_de_entidad()
 	go solicitudDeFicheros()
-	go reproduccion()
 	go saveListInBD()
 	go reproduccion_msgs()
+	go horario_reproduccion()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)

@@ -626,7 +626,16 @@ func MyCurrentDate() string {
 	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 	return string_fecha
 }
-
+/*
+MyCurrentClock: generamos una hora actual propia
+Salida --> 10:09
+*/
+func MyCurrentClock() string {
+	//Obtenemos la hora local
+	hh, mm, _ := time.Now().Clock()
+	clock := fmt.Sprintf("%02d:%02d", hh, mm)
+	return clock
+}
 /*
 DaysIn: los dias que tiene un mes específico
 	m: mes
