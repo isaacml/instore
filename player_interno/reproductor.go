@@ -13,16 +13,31 @@ import (
 //Comparamos la hora guardada con la hora del sistema
 func horario_reproduccion() {
 	for {
-		var hora_actual int
+		var hora_actual, hora_inicial, hora_final int
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
-		//Segmentamos para obtener horas y mins
+		//Segmentamos para obtener horas y mins actuales
 		arr_clock := strings.Split(clock, ":")
+		//Segmentamos para obtener la hora inicial y final
+		arr_horario := strings.Split(horario, ";")
 		//Pasamos las horas y los minutos a segundos
 		if len(arr_clock) > 1 {
 			hora_actual = (libs.ToInt(arr_clock[0]) * 3600) + (libs.ToInt(arr_clock[1]) * 60)
 		}
-		fmt.Println(hora_actual, hora_inicial, hora_final)
+		if len(arr_horario) > 1 {
+			if arr_horario[0] != "" || arr_horario[1] != "" || arr_horario[2] != "" || arr_horario[3] != "" {
+				hora_inicial = (libs.ToInt(arr_horario[0]) * 3600) + (libs.ToInt(arr_horario[1]) * 60)
+				hora_final = (libs.ToInt(arr_horario[2]) * 3600) + (libs.ToInt(arr_horario[3]) * 60)
+				//fmt.Println(hora_actual,hora_inicial, hora_final)
+				//Miramos que la hora de reproduccion esté dentro del rango
+				if hora_actual >= hora_inicial && hora_final >= hora_actual {
+					schedule = true
+				}
+				if hora_actual > hora_final{
+					schedule = false
+				}
+			}
+		}
 		time.Sleep(1 * time.Minute)
 	}
 }
@@ -30,8 +45,9 @@ func horario_reproduccion() {
 //Zona de reproduccion del player de la tienda
 func reproduccion() {
 	for {
-		if block == false {
-			if block == true {
+		fmt.Println(statusProgammedMusic, block, schedule)
+		if block == false && schedule == true {
+			if block == true && schedule == false{
 				continue
 			}
 			var win winamp.Winamp
@@ -69,7 +85,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" || block == true {
+					if statusProgammedMusic == "Actualizada" || block == true || schedule == false{
 						break
 					}
 					//Evaluamos cada una de las canciones: cif o nocif
@@ -107,7 +123,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Modificar" || block == true {
+					if statusProgammedMusic == "Modificar" || block == true || schedule == false{
 						break
 					}
 					//Evaluamos cada una de las canciones: cif o nocif
@@ -145,7 +161,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" || block == true {
+					if statusProgammedMusic == "Actualizada" || block == true || schedule == false{
 						break
 					}
 					//Evaluamos cada una de las canciones: cif o nocif
@@ -175,25 +191,20 @@ func reproduccion() {
 					pl++
 				}
 			} else {
-				fmt.Println(statusProgammedMusic, block)
 				libs.MusicToPlay(music_files, st_music, musica)
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Inicial" || block == true {
-						fmt.Println("entro aquí")
+					if statusProgammedMusic == "Inicial" || block == true || schedule == false{
 						break
 					}
-					fmt.Println("entro aquí0")
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada
 						libs.PlaySongCif(musica[v], win)
-						fmt.Println("entro aquí1")
 					} else {
 						//Reproduce una cancion sin cifrar
 						libs.PlaySong(musica[v], win)
-						fmt.Println("entro aquí2")
 					}
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
