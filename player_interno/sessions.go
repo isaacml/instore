@@ -49,7 +49,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var agente string
 	var password string
-	username = r.FormValue(name_username)
+	username := r.FormValue(name_username)
 	password = r.FormValue(name_password)
 	aleat := rand.New(rand.NewSource(time.Now().UnixNano()))
 	sid := sessionid(aleat, session_value_len)

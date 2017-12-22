@@ -25,12 +25,10 @@ var (
 	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
 	copy_arr             []string                                    //Contenedor que va a guardar los ficheros que van a ser copiados a "C:\instore\\Music\"
 	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
-	horario         	 string                                      //Guarda la hora de inicio y la hora de fin tomada del formulario (hh;mm;hh;mm)
-	username             string                                      //Variable de usuario y estado global
 	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
-	block			     bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
-	schedule 			 bool										 //Guarda el estado que genera el horario de reproducción (true: reproduce | false: no reproduce)
+	block                bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
+	schedule             bool                                        //Guarda el estado que genera el horario de reproducción (true: reproduce | false: no reproduce)
 
 )
 
@@ -64,7 +62,6 @@ func main() {
 	go solicitudDeFicheros()
 	go saveListInBD()
 	go reproduccion_msgs()
-	
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
@@ -370,7 +367,7 @@ func estado_de_entidad() {
 			timestamp := time.Now().Unix()
 			dias_del_mes := libs.DaysIn(mes, year)
 			//total de dias * segundos que tiene un dia
-			seg_del_mes = dias_del_mes * 86400
+			seg_del_mes = dias_del_mes * segs_of_day
 			//Tomamos la ultima conexion de la tienda
 			db.QueryRow("SELECT last_connect FROM tienda WHERE dominio=?", dom).Scan(&last_connect)
 			db_mu.Lock()

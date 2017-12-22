@@ -13,31 +13,39 @@ import (
 //Comparamos la hora guardada con la hora del sistema
 func horario_reproduccion() {
 	for {
-		var hora_actual, hora_inicial, hora_final int
+		var actual int                      //Minutos actuales totales
+		var hora_inicial, hora_final string //Variables de base de datos
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
-		//Segmentamos para obtener horas y mins actuales
-		arr_clock := strings.Split(clock, ":")
-		//Segmentamos para obtener la hora inicial y final
-		arr_horario := strings.Split(horario, ";")
-		//Pasamos las horas y los minutos a segundos
-		if len(arr_clock) > 1 {
-			hora_actual = (libs.ToInt(arr_clock[0]) * 3600) + (libs.ToInt(arr_clock[1]) * 60)
+		//Obtenemos hora inicial y final de la SQL
+		err := db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&hora_inicial, &hora_final)
+		if err != nil {
+			Error.Println(err)
 		}
-		if len(arr_horario) > 1 {
-			if arr_horario[0] != "" || arr_horario[1] != "" || arr_horario[2] != "" || arr_horario[3] != "" {
-				hora_inicial = (libs.ToInt(arr_horario[0]) * 3600) + (libs.ToInt(arr_horario[1]) * 60)
-				hora_final = (libs.ToInt(arr_horario[2]) * 3600) + (libs.ToInt(arr_horario[3]) * 60)
-				//fmt.Println(hora_actual,hora_inicial, hora_final)
-				//Miramos que la hora de reproduccion esté dentro del rango
-				if hora_actual >= hora_inicial && hora_final >= hora_actual {
+		//Comprobamos que los datos obtenidos en base de datos no son vacíos
+		if hora_inicial != "" && hora_final != "" {
+			//Segmentamos para obtener horas y mins actuales
+			arr_clock := strings.Split(clock, ":")
+			//Segmentamos para obtener la hora inicial y final
+			arr_hinicial := strings.Split(hora_inicial, ":")
+			arr_hfinal := strings.Split(hora_final, ":")
+			//Se comprueba que el array no está vacío
+			if len(arr_clock) > 1 || len(arr_hinicial) > 1 || len(arr_hfinal) > 1 {
+				//Pasamos las horas y minutos a minutos totales
+				actual = libs.Hour2min(libs.ToInt(arr_clock[0]), libs.ToInt(arr_clock[1]))
+				inicial := libs.Hour2min(libs.ToInt(arr_hinicial[0]), libs.ToInt(arr_hinicial[1]))
+				final := libs.Hour2min(libs.ToInt(arr_hfinal[0]), libs.ToInt(arr_hfinal[1]))
+				//Miramos que la hora actual de reproduccion esté dentro del rango
+				if actual >= inicial && final >= actual {
 					schedule = true
 				}
-				if hora_actual > hora_final{
+				//Fuera de horario
+				if actual > final {
 					schedule = false
 				}
 			}
 		}
+		fmt.Println(schedule)
 		time.Sleep(1 * time.Minute)
 	}
 }
@@ -45,9 +53,8 @@ func horario_reproduccion() {
 //Zona de reproduccion del player de la tienda
 func reproduccion() {
 	for {
-		fmt.Println(statusProgammedMusic, block, schedule)
 		if block == false && schedule == true {
-			if block == true && schedule == false{
+			if block == true && schedule == false {
 				continue
 			}
 			var win winamp.Winamp
@@ -57,8 +64,6 @@ func reproduccion() {
 			p, pl := 0, 1
 			//Sacamos la fecha actual
 			fecha := libs.MyCurrentDate()
-			//INICIAL
-			//fmt.Println(statusProgammedMusic)
 			//Obtenemos el GAP
 			publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
 			if errP != nil {
@@ -72,7 +77,6 @@ func reproduccion() {
 				if err != nil {
 					Error.Println(err)
 				}
-				//fmt.Printf("%s", fichero)
 				publi[p] = fichero
 				p++
 			}
@@ -85,7 +89,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" || block == true || schedule == false{
+					if statusProgammedMusic == "Actualizada" || block == true || schedule == false {
 						break
 					}
 					//Evaluamos cada una de las canciones: cif o nocif
@@ -123,7 +127,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Modificar" || block == true || schedule == false{
+					if statusProgammedMusic == "Modificar" || block == true || schedule == false {
 						break
 					}
 					//Evaluamos cada una de las canciones: cif o nocif
@@ -161,7 +165,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" || block == true || schedule == false{
+					if statusProgammedMusic == "Actualizada" || block == true || schedule == false {
 						break
 					}
 					//Evaluamos cada una de las canciones: cif o nocif
@@ -195,7 +199,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Inicial" || block == true || schedule == false{
+					if statusProgammedMusic == "Inicial" || block == true || schedule == false {
 						break
 					}
 					//Evaluamos cada una de las canciones: cif o nocif

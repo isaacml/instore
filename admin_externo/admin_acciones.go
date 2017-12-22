@@ -32,12 +32,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		//Envia un select para mostrar las horas en el panel de mensajes.html
 		if accion == "horas_msg" {
-			horas := libs.MostrarHoras()
+			horas := libs.MostrarHoras("")
 			fmt.Fprint(w, horas)
 		}
 		//Envia un select para mostrar los minutos en el panel de mensajes.html
 		if accion == "minutos_msg" {
-			mins := libs.MostrarMinutos()
+			mins := libs.MostrarMinutos("")
 			fmt.Fprint(w, mins)
 		}
 	}

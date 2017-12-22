@@ -626,6 +626,7 @@ func MyCurrentDate() string {
 	string_fecha := fmt.Sprintf("%4d%02d%02d", fecha_actual.Year(), int(fecha_actual.Month()), fecha_actual.Day())
 	return string_fecha
 }
+
 /*
 MyCurrentClock: generamos una hora actual propia
 Salida --> 10:09
@@ -636,6 +637,7 @@ func MyCurrentClock() string {
 	clock := fmt.Sprintf("%02d:%02d", hh, mm)
 	return clock
 }
+
 /*
 DaysIn: los dias que tiene un mes específico
 	m: mes
@@ -748,18 +750,64 @@ func LoadDomains(filename string, arr map[string]string) {
 	}
 }
 
-func MostrarHoras() string {
+func MostrarHoras(hora string) string {
 	var str string
-	for i := 0; i <= 23; i++ {
-		str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+	if hora == "" {
+		for i := 0; i <= 23; i++ {
+			str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+		}
+	} else {
+		arr_hora := strings.Split(hora, ":")
+		hora_sql := ToInt(arr_hora[0])
+		for i := 0; i <= 23; i++ {
+			if hora_sql == i {
+				str += fmt.Sprintf("<option value='%02d' selected>%02d</option>", i, i)
+			} else {
+				str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+			}
+		}
 	}
 	return str
 }
 
-func MostrarMinutos() string {
+func MostrarMinutos(hora string) string {
 	var str string
-	for i := 0; i <= 59; i++ {
-		str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+	if hora == "" {
+		for i := 0; i <= 59; i++ {
+			str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+		}
+	} else {
+		arr_hora := strings.Split(hora, ":")
+		mins_sql := ToInt(arr_hora[1])
+		for i := 0; i <= 59; i++ {
+			if mins_sql == i {
+				str += fmt.Sprintf("<option value='%02d' selected>%02d</option>", i, i)
+			} else {
+				str += fmt.Sprintf("<option value='%02d'>%02d</option>", i, i)
+			}
+		}
 	}
 	return str
+}
+
+/*
+Hour2min: toma una hora (hh:mm) y la convierte en minutos
+	hh: hora
+	mm: minutos
+Devuelve la cantidad todal de minutos
+*/
+func Hour2min(hh int, mm int) int {
+	mins := hh*60 + mm
+	return mins
+}
+
+/*
+Min2hour: convierte minutos totales en una hora(hh:mm)
+	mm: minutos totales
+Devuelve la hora y minutos correspondientes
+*/
+func Min2hour(mm int) (int, int) {
+	hh := int(mm / 60)
+	min := mm % 60
+	return hh, min
 }
