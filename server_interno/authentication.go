@@ -13,10 +13,7 @@ func auth(w http.ResponseWriter, r *http.Request) {
 	user := r.FormValue("user")
 	pass := r.FormValue("pass")
 	//Primero probamos la autenticacion en el servidor_interno
-	err := db.QueryRow("SELECT user, pass FROM usuarios WHERE user = ?", user).Scan(&usuario, &contrasenia)
-	if err != nil {
-		Error.Println(err)
-	}
+	db.QueryRow("SELECT user, pass FROM usuarios WHERE user = ?", user).Scan(&usuario, &contrasenia)
 	//Si en la base de datos del servidor_interno estan vacios...
 	if usuario == "" && contrasenia == "" {
 		//Hacemos la autenticacion en el servidor_externo

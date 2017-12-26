@@ -332,7 +332,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if query.Next() {
-				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
+				list = ";<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
 				query.Scan(&id_ent, &name)
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
 				for query.Next() {
@@ -344,7 +344,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				}
 				list += "</select></div>"
 			} else {
-				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
+				list = ";<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
 			}
 		} else if padre == 1 { //padre = 1, su creador es el super-admin, puede ver todas las entidades que ha creado.
 			var name string
@@ -354,7 +354,7 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			if query.Next() {
-				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
+				list = ";<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
 				query.Scan(&id_ent, &name)
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
 				for query.Next() {
@@ -366,10 +366,11 @@ func usuarios(w http.ResponseWriter, r *http.Request) {
 				}
 				list += "</select></div>"
 			} else {
-				list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
+				list = ";<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'><option value='' selected>No hay entidades</option></select></div>"
 			}
 		} else { //Es un usuario normal: No puede ver ninguna entidad, los usuarios que añade, se añaden a su propia entidad
-			list = "DisableEnt"
+			input := fmt.Sprintf("<input id='entidad' name='entidad' value='%d'>", entidad)
+			list = "DisableEnt;" + input
 		}
 		fmt.Fprint(w, list)
 	}

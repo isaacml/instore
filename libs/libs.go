@@ -536,7 +536,6 @@ func PlaySong(song string, win winamp.Winamp) {
 		time.Sleep(1 * time.Second)
 		win.Volume()
 	}
-	fmt.Println(song)
 	//Carga y reproduccion de cancion
 	win.Load("\"" + song + "\"")
 	win.Play()

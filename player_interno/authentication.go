@@ -8,10 +8,7 @@ import (
 func authentication(username, password string) string {
 	var usuario, contrasenia, salida string
 	//Primero se hace una autenticacion interna
-	err := db.QueryRow("SELECT user, pass FROM usuarios WHERE user = ?", username).Scan(&usuario, &contrasenia)
-	if err != nil {
-		Error.Println(err)
-	}
+	db.QueryRow("SELECT user, pass FROM usuarios WHERE user = ?", username).Scan(&usuario, &contrasenia)
 	//Si en la base de datos de la tienda estan vacios...
 	if usuario == "" && contrasenia == "" {
 		libs.LoadSettingsWin(serverRoot, settings)

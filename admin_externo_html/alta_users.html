@@ -208,11 +208,11 @@
         $("#modificar").hide();
         $("#editActions").hide();
         $.post("/usuarios.cgi?sid={{sid}}&accion=listEnt", function(data, status) {
-            if (data == "DisableEnt"){
+            var res = data.split(";");
+            if (res[0] == "DisableEnt"){
                 $("#ent").hide();
-            }else{
-                $("#ent").html(data); 
             }
+            $("#ent").html(res[1]);
         });
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
