@@ -68,7 +68,9 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
+			db_mu.Lock()
 			block = true
+			db_mu.Unlock()
 		}
 		//Muestra cada segundo("setInterval") el estado de la tienda
 		if accion == "estado_de_tienda" {
@@ -131,10 +133,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			//Formamos la hora inicial y hora final
 			hora_inicial = r.FormValue("hora1") + ":" + r.FormValue("min1")
 			hora_final = r.FormValue("hora2") + ":" + r.FormValue("min2")
-			err := db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&h_ini, &h_fin)
-			if err != nil {
-				Error.Println(err)
-			}
+			db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&h_ini, &h_fin)
 			//Se comprueba las variable en base de datos para insertar o actualizar
 			if h_ini == "" && h_fin == "" {
 				//Guardamos en base de datos

@@ -18,10 +18,7 @@ func horario_reproduccion() {
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
 		//Obtenemos hora inicial y final de la SQL
-		err := db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&hora_inicial, &hora_final)
-		if err != nil {
-			Error.Println(err)
-		}
+		db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&hora_inicial, &hora_final)
 		//Comprobamos que los datos obtenidos en base de datos no son vacíos
 		if hora_inicial != "" && hora_final != "" {
 			//Segmentamos para obtener horas y mins actuales
@@ -37,15 +34,18 @@ func horario_reproduccion() {
 				final := libs.Hour2min(libs.ToInt(arr_hfinal[0]), libs.ToInt(arr_hfinal[1]))
 				//Miramos que la hora actual de reproduccion esté dentro del rango
 				if actual >= inicial && final >= actual {
+					db_mu.Lock()
 					schedule = true
+					db_mu.Unlock()
 				}
 				//Fuera de horario
 				if actual > final {
+					db_mu.Lock()
 					schedule = false
+					db_mu.Unlock()
 				}
 			}
 		}
-		fmt.Println(schedule)
 		time.Sleep(1 * time.Minute)
 	}
 }

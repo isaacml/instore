@@ -25,11 +25,9 @@ var (
 	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
 	copy_arr             []string                                    //Contenedor que va a guardar los ficheros que van a ser copiados a "C:\instore\\Music\"
 	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
-	directorio_actual    string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
 	block                bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
 	schedule             bool                                        //Guarda el estado que genera el horario de reproducción (true: reproduce | false: no reproduce)
-
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -105,7 +103,7 @@ func saveListInBD() {
 					dominios += val + ":.:"
 				}
 				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
-				fmt.Println("La respuesta: ", respuesta)
+				//fmt.Println("La respuesta: ", respuesta)
 				//Si la respuesta NO está vacía, comprobamos la respuesta.
 				if respuesta != "" {
 					//De la respuesta obtenemos el listado de mensajes y publicidad

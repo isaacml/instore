@@ -9,7 +9,9 @@ import (
 	"os/exec"
 	"strings"
 )
-
+//Guarda la dirección donde se encuentra el explorador WIN
+var directorio_actual string
+                    
 //Función principal del explorador windows
 func explorerMusic(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -36,8 +38,10 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 	//DIRECTORIOS A MOSTRAR
 	if r.FormValue("action") == "dir_unidad" {
 		if r.FormValue("unidades") != "" {
+			db_mu.Lock()
 			//Mostramos los directorios de la unidad seleccionada
 			directorio_actual = r.FormValue("unidades") + "\\"
+			db_mu.Unlock()
 			file, err := os.Open(directorio_actual)
 			defer file.Close()
 			if err != nil {
@@ -60,7 +64,9 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, output)
 
 		} else {
+			db_mu.Lock()
 			directorio_actual = ""
+			db_mu.Unlock()
 			output += ";<span style='color: #B8860B'>" + directorio_actual + "</span>"
 			fmt.Fprint(w, output)
 		}
@@ -91,8 +97,10 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 				for _, v := range nueva_ruta {
 					contenedor += v + "\\"
 				}
+				db_mu.Lock()
 				//Guardamos la ruta que nos genera
 				directorio_actual = contenedor
+				db_mu.Unlock()
 				//Abrimos el directorio y mostramos sus carpetas
 				file, err := os.Open(directorio_actual)
 				defer file.Close()
@@ -120,8 +128,10 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 				for _, v := range nueva_ruta {
 					contenedor += v + "\\"
 				}
+				db_mu.Lock()
 				//Guardamos la ruta que nos genera
 				directorio_actual = contenedor
+				db_mu.Unlock()
 				//Abrimos el directorio y mostramos sus carpetas
 				file, err := os.Open(directorio_actual)
 				defer file.Close()
@@ -192,7 +202,9 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 			}
 			fmt.Fprint(w, output)
 		} else {
+			db_mu.Lock()
 			directorio_actual = directorio_actual + r.FormValue("directory") + "\\"
+			db_mu.Unlock()
 			file, err := os.Open(directorio_actual)
 			defer file.Close()
 			if err != nil {
@@ -200,8 +212,9 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 				//Volvemos a tomar el archivo anterior y lo abrimos
 				old := strings.Split(directorio_actual, r.FormValue("directory")+"\\")
+				db_mu.Lock()
 				directorio_actual = old[0]
-				fmt.Println(directorio_actual)
+				db_mu.Unlock()
 				file2, err := os.Open(old[0])
 				defer file.Close()
 				directorios, err := file2.Readdir(0)
@@ -213,7 +226,6 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 				for _, val := range directorios {
 					if val.IsDir() {
 						output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
-
 					}
 				}
 				output += ";<span style='color: #800000'>Necesitas permisos para abrir ese directorio</span>"
