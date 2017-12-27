@@ -349,21 +349,28 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("action") == "destinos" {
 			var arr_entidad []string
 			//Enviamos nombre de usuario recogido en el formulario hacia el server para generar los destinos
-			resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
-			arr := strings.Split(resultado, "::")
-			for _, val := range arr {
-				if val != "" {
-					arr_entidad = strings.Split(val, ";")
-					output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
-					db_mu.Lock()
-					back_org = "entidad"
-					db_mu.Unlock()
+			resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "userAdmin;"+username)
+			arr := strings.Split(resultado, "@@")
+			if arr[0] == "destino_fijo"{
+				output = ";<span style='color: #1A5276'>" + arr[1] + "</span>"
+				estado_destino = arr[1]
+			}else{
+				div_ent := strings.Split(arr[1], "::")
+				output = "<select id='destinos' name='destinos' style='width:75%;height:85px;' multiple>"
+				for _, val := range div_ent {
+					if val != "" {
+						arr_entidad = strings.Split(val, ";")
+						output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
+						db_mu.Lock()
+						back_org = "entidad"
+						db_mu.Unlock()
+					}
 				}
+				db_mu.Lock()
+				estado_destino = "*"
+				db_mu.Unlock()
+				output += "</div>;<span style='color: #1A5276'>" + estado_destino + "</span>"
 			}
-			db_mu.Lock()
-			estado_destino = "*"
-			db_mu.Unlock()
-			output += ";<span style='color: #1A5276'>" + estado_destino + "</span>"
 			fmt.Fprint(w, output)
 		}
 		// Recogemos los datos al hacer ONCLICK en formulario de destinos en publi.html
