@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 )
+
 //Variables para guardar el identificador anterior, en caso de no encontrar datos.
 var last_entidad, last_almacen, last_pais, last_region, last_prov, last_tienda string
 
@@ -351,12 +352,12 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 			//Enviamos nombre de usuario recogido en el formulario hacia el server para generar los destinos
 			resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "userAdmin;"+username)
 			arr := strings.Split(resultado, "@@")
-			if arr[0] == "destino_fijo"{
-				output = ";<span style='color: #1A5276'>" + arr[1] + "</span>"
+			if arr[0] == "destino_fijo" {
 				estado_destino = arr[1]
-			}else{
+				output = "destino_fijo;<span style='color: #1A5276'>" + estado_destino + "</span>"
+			} else {
 				div_ent := strings.Split(arr[1], "::")
-				output = "<select id='destinos' name='destinos' multiple>"
+				output = "destino_seleccionable;"
 				for _, val := range div_ent {
 					if val != "" {
 						arr_entidad = strings.Split(val, ";")
@@ -369,7 +370,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				db_mu.Lock()
 				estado_destino = "*"
 				db_mu.Unlock()
-				output += "</div>;<span style='color: #1A5276'>" + estado_destino + "</span>"
+				output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 			}
 			fmt.Fprint(w, output)
 		}
@@ -384,10 +385,12 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				destino = valores[0]
 				ident = valores[1]
 			}
+			fmt.Println(destino, ident)
 			if destino == "entidad" {
 				var st_entidad string //variable que va a contener el estado de la entidad
 				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos
 				resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+ident)
+				fmt.Println(resultado)
 				if resultado != "" {
 					output, st_entidad = libs.GenerateSelectOrg(resultado, "almacen")
 					db_mu.Lock()

@@ -60,7 +60,6 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//La peticion es por parte del -explorador.go- del admin_externo
 	if accion == "destinos" {
 		var id_user_admin, id_father_admin int
-		var salida string
 		//Obtengo el identificador y el padre del usuario admin externo
 		err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", r.FormValue("userAdmin")).Scan(&id_user_admin, &id_father_admin)
 		if err != nil {
@@ -68,7 +67,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		//Si tiene un padre admin o super_admin: pueden generar cualquier destino que ellos hayan creado
 		if id_father_admin == 0 || id_father_admin == 1 {
-			var out string
+			var gen_ent string
 			internal_action := r.FormValue("internal_action")
 			//Seleccionamos las entidades para un user admin concreto
 			query2, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id = ?", id_user_admin)
@@ -83,9 +82,9 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 				}
 				id_string := strconv.Itoa(id_ent)
-				out += id_string + ";" + ent + "::"
+				gen_ent += id_string + ";" + ent + "::"
 			}
-			salida = "destino_seleccionable@@" + out
+			salida := "destino_seleccionable@@" + gen_ent
 			if internal_action == "entidades" {
 				id_entidad := r.FormValue("id_entidad")
 				//Seleccionamos el almacen para una entidad concreta
@@ -189,6 +188,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 					salida += tienda
 				}
 			}
+			fmt.Fprint(w, salida)
 		} else { //usuario normal: solo puede generar distino al que pertenece
 			var ent, alm, pais, reg, prov, shop string
 			//Seleccionamos las entidades para un user admin concreto
@@ -196,9 +196,8 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			salida = fmt.Sprintf("destino_fijo@@%s.%s.%s.%s.%s.%s", ent, alm, pais, reg, prov, shop)
+			salida := fmt.Sprintf("destino_fijo@@%s.%s.%s.%s.%s.%s", ent, alm, pais, reg, prov, shop)
+			fmt.Fprint(w, salida)
 		}
-		//fmt.Println(salida)
-		fmt.Fprint(w, salida)
 	}
 }

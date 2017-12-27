@@ -225,8 +225,9 @@ Nos devuelve el select formado correctamente y un estado que contiene la organiz
 */
 func GenerateSelectOrg(resultado, org string) (seleccion, estado string) {
 	var arr_org []string
+	sep := strings.Split(resultado, "@@")
 	seleccion = "<option value='" + org + ":.:0'>...</option>"
-	arr := strings.Split(resultado, "::")
+	arr := strings.Split(sep[1], "::")
 	for _, val := range arr {
 		if val != "" {
 			arr_org = strings.Split(val, ";")
