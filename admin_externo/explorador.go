@@ -356,7 +356,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				estado_destino = arr[1]
 			}else{
 				div_ent := strings.Split(arr[1], "::")
-				output = "<select id='destinos' name='destinos' style='width:75%;height:85px;' multiple>"
+				output = "<select id='destinos' name='destinos' multiple>"
 				for _, val := range div_ent {
 					if val != "" {
 						arr_entidad = strings.Split(val, ";")
