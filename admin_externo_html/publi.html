@@ -199,8 +199,9 @@
                                 </div>
                                 <h5 class="text-muted">Destino</h5>
                                 <br>
-                                <div class="form-group">
-                                    <select id='destinos' name='destinos' style="width:75%;height:85px;" multiple></select>
+                                <div class="form-group" id="dest_noadmin"></div>
+                                <div class="form-group" id="dest_admin">
+                                    <select id="destinos" name="destinos" style="width:75%;height:85px;" multiple></select>
                                 </div>
                                 <div class="form-group" id="dest_stat">
                                 </div>
@@ -221,7 +222,8 @@
         $("#stat").hide();
         $("#stat2").hide();
         $("#dest_stat").hide();
-        $("#destinos").hide();
+        $("#dest_noadmin").hide();
+        $("#dest_admin").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -278,16 +280,18 @@
         ///////////////////////////// ZONA DE DESTINOS //////////////////////////////
         $.post("/dest_explorer.cgi?sid={{sid}}&action=destinos", function(data, status) {
             var res1 = data.split(";");
-            if (res1[0] == "destino_fijo"){
+            if (res1[0] == "NOADMIN"){
                 $("#dest_stat").show();
+                $("#dest_noadmin").show();
                 $("#dest_stat").html(res1[1]);
+                $("#dest_noadmin").html(res1[2]);
             }else{
-                $("#destinos").show();
                 $("#dest_stat").show();
+                $("#dest_admin").show();
                 $("#stat2").show();
-                $("#destinos").html(res1[1]);
-                $("#dest_stat").html(res1[2]);
-                $("#stat2").html(res1[3]);
+                $("#destinos").html(res1[0]);
+                $("#dest_stat").html(res1[1]);
+                $("#stat2").html(res1[2]);
             }
         });
         $("#destinos").dblclick(function(){

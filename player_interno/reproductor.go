@@ -220,6 +220,7 @@ func reproduccion() {
 						for _, val := range shuffle2 {
 							//Directorio publi + Fichero publi
 							all_publi_file := publi_files_location + publi[val]
+							fmt.Println(all_publi_file)
 							libs.PlayPubli(all_publi_file, win)
 							break
 						}

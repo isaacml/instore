@@ -111,6 +111,26 @@
         <div id="page-wrapper"><br>
             <div class="row">
                 <div class="col-md-8 col-md-offset-2">
+                   <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Horario de Reproducción
+                        </div>
+                        <div class="panel-body" align="center">
+                            <form id="testform0" action="" method="post">
+                                <fieldset>
+                                    <div class="form-group">
+                                       Desde 
+                                       <select id="hora1" name="hora1"></select>
+                                       <select id="min1" name="min1"></select>
+                                       hasta las 
+                                       <select id="hora2" name="hora2"></select>
+                                       <select id="min2" name="min2"></select>
+                                    </div>   
+                                </fieldset>
+                            </form>
+                            <button id="send" class="btn btn-lg btn-success" name="send">Enviar</button>
+                        </div>
+                    </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             Estado
@@ -180,6 +200,16 @@
                 $.post("/acciones.cgi?sid={{sid}}&accion=edit_ip", $("#testform").serialize(), function(data, status) {
                     $("#info_ip").html(data);
                 });
+            });
+            $.post("/acciones.cgi?sid={{sid}}&accion=mostrar_horas", function(data, status) {
+                var res = data.split(";");
+                $("#hora1").html(res[0]);
+                $("#min1").html(res[1]);
+                $("#hora2").html(res[2]);
+                $("#min2").html(res[3]);
+            });
+            $("#send").click(function(){
+                $.post("/acciones.cgi?sid={{sid}}&accion=recoger_horas", $("#testform0").serialize(), function(data, status) {});
             });
         });
         function estado(){

@@ -348,19 +348,15 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 		var output string
 		updateExpires(sid) //Actualizamos el tiempo de expiración de la clave
 		if r.FormValue("action") == "destinos" {
-			var arr_entidad []string
-			//Enviamos nombre de usuario recogido en el formulario hacia el server para generar los destinos
+			//Enviamos nombre de usuario recogido en el formulario hacia el server para evaluar los destinos
 			resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "userAdmin;"+username)
-			arr := strings.Split(resultado, "@@")
-			if arr[0] == "destino_fijo" {
-				estado_destino = arr[1]
-				output = "destino_fijo;<span style='color: #1A5276'>" + estado_destino + "</span>"
-			} else {
-				div_ent := strings.Split(arr[1], "::")
-				output = "destino_seleccionable;"
+			res := strings.Split(resultado, "@@")
+			//Usuario ADMIN: puede ver todas las organizaciones que ha creado
+			if res[0] == "ADMIN"{
+				div_ent := strings.Split(res[1], "::")
 				for _, val := range div_ent {
 					if val != "" {
-						arr_entidad = strings.Split(val, ";")
+						arr_entidad := strings.Split(val, ";")
 						output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
 						db_mu.Lock()
 						back_org = "entidad"
@@ -371,6 +367,11 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				estado_destino = "*"
 				db_mu.Unlock()
 				output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
+			}else{ //Solo la organizacion a la que pertenece
+				db_mu.Lock()
+				estado_destino = res[1]
+				output = fmt.Sprintf("%s;<span style='color: #1A5276'>%s</span>;<input type='hidden' name='destinos' value='%s'>", res[0], estado_destino, estado_destino)
+				db_mu.Unlock()
 			}
 			fmt.Fprint(w, output)
 		}
@@ -385,7 +386,6 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				destino = valores[0]
 				ident = valores[1]
 			}
-			fmt.Println(destino, ident)
 			if destino == "entidad" {
 				var st_entidad string //variable que va a contener el estado de la entidad
 				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos

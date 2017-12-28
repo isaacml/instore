@@ -60,15 +60,30 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	//La peticion es por parte del -explorador.go- del admin_externo
 	if accion == "destinos" {
 		var id_user_admin, id_father_admin int
-		//Obtengo el identificador y el padre del usuario admin externo
+		var tipo_de_usuario string
+		internal_action := r.FormValue("internal_action")
+		//Obtengo el identificador y el padre del usuario
 		err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", r.FormValue("userAdmin")).Scan(&id_user_admin, &id_father_admin)
 		if err != nil {
 			Error.Println(err)
 		}
-		//Si tiene un padre admin o super_admin: pueden generar cualquier destino que ellos hayan creado
-		if id_father_admin == 0 || id_father_admin == 1 {
-			var gen_ent string
-			internal_action := r.FormValue("internal_action")
+		//Si su padre no es un super-admin, solo puede añadir publicidad en su propio dominio
+		if id_father_admin > 1 {
+			var ent, alm, pais, reg, prov, shop string
+			tipo_de_usuario = "NOADMIN"
+			SQL_DOMIN := "SELECT entidades.nombre, almacenes.almacen, pais.pais, region.region, provincia.provincia, tiendas.tienda"
+			SQL_DOMIN += " FROM usuarios INNER JOIN entidades ON usuarios.entidad_id = entidades.id"
+			SQL_DOMIN += " INNER JOIN almacenes ON almacenes.entidad_id = entidades.id INNER JOIN pais ON pais.almacen_id = almacenes.id"
+			SQL_DOMIN += " INNER JOIN region ON region.pais_id = pais.id INNER JOIN provincia ON provincia.region_id = region.id"
+			SQL_DOMIN += " INNER JOIN tiendas ON tiendas.provincia_id = provincia.id WHERE usuarios.id = ?"
+			err := db.QueryRow(SQL_DOMIN, id_user_admin).Scan(&ent, &alm, &pais, &reg, &prov, &shop)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Fprintf(w, "%s@@%s.%s.%s.%s.%s.%s", tipo_de_usuario, ent, alm, pais, reg, prov, shop)
+		}else{
+			var salida, ents string
+			tipo_de_usuario = "ADMIN"
 			//Seleccionamos las entidades para un user admin concreto
 			query2, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id = ?", id_user_admin)
 			if err != nil {
@@ -82,10 +97,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 					Error.Println(err)
 				}
 				id_string := strconv.Itoa(id_ent)
-				gen_ent += id_string + ";" + ent + "::"
+				ents += id_string + ";" + ent + "::"
 			}
-			salida := "destino_seleccionable@@" + gen_ent
+			//Primera vez que se muestran datos: pasamos el tipo de usuario
+			salida = tipo_de_usuario + "@@" + ents
 			if internal_action == "entidades" {
+				var alms string
 				id_entidad := r.FormValue("id_entidad")
 				//Seleccionamos el almacen para una entidad concreta
 				query3, err := db.Query("SELECT almacenes.id, almacenes.almacen, entidades.nombre FROM almacenes INNER JOIN entidades WHERE entidades.id = almacenes.entidad_id AND almacenes.creador_id = ? AND almacenes.entidad_id = ?", id_user_admin, id_entidad)
@@ -100,10 +117,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err)
 					}
 					id_string := strconv.Itoa(id_alm)
-					salida += id_string + ";" + almacen + ";" + entidad + "::"
+					alms += id_string + ";" + almacen + ";" + entidad + "::"
 				}
+				salida = alms
 			}
 			if internal_action == "almacenes" {
+				var paises string
 				id_almacen := r.FormValue("id_almacen")
 				//Seleccionamos el pais para un almacen concreto
 				query4, err := db.Query("SELECT pais.id, pais.pais, almacenes.almacen FROM pais INNER JOIN almacenes WHERE almacenes.id = pais.almacen_id AND pais.creador_id = ? AND pais.almacen_id = ?", id_user_admin, id_almacen)
@@ -118,10 +137,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err)
 					}
 					id_string := strconv.Itoa(id_country)
-					salida += id_string + ";" + pais + ";" + almacen + "::"
+					paises += id_string + ";" + pais + ";" + almacen + "::"
 				}
+				salida = paises
 			}
 			if internal_action == "paises" {
+				var regiones string
 				id_pais := r.FormValue("id_pais")
 				//Seleccionamos la region para un país concreto
 				query5, err := db.Query("SELECT region.id, region.region, pais.pais FROM region INNER JOIN pais ON region.pais_id = pais.id WHERE region.creador_id = ? AND region.pais_id = ?", id_user_admin, id_pais)
@@ -136,10 +157,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err)
 					}
 					id_string := strconv.Itoa(id_reg)
-					salida += id_string + ";" + region + ";" + pais + "::"
+					regiones += id_string + ";" + region + ";" + pais + "::"
 				}
+				salida = regiones
 			}
 			if internal_action == "regiones" {
+				var provs string
 				//Seleccionamos la provincia para una región concreta
 				query6, err := db.Query("SELECT provincia.id, provincia.provincia, region.region FROM provincia INNER JOIN region ON provincia.region_id = region.id WHERE provincia.creador_id = ? AND provincia.region_id = ?", id_user_admin, r.FormValue("id_region"))
 				if err != nil {
@@ -153,10 +176,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err)
 					}
 					id_string := strconv.Itoa(id_prov)
-					salida += id_string + ";" + provincia + ";" + region + "::"
+					provs += id_string + ";" + provincia + ";" + region + "::"
 				}
+				salida = provs
 			}
 			if internal_action == "provincias" {
+				var shops string
 				//Seleccionamos la tienda para una provincia concreta
 				query7, err := db.Query("SELECT tiendas.id, tiendas.tienda, provincia.provincia FROM tiendas INNER JOIN provincia ON tiendas.provincia_id = provincia.id WHERE tiendas.creador_id = ? AND tiendas.provincia_id = ?", id_user_admin, r.FormValue("id_provincia"))
 				if err != nil {
@@ -170,10 +195,12 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 						Error.Println(err)
 					}
 					id_string := strconv.Itoa(id_tiend)
-					salida += id_string + ";" + tienda + ";" + provincia + "::"
+					shops += id_string + ";" + tienda + ";" + provincia + "::"
 				}
+				salida = shops
 			}
 			if internal_action == "tiendas" {
+				var final string
 				//Seleccionamos la tienda para una provincia concreta
 				query7, err := db.Query("SELECT tienda FROM tiendas WHERE creador_id = ? AND id = ?", id_user_admin, r.FormValue("id_tienda"))
 				if err != nil {
@@ -185,18 +212,11 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 					if err != nil {
 						Error.Println(err)
 					}
-					salida += tienda
+					final += tienda
 				}
+				salida = final
 			}
-			fmt.Fprint(w, salida)
-		} else { //usuario normal: solo puede generar distino al que pertenece
-			var ent, alm, pais, reg, prov, shop string
-			//Seleccionamos las entidades para un user admin concreto
-			err := db.QueryRow("SELECT entidades.nombre, almacenes.almacen, pais.pais, region.region, provincia.provincia, tiendas.tienda FROM usuarios INNER JOIN entidades ON usuarios.entidad_id = entidades.id INNER JOIN almacenes ON almacenes.entidad_id = entidades.id INNER JOIN pais ON pais.almacen_id = almacenes.id INNER JOIN region ON region.pais_id = pais.id INNER JOIN provincia ON provincia.region_id = region.id INNER JOIN tiendas ON tiendas.provincia_id = provincia.id WHERE usuarios.id = ?", id_user_admin).Scan(&ent, &alm, &pais, &reg, &prov, &shop)
-			if err != nil {
-				Error.Println(err)
-			}
-			salida := fmt.Sprintf("destino_fijo@@%s.%s.%s.%s.%s.%s", ent, alm, pais, reg, prov, shop)
+			//fmt.Println(salida)
 			fmt.Fprint(w, salida)
 		}
 	}
