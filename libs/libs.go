@@ -590,9 +590,10 @@ PlayPubli: Reproduce un fichero de publicidad
 	win:     Objeto Winamp
 */
 func PlayPubli(f_publi string, win winamp.Winamp) {
-	song_duration := win.SongLenght(f_publi)
 	win.Load("\"" + f_publi + "\"")
 	win.Play()
+	song_duration := win.SongLenght(f_publi)
+	//Guardamos la duracion total de la cancion
 	time.Sleep(time.Duration(song_duration) * time.Second)
 }
 
