@@ -81,26 +81,29 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			fmt.Fprintf(w, "%s@@%s.%s.%s.%s.%s.%s", tipo_de_usuario, ent, alm, pais, reg, prov, shop)
-		}else{
-			var salida, ents string
-			tipo_de_usuario = "ADMIN"
-			//Seleccionamos las entidades para un user admin concreto
-			query2, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id = ?", id_user_admin)
-			if err != nil {
-				Error.Println(err)
-			}
-			for query2.Next() {
-				var ent string
-				var id_ent int
-				err = query2.Scan(&id_ent, &ent)
+		} else {
+			var salida string
+			if internal_action == "gent_ent" {
+				var ents string
+				tipo_de_usuario = "ADMIN"
+				//Seleccionamos las entidades para un user admin concreto
+				query2, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id = ?", id_user_admin)
 				if err != nil {
 					Error.Println(err)
 				}
-				id_string := strconv.Itoa(id_ent)
-				ents += id_string + ";" + ent + "::"
+				for query2.Next() {
+					var ent string
+					var id_ent int
+					err = query2.Scan(&id_ent, &ent)
+					if err != nil {
+						Error.Println(err)
+					}
+					id_string := strconv.Itoa(id_ent)
+					ents += id_string + ";" + ent + "::"
+				}
+				//Primera vez que se muestran datos: pasamos el tipo de usuario
+				salida = tipo_de_usuario + "@@" + ents
 			}
-			//Primera vez que se muestran datos: pasamos el tipo de usuario
-			salida = tipo_de_usuario + "@@" + ents
 			if internal_action == "entidades" {
 				var alms string
 				id_entidad := r.FormValue("id_entidad")

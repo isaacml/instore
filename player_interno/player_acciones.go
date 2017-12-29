@@ -114,10 +114,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		if accion == "mostrar_horas" {
 			var h_ini, h_fin string
 			var output string
-			err := db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&h_ini, &h_fin)
-			if err != nil {
-				Error.Println(err)
-			}
+			db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&h_ini, &h_fin)
 			hora_ini := libs.MostrarHoras(h_ini)
 			mins_ini := libs.MostrarMinutos(h_ini)
 			hora_fin := libs.MostrarHoras(h_fin)

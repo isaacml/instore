@@ -346,17 +346,18 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 	_, ok := user[sid]
 	if ok {
 		var output string
+		var arr_entidad []string
 		updateExpires(sid) //Actualizamos el tiempo de expiración de la clave
 		if r.FormValue("action") == "destinos" {
 			//Enviamos nombre de usuario recogido en el formulario hacia el server para evaluar los destinos
-			resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "userAdmin;"+username)
+			resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
 			res := strings.Split(resultado, "@@")
 			//Usuario ADMIN: puede ver todas las organizaciones que ha creado
-			if res[0] == "ADMIN"{
+			if res[0] == "ADMIN" {
 				div_ent := strings.Split(res[1], "::")
 				for _, val := range div_ent {
 					if val != "" {
-						arr_entidad := strings.Split(val, ";")
+						arr_entidad = strings.Split(val, ";")
 						output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
 						db_mu.Lock()
 						back_org = "entidad"
@@ -367,7 +368,7 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				estado_destino = "*"
 				db_mu.Unlock()
 				output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
-			}else{ //Solo la organizacion a la que pertenece
+			} else { //Solo la organizacion a la que pertenece
 				db_mu.Lock()
 				estado_destino = res[1]
 				output = fmt.Sprintf("%s;<span style='color: #1A5276'>%s</span>;<input type='hidden' name='destinos' value='%s'>", res[0], estado_destino, estado_destino)
@@ -390,7 +391,6 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				var st_entidad string //variable que va a contener el estado de la entidad
 				//Enviamos nombre de usuario e id_entidad recogido en el formulario hacia el server para generar los destinos
 				resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;entidades", "userAdmin;"+username, "id_entidad;"+ident)
-				fmt.Println(resultado)
 				if resultado != "" {
 					output, st_entidad = libs.GenerateSelectOrg(resultado, "almacen")
 					db_mu.Lock()
@@ -404,10 +404,10 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprint(w, output)
 				} else {
 					//Si no hay resultado, volvemos a cargar las entidades
-					var arr_entidad []string
 					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
 					if resultado2 != "" {
-						arr := strings.Split(resultado2, "::")
+						res := strings.Split(resultado2, "@@")
+						arr := strings.Split(res[1], "::")
 						for _, val := range arr {
 							if val != "" {
 								arr_entidad = strings.Split(val, ";")
@@ -427,10 +427,10 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				var st_almacen string //variable que va a contener el estado del almacen
 				if ident == "0" {
 					//Si no hay resultado, volvemos a cargar las entidades
-					var arr_entidad []string
 					resultado2 := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent", "userAdmin;"+username)
 					if resultado2 != "" {
-						arr := strings.Split(resultado2, "::")
+						res := strings.Split(resultado2, "@@")
+						arr := strings.Split(res[1], "::")
 						for _, val := range arr {
 							if val != "" {
 								arr_entidad = strings.Split(val, ";")
