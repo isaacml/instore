@@ -83,7 +83,7 @@
                             <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li id="mNoCif_top"><a href="musicNoCif.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Añadir</a></li>
+                            <li id="addMusic_top"><a href="addMusic.html?{{sid}}"><i class="fa fa-music fa-fw"></i> Añadir</a></li>
                             <li id="prog_music_top"><a href="prog.html?{{sid}}"><i class="fa fa-bars fa-fw"></i> Programar</a></li>
                             <li id="normalMsg_top"><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Mensaje Normal</a></li>
                             <li><a href="dominios.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Dominios</a></li>
@@ -109,8 +109,8 @@
                         <li id="zona_musica">
                             <a href="#"><i class="fa fa-bars fa-fw"></i> Música<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li id="mNoCif">
-                                    <a href="musicNoCif.html?{{sid}}">Añadir</a>
+                                <li id="addMusic">
+                                    <a href="addMusic.html?{{sid}}">Añadir</a>
                                 </li>
                                 <li id="prog_music">
                                     <a href="prog.html?{{sid}}">Programar</a>
@@ -149,8 +149,8 @@
                 }
                 //Añadir Música
                 if (res[3] == 0){
-                    $("#mNoCif").hide();
-                    $("#mNoCif_top").hide();
+                    $("#addMusic").hide();
+                    $("#addMusic_top").hide();
                 }
                 //Mensajes Normales
                 if (res[4] == 0){
@@ -159,7 +159,7 @@
                 }
                 //Deshabilitar panel de musica completo
                 if (res[1] == 0 && res[3] == 0){
-                    $("#mNoCif_top").hide();
+                    $("#addMusic_top").hide();
                     $("#prog_music_top").hide();
                     $("#zona_musica").hide();
                 }

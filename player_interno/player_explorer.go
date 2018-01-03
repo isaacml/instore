@@ -9,9 +9,10 @@ import (
 	"os/exec"
 	"strings"
 )
+
 //Guarda la dirección donde se encuentra el explorador WIN
 var directorio_actual string
-                    
+
 //Función principal del explorador windows
 func explorerMusic(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -248,9 +249,9 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, output)
 		}
 	}
-	//Se toman las carpetas enviadas por el formulario (musicNoCif.html) y se realiza la copia en el directorio de musica de la tienda.
+	//Se toman las carpetas enviadas por el formulario (addMusic.html) y se realiza la copia en el directorio de musica de la tienda.
 	//Se puede seleccionar cualquier carpeta que contenga cualquier tipo de archivo, pero solo se copiaran los mp3.
-	if r.FormValue("action") == "noCifDirs" {
+	if r.FormValue("action") == "uploadDirs" {
 		for clave, valor := range r.Form {
 			for _, v := range valor {
 				if clave == "directory" {
@@ -260,7 +261,7 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					//Ejemplo: C:\Users\isaac\miMusica\
-					selected_dir := directorio_actual + "\\" + v + "\\"
+					selected_dir := directorio_actual + v + "\\"
 					//Va a listar todos los ficheros mp3, tanto del directorio padre como sus hijos.
 					cmd := exec.Command("cmd", "/c", "dir /s /b "+selected_dir+"*.mp3")
 					//Comienza la ejecucion del pipe
@@ -272,48 +273,16 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 						if err != nil {
 							break
 						}
-						db_mu.Lock()
-						//Guardamos los ficheros en el array de copia
-						copy_arr = append(copy_arr, strings.TrimRight(line, "\r\n"))
-						db_mu.Unlock()
+						fmt.Println(strings.TrimRight(line, "\r\n"))
+						/*
+							db_mu.Lock()
+							//Guardamos los ficheros en el array de copia
+							copy_arr = append(copy_arr, strings.TrimRight(line, "\r\n"))
+							db_mu.Unlock()
+						*/
 					}
 					//Mandamos el array de directorios y el directorio destino para realizar la copia
-					libs.FileCopier(copy_arr, music_files)
-				}
-			}
-		}
-	}
-	//Se toman las carpetas enviadas por el formulario (musicCif.html) y se realiza la copia en el directorio de musica de la tienda.
-	//Se puede seleccionar cualquier carpeta que contenga cualquier tipo de archivo, pero solo se copiaran los ficheros encriptados (.xxx)
-	if r.FormValue("action") == "cifDirs" {
-		for clave, valor := range r.Form {
-			for _, v := range valor {
-				if clave == "directory" {
-					if v == "" {
-						output += "<span style='color: #FF0303'>Debes seleccionar mínimo un directorio</span>"
-						fmt.Fprint(w, output)
-						return
-					}
-					//Ejemplo: C:\Users\isaac\miMusica\
-					selected_dir := directorio_actual + "\\" + v + "\\"
-					//Va a listar todos los ficheros .xxx, tanto del directorio padre como sus hijos.
-					cmd := exec.Command("cmd", "/c", "dir /s /b "+selected_dir+"*.xxx")
-					//Comienza la ejecucion del pipe
-					stdoutRead, _ := cmd.StdoutPipe()
-					reader := bufio.NewReader(stdoutRead)
-					cmd.Start()
-					for {
-						line, err := reader.ReadString('\n')
-						if err != nil {
-							break
-						}
-						db_mu.Lock()
-						//Guardamos los ficheros en el array de copia
-						copy_arr = append(copy_arr, strings.TrimRight(line, "\r\n"))
-						db_mu.Unlock()
-					}
-					//Mandamos el array de directorios y el directorio destino para realizar la copia
-					libs.FileCopier(copy_arr, music_files)
+					//libs.FileCopier(copy_arr, music_files)
 				}
 			}
 		}
