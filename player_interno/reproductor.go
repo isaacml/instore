@@ -53,10 +53,12 @@ func horario_reproduccion() {
 //Zona de reproduccion del player de la tienda
 func reproduccion() {
 	for {
+		fmt.Println(block, schedule)
 		if block == false && schedule == true {
 			if block == true && schedule == false {
 				continue
 			}
+			fmt.Println("Llego aqui")
 			var win winamp.Winamp
 			var gap int
 			publi := make(map[int]string)
@@ -195,13 +197,16 @@ func reproduccion() {
 					pl++
 				}
 			} else {
+				fmt.Println("Llego aqui0")
 				libs.MusicToPlay(music_files, st_music, musica)
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
+					fmt.Println("Llego aqui1")
 					if statusProgammedMusic == "Inicial" || block == true || schedule == false {
 						break
 					}
+					fmt.Println("tocando:... ", musica)
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada

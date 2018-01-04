@@ -508,10 +508,11 @@ func MusicToPlay(ruta string, st int, mapa map[int]string) {
 	a := 0
 	if st == 0 {
 		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
-		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx")
+		fmt.Println(fmt.Sprintf("dir /s /b \"%s*.mp3\" & dir /s /b \"%s*.xxx\"", ruta, ruta))
+		cmd = exec.Command("cmd", "/c", "dir /s /b \""+ruta+"*.mp3\" & dir /s /b \""+ruta+"*.xxx\"")
 	} else if st == 1 {
 		//Se obtienen los ficheros del directorio y subdirectorios (solo música cif)
-		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.xxx")
+		cmd = exec.Command("cmd", "/c", "dir /s /b \""+ruta+"*.xxx\"")
 	}
 	//comienza la ejecucion del pipe
 	stdoutRead, _ := cmd.StdoutPipe()
@@ -522,9 +523,12 @@ func MusicToPlay(ruta string, st int, mapa map[int]string) {
 		if err != nil {
 			break
 		}
+		fmt.Println(line)
 		mapa[a] = strings.TrimRight(line, "\r\n")
 		a++
 	}
+	cmd.Wait()
+	fmt.Println(mapa)
 }
 
 /*
@@ -817,21 +821,4 @@ func Min2hour(mm int) (int, int) {
 	hh := int(mm / 60)
 	min := mm % 60
 	return hh, min
-}
-
-/*
-DeleteSplitsChars: Función que elimina los puntos, puntos comas y dobles puntos.
-	cadena: Se le pasa el valor de un input. Ex: r.FormValue("user")
-Nos devuelve un string limpio.
-*/
-func SpecialCharsOnWin(cadena string) (resultado string) {
-	var correct_res string
-	r := strings.NewReplacer("ú", " ", ":", "", ";", "")
-	if strings.Contains(cadena, ".") || strings.Contains(cadena, ":") || strings.Contains(cadena, ";") {
-		correct_res = r.Replace(cadena)
-	} else {
-		correct_res = cadena
-	}
-	resultado = correct_res
-	return
 }

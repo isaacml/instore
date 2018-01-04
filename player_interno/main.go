@@ -55,9 +55,9 @@ func main() {
 	go controlinternalsessions() // Controla la caducidad de la sesion
 	go estado_de_entidad()
 	go horario_reproduccion()
-	go reproduccion()
 	go solicitudDeFicheros()
 	go saveListInBD()
+	go reproduccion()
 	go reproduccion_msgs()
 
 	// handlers del servidor HTTP
@@ -71,7 +71,6 @@ func main() {
 	http.HandleFunc("/acciones.cgi", acciones)
 	//Exploradores
 	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
-	http.HandleFunc("/explorerMusic.cgi", explorerMusic)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
 
 	s := &http.Server{
@@ -102,7 +101,7 @@ func saveListInBD() {
 					dominios += val + ":.:"
 				}
 				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
-				//fmt.Println("La respuesta: ", respuesta)
+				fmt.Println("La respuesta: ", respuesta)
 				//Si la respuesta NO está vacía, comprobamos la respuesta.
 				if respuesta != "" {
 					//De la respuesta obtenemos el listado de mensajes y publicidad
