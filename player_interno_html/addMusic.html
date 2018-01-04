@@ -114,7 +114,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Añadir Música Sin Cifrar
+                            Añadir Música
                         </div>
                         <div class="panel-body" align="center">
                             <form id="testform" action="" method="post">
@@ -136,6 +136,7 @@
                                         <select id="directory" name="directory" multiple></select>
                                     </div>
                                     <div class="form-group" id="statdir"></div>
+                                    <div class="form-group" id="errdir"></div>
                                     <br>     
                                 </fieldset>
                             </form>
@@ -151,6 +152,7 @@
             $("#statdir").hide();
             $("#statsend").hide();
             $("#dest_stat").hide();
+            $("#errdir").hide();
             $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
                 var res = data.split(";");
                 //Programar Música
@@ -195,7 +197,10 @@
                 });
             });
             $("#enviar").click(function(){
-                $.post("/explorerMusic.cgi?sid={{sid}}&action=uploadDirs", $("#testform1").serialize(), function(data, status) {});
+                $.post("/explorerMusic.cgi?sid={{sid}}&action=uploadDirs", $("#testform1").serialize(), function(data, status) {
+                    $("#errdir").show();
+                    $("#errdir").html(data);
+                });
             });
         });
 	</script>

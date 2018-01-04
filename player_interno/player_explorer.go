@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"golang.org/x/text/encoding/charmap"
 )
 
 //Guarda la dirección donde se encuentra el explorador WIN
@@ -252,39 +253,64 @@ func explorerMusic(w http.ResponseWriter, r *http.Request) {
 	//Se toman las carpetas enviadas por el formulario (addMusic.html) y se realiza la copia en el directorio de musica de la tienda.
 	//Se puede seleccionar cualquier carpeta que contenga cualquier tipo de archivo, pero solo se copiaran los mp3.
 	if r.FormValue("action") == "uploadDirs" {
+		var bat string
+		/*
+		//Creamos un fichero(.bat) que va a guardar y ejecutar los comandos
+		addMusic, err := os.Create("addMusic.bat")
+		if err != nil {
+			Error.Println(err)
+			return
+		}
+		defer addMusic.Close()
+		*/
+		//Tomamos las carpetas añadidas por el usuario
 		for clave, valor := range r.Form {
 			for _, v := range valor {
 				if clave == "directory" {
-					if v == "" {
-						output += "<span style='color: #FF0303'>Debes seleccionar mínimo un directorio</span>"
+					if v == "" || v == "..." {
+						output += "<span style='color: #800000'>Debes seleccionar mínimo un directorio</span>"
 						fmt.Fprint(w, output)
 						return
 					}
-					//Ejemplo: C:\Users\isaac\miMusica\
-					selected_dir := directorio_actual + v + "\\"
-					//Va a listar todos los ficheros mp3, tanto del directorio padre como sus hijos.
-					cmd := exec.Command("cmd", "/c", "dir /s /b "+selected_dir+"*.mp3")
-					//Comienza la ejecucion del pipe
-					stdoutRead, _ := cmd.StdoutPipe()
-					reader := bufio.NewReader(stdoutRead)
-					cmd.Start()
-					for {
-						line, err := reader.ReadString('\n')
-						if err != nil {
-							break
-						}
-						fmt.Println(strings.TrimRight(line, "\r\n"))
-						/*
-							db_mu.Lock()
-							//Guardamos los ficheros en el array de copia
-							copy_arr = append(copy_arr, strings.TrimRight(line, "\r\n"))
-							db_mu.Unlock()
-						*/
-					}
+					
+					fmt.Println("directorios: ", v)
+					//Ejemplo: "C:\Users\isaac\miMusica\ACDC\*.mp3"
+					bat += "dir /s /b \""+directorio_actual + v + "\\*.mp3\"\r\n"
+					/*
 					//Mandamos el array de directorios y el directorio destino para realizar la copia
-					//libs.FileCopier(copy_arr, music_files)
+					libs.FileCopier(copy_arr, music_files)
+					*/
 				}
 			}
 		}
+		err := exec.Command("cmd", "/c", "echo "+bat+" > addMusic.bat").Run()
+		if err != nil {
+			Error.Println(err)
+			return
+		}
+		//Abrimos el txt que va a contener todos los ficheros de música correspondientes
+		musica, err := os.Open("addMusic.txt")
+		if err != nil {
+			Error.Println(err)
+			return
+		}
+		defer musica.Close()
+		scanner := bufio.NewScanner(musica)
+		scanner.Split(bufio.ScanLines)
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
 	}
+}
+
+func decodeWindows1250(enc []byte) string {
+    dec := charmap.Windows1250.NewDecoder()
+    out, _ := dec.Bytes(enc)
+    return string(out)
+}
+
+func encodeWindows1250(inp string) []byte {
+    enc := charmap.Windows1250.NewEncoder()
+    out, _ := enc.String(inp)
+    return []byte(out)
 }

@@ -23,7 +23,6 @@ var (
 	db_mu                sync.RWMutex
 	settings             map[string]string = make(map[string]string) //Guarda los settings de la tienda
 	programmedMusic      map[int]string    = make(map[int]string)    //Guarda el listado de carpetas programadas
-	copy_arr             []string                                    //Contenedor que va a guardar los ficheros que van a ser copiados a "C:\instore\\Music\"
 	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
 	statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
 	block                bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
