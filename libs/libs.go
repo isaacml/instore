@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/isaacml/instore/winamp"
 	"github.com/todostreaming/ratelimit"
+	//"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -504,16 +506,53 @@ MusicToPlay: Esta función determina los ficheros que va a reproducir el player 
 Devuelve un mapa con todos los ficheros a reproducir.
 */
 func MusicToPlay(ruta string, st int, mapa map[int]string) {
-	var cmd *exec.Cmd
-	a := 0
+	var cmd []byte
+	var err error
+	//var line, clearline string
+	//a := 0
 	if st == 0 {
-		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
-		fmt.Println(fmt.Sprintf("dir /s /b \"%s*.mp3\" & dir /s /b \"%s*.xxx\"", ruta, ruta))
-		cmd = exec.Command("cmd", "/c", "dir /s /b \""+ruta+"*.mp3\" & dir /s /b \""+ruta+"*.xxx\"")
-	} else if st == 1 {
 		//Se obtienen los ficheros del directorio y subdirectorios (solo música cif)
-		cmd = exec.Command("cmd", "/c", "dir /s /b \""+ruta+"*.xxx\"")
+		cmd, err = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.xxx").CombinedOutput()
+		
+	} else if st == 1 {
+		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
+		cmd, err = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.mp3 & dir /s /b "+ruta+"*.xxx").CombinedOutput()
 	}
+	var encoder encoding.Decoder
+	b, err := encoder.Bytes(cmd)
+	if err != nil {
+        err = fmt.Errorf("decoder: error al decodificar")
+		return
+    }
+    fmt.Println(string(b))
+	file, err := os.Create("musicToPlay.txt")
+    if err != nil {
+        err = fmt.Errorf("musicToPlay: fallo al abrir el .txt")
+		return
+    }
+    defer file.Close()
+    file.WriteString(string(b))
+	/*
+	//Una vez creado el fichero lo abrimos y lo leemos
+	file, err := os.Open("musicToPlay.txt")
+	if err != nil {
+		err = fmt.Errorf("musicToPlay: fallo al abrir el .txt")
+		return
+	}
+	defer file.Close()
+	
+    
+	fileReader := bufio.NewReader(file)
+	for {
+		line, err = fileReader.ReadString('\n')
+		if err != nil {
+			break
+		}
+		clearline += strings.TrimSpace(line)
+	}
+	res := charmap.Windows1252.NewDecoder().Reader(file)
+	io.Copy(out, res)
+
 	//comienza la ejecucion del pipe
 	stdoutRead, _ := cmd.StdoutPipe()
 	reader := bufio.NewReader(stdoutRead)
@@ -523,12 +562,10 @@ func MusicToPlay(ruta string, st int, mapa map[int]string) {
 		if err != nil {
 			break
 		}
-		fmt.Println(line)
 		mapa[a] = strings.TrimRight(line, "\r\n")
 		a++
 	}
-	cmd.Wait()
-	fmt.Println(mapa)
+	*/
 }
 
 /*
@@ -552,6 +589,7 @@ func PlaySong(song string, win winamp.Winamp) {
 	win.Play()
 	//Guardamos la duracion total de la cancion
 	song_duration = win.SongLenght(song)
+	fmt.Println(song_duration)
 	time.Sleep(time.Duration(song_duration) * time.Second)
 }
 
@@ -573,12 +611,16 @@ func PlaySongCif(song_cif string, win winamp.Winamp) {
 		win.Volume()
 	}
 	segment := strings.Split(song_cif, ".xxx")
+	fmt.Println(segment)
 	song_to_play = segment[0] + ".mp3"
+	fmt.Println("song to play: ", song_cif, song_to_play)
 	//Proceso de descifrado de la cancion: ver en libreria de funciones.
-	Cifrado(song_cif, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	err, res := Cifrado(song_cif, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+	fmt.Println(err, res)
 	//Carga y reproduccion de cancion
 	win.Load("\"" + song_to_play + "\"")
 	win.Play()
+	fmt.Println(song_duration)
 	//Guardamos la duracion total de la cancion
 	song_duration = win.SongLenght(song_to_play)
 	time.Sleep(time.Duration(song_duration) * time.Second)

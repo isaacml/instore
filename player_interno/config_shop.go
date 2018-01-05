@@ -18,6 +18,7 @@ func get_orgs(w http.ResponseWriter, r *http.Request) {
 	sid := r.FormValue("sid")
 	_, ok := user[sid]
 	if ok {
+		libs.LoadSettingsWin(serverRoot, settings)
 		if accion == "entidades" {
 			respuesta = fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/transf_orgs.cgi", "action;entidad", "user;"+user[sid]))
 		}

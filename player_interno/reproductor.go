@@ -197,16 +197,14 @@ func reproduccion() {
 					pl++
 				}
 			} else {
-				fmt.Println("Llego aqui0")
 				libs.MusicToPlay(music_files, st_music, musica)
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					fmt.Println("Llego aqui1")
 					if statusProgammedMusic == "Inicial" || block == true || schedule == false {
 						break
 					}
-					fmt.Println("tocando:... ", musica)
+					fmt.Println("tocando:... ", musica[v])
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						//Descifra y reproduce una cancion cifrada
@@ -215,6 +213,7 @@ func reproduccion() {
 						//Reproduce una cancion sin cifrar
 						libs.PlaySong(musica[v], win)
 					}
+					fmt.Println("fin... ")
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
