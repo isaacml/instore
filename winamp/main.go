@@ -233,6 +233,7 @@ func (w *Winamp) Clear() {
 //Tiempo total de un fichero de musica en segundos
 func (w *Winamp) SongLenght(file string) int {
 	var gen_bat string
+	var total_sec, final_segs int
 	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
 	song_lenght_bat, err := os.Create("song_lenght.bat")
 	if err != nil {
@@ -243,13 +244,30 @@ func (w *Winamp) SongLenght(file string) int {
 	song_lenght_bat.WriteString(gen_bat)
 	//Una vez creado el fichero, lo ejecutamos y tomamos su salida
 	seg, _ := exec.Command("cmd", "/c", "song_lenght.bat").CombinedOutput()
-	//formato de SongLenght -> 201.91234 seg
-	song := strings.Split(fmt.Sprintf("%s", string(seg)), ".")
-	total_sec, err := strconv.Atoi(song[0])
-	if err != nil {
-		err = fmt.Errorf("conv: CANNOT_CONVERSION")
+	if strings.TrimSpace(string(seg)) == "NA" {
+		st, err := os.Stat(file)
+		if err != nil {
+			err = fmt.Errorf("Statlenght: ERROR_STAT_FILE")
+		}
+		tamanio := st.Size()
+		total_sec = int(tamanio / 16000)
+	} else {
+		//formato de SongLenght -> 201.91234 seg
+		song := strings.Split(fmt.Sprintf("%s", string(seg)), ".")
+		total_sec, err = strconv.Atoi(song[0])
+		if err != nil {
+			err = fmt.Errorf("conv: CANNOT_CONVERSION")
+		}
 	}
-	return total_sec
+	if total_sec > 30 && total_sec < 300 {
+		final_segs = total_sec
+	} else if total_sec < 30 {
+		final_segs = 30
+	} else if total_sec > 300 {
+		final_segs = 300
+	}
+	fmt.Println(final_segs)
+	return final_segs
 }
 
 // Metodo que introduce la publicidad por ffplay
