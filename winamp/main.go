@@ -266,7 +266,6 @@ func (w *Winamp) SongLenght(file string) int {
 	} else if total_sec > 300 {
 		final_segs = 300
 	}
-	fmt.Println(final_segs)
 	return final_segs
 }
 
@@ -279,7 +278,7 @@ func (w *Winamp) PlayFFplay(publi string) string {
 	play := fmt.Sprintf("apps\\ffplay.exe -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
 	//Vuelvo a subir el volumen a como estaba
-	inc := fmt.Sprintf("apps\\Winamp\\CLEvER.exe volume %d", volMax)
+	inc := fmt.Sprintf("apps\\CLEvER.exe volume %d", volMax)
 	exec.Command("cmd", "/c", inc).Run()
 	st = "END"
 	return st

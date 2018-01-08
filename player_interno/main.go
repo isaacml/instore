@@ -70,7 +70,8 @@ func main() {
 	//Bitmap Actions
 	http.HandleFunc("/acciones.cgi", acciones)
 	//Exploradores
-	http.HandleFunc("/mensajesInstantaneos.cgi", mensajesInstantaneos)
+	http.HandleFunc("/instantaneos.cgi", instantaneos)
+	http.HandleFunc("/playInstantaneos.cgi", playInstantaneos)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
 
 	s := &http.Server{

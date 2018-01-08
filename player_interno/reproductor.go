@@ -207,11 +207,46 @@ func reproduccion() {
 					fmt.Println("tocando:... ", musica[v])
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
-						//Descifra y reproduce una cancion cifrada
-						libs.PlaySongCif(musica[v], win)
+						//Comprobamos si winamp está abierto
+						isOpen := win.WinampIsOpen()
+						if isOpen == false {
+							//Rulamos el Winamp
+							win.RunWinamp()
+							time.Sleep(1 * time.Second)
+							win.Volume()
+						}
+						segment := strings.Split(musica[v], ".xxx")
+						song_to_play := segment[0] + ".mp3"
+						fmt.Println("song to play: ", musica[v], song_to_play)
+						//Proceso de descifrado de la cancion: ver en libreria de funciones.
+						_, st_cif := libs.Cifrado(musica[v], song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
+						if st_cif == "GOOD" {
+							//Guardamos la duracion total de la cancion
+							song_duration := win.SongLenght(song_to_play)
+							//Carga y reproduccion de cancion
+							win.Load("\"" + song_to_play + "\"")
+							win.Play()
+							time.Sleep(time.Duration(song_duration) * time.Second)
+						}
+						//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
+						win.Clear()
+						//Borramos el descifrado(.mp3)
+						os.Remove(song_to_play)
 					} else {
-						//Reproduce una cancion sin cifrar
-						libs.PlaySong(musica[v], win)
+							//Comprobamos si winamp está abierto
+							isOpen := win.WinampIsOpen()
+							if isOpen == false {
+								//Rulamos el Winamp
+								win.RunWinamp()
+								time.Sleep(1 * time.Second)
+								win.Volume()
+							}
+							//Carga y reproduccion de cancion
+							win.Load("\"" + musica[v] + "\"")
+							win.Play()
+							//Guardamos la duracion total de la cancion
+							song_duration := win.SongLenght(musica[v])
+							time.Sleep(time.Duration(song_duration) * time.Second)
 					}
 					fmt.Println("fin... ")
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
@@ -225,7 +260,11 @@ func reproduccion() {
 							//Directorio publi + Fichero publi
 							all_publi_file := publi_files_location + publi[val]
 							fmt.Println(all_publi_file)
-							libs.PlayPubli(all_publi_file, win)
+								win.Load("\"" + all_publi_file + "\"")
+								win.Play()
+								song_duration := win.SongLenght(all_publi_file)
+							//Esperamos lo que dure el archivo de publicidad
+							time.Sleep(time.Duration(song_duration) * time.Second)
 							break
 						}
 						//Volvemos a poner el contador de playlist 0
@@ -248,7 +287,7 @@ func reproduccion_msgs() {
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
 		//Obtenemos todos los mensajes
-		mensajes, errM := db.Query("SELECT id, fichero, playtime FROM mensaje WHERE fichero LIKE ?", fecha_sql)
+		mensajes, errM := db.Query("SELECT id, fichero, playtime FROM mensaje WHERE fecha LIKE ?", fecha_sql)
 		if errM != nil {
 			Error.Println(errM)
 		}

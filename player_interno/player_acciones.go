@@ -161,52 +161,42 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//Reproductor de Mensajes Instantaneos
-func mensajesInstantaneos(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+//Generar un listado de Mensajes Instantaneos
+func instantaneos(w http.ResponseWriter, r *http.Request) {
 	var output string //variable para imprimir los datos hacia JavaScript
-	var msg_instantaneo string
-	//Generar un listado de Mensajes
-	if r.FormValue("action") == "mensajes" {
-		//Abrimos el directorio de mensajes(MessagesShop)
-		file, err := os.Open(msg_files_location)
-		defer file.Close()
-		if err != nil {
-			Error.Println(err)
-			return
-		}
-		ficheros, err := file.Readdir(0)
-		if err != nil {
-			Error.Println(err)
-			return
-		}
-		for key, val := range ficheros {
-			//Tomamos solamente ficheros MP3
-			if strings.Contains(val.Name(), ".mp3") {
-				//Formamos el select
-				output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
-				//Guardamos el nombre del primer mensaje
-				if key == 0 {
-					msg_instantaneo = val.Name()
-				}
-			}
-		}
-		//Mostrar msg: muestra el nombre del mensaje por primera vez
-		output += fmt.Sprintf("#:#<span style='color: #006400'>Mensaje seleccionado: </span>" + msg_instantaneo)
+	//Abrimos el directorio de mensajes(MessagesShop)
+	file, err := os.Open(msg_files_location)
+	defer file.Close()
+	if err != nil {
+		Error.Println(err)
+		return
 	}
-	//Estado de mensaje
-	if r.FormValue("action") == "status" {
-		msg_instantaneo = r.FormValue("instantaneos")
-		output = fmt.Sprintf("<span style='color: #006400'>Mensaje seleccionado: </span>" + msg_instantaneo)
+	ficheros, err := file.Readdir(0)
+	if err != nil {
+		Error.Println(err)
+		return
 	}
-	//Recibe el mensaje instantaneo y lo procesa
-	if r.FormValue("action") == "send" {
-		var win winamp.Winamp
-		//Reproducimos el mensaje instantaneo
-		win.PlayFFplay(msg_files_location + r.FormValue("instantaneos"))
+	for _, val := range ficheros {
+		//Tomamos solamente ficheros MP3
+		if strings.Contains(val.Name(), ".mp3") {
+			//Formamos el select
+			output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
+		}
 	}
 	fmt.Fprint(w, output)
 }
+
+func playInstantaneos(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var win winamp.Winamp
+	fmt.Println(r.FormValue("instantaneos"))
+	//Reproducimos el mensaje instantaneo
+	st := win.PlayFFplay(msg_files_location + r.FormValue("instantaneos"))
+	if st == "END" {
+		fmt.Fprint(w, "FinMensaje")
+	}
+}
+
 
 //Programar Musica para la Tienda
 func programarMusica(w http.ResponseWriter, r *http.Request) {

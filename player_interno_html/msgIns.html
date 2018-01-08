@@ -112,8 +112,6 @@
                                     <div class="form-group">
                                         <select id="instantaneos" name="instantaneos"></select>
                                     </div>
-                                    <div class="form-group" id="status">
-                                    </div>
                                 </fieldset>
                                 <br> 
                             </form>
@@ -140,21 +138,15 @@
                     $("#normalMsg_top").hide();
                 }
             });   
-            $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=mensajes", function(data, status) {
-                var res = data.split("#:#");
-                $("#instantaneos").html(res[0]);
-                $("#status").html(res[1]);
-            });
-            $("#instantaneos").change(function(){
-                $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=status",  $("#testform").serialize(), function(data, status) {
-                    $("#status").html(data);
-                });
+            $.post("/instantaneos.cgi?sid={{sid}}", function(data, status) {
+                $("#instantaneos").html(data);
             });
             $("#enviar").click(function(){
-                $("#status").html("<span style='color: #006400'>Reproduciendo Mensaje</span>");
                 $("#enviar").hide();
-                $.post("/mensajesInstantaneos.cgi?sid={{sid}}&action=send",  $("#testform").serialize(), function(data, status) {
-                    location.reload();
+                $.post("/playInstantaneos.cgi?sid={{sid}}",  $("#testform").serialize(), function(data, status) {
+                    if (data == "FinMensaje"){
+                        location.reload();
+                    }
                 });
             });
         });
