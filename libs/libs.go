@@ -532,10 +532,9 @@ func MusicToPlay(ruta string, st int, mapa map[int]string) {
 PlaySong: Toma una cancion del listado y la reproduce.
 	song:  Nombre de la cancion
 	win:   Objeto Winamp
-Canciones sin cifrar
+Devolvemos la cantidad de segundos que tiene que esperar
 */
-func PlaySong(song string, win winamp.Winamp) {
-	var song_duration int
+func PlaySong(song string, win winamp.Winamp) int {
 	//Comprobamos si winamp está abierto
 	isOpen := win.WinampIsOpen()
 	if isOpen == false {
@@ -547,18 +546,16 @@ func PlaySong(song string, win winamp.Winamp) {
 	//Carga y reproduccion de cancion
 	win.Load("\"" + song + "\"")
 	win.Play()
-	//Guardamos la duracion total de la cancion
-	song_duration = win.SongLenght(song)
-	time.Sleep(time.Duration(song_duration) * time.Second)
+	return win.SongLenght(song)
 }
 
 /*
 PlaySongCif: Toma una cancion cifrada del listado y la reproduce.
 	song:  Nombre de la cancion cifrada
 	win:   Objeto Winamp
-Solo se utiliza para música cifrada
+Devolvemos la cancion(.mp3) y la cantidad de segundos que tiene que esperar
 */
-func PlaySongCif(song_cif string, win winamp.Winamp) {
+func PlaySongCif(song_cif string, win winamp.Winamp) (string, int) {
 	var song_to_play string
 	var song_duration int
 	//Comprobamos si winamp está abierto
@@ -580,12 +577,8 @@ func PlaySongCif(song_cif string, win winamp.Winamp) {
 		//Carga y reproduccion de cancion
 		win.Load("\"" + song_to_play + "\"")
 		win.Play()
-		time.Sleep(time.Duration(song_duration) * time.Second)
 	}
-	//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
-	win.Clear()
-	//Borramos el descifrado(.mp3)
-	os.Remove(song_to_play)
+	return song_to_play, song_duration
 }
 
 /*
@@ -593,11 +586,10 @@ PlayPubli: Reproduce un fichero de publicidad
 	f_publi: Fichero de publicidad
 	win:     Objeto Winamp
 */
-func PlayPubli(f_publi string, win winamp.Winamp) time.Duration{
+func PlayPubli(f_publi string, win winamp.Winamp) int {
 	win.Load("\"" + f_publi + "\"")
 	win.Play()
-	song_duration := win.SongLenght(f_publi)
-	return time.Duration(song_duration)
+	return win.SongLenght(f_publi)
 }
 
 /*
