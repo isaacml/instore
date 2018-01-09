@@ -112,7 +112,10 @@ func reproduccion() {
 						for _, val := range shuffle2 {
 							//Directorio publi + Fichero publi
 							all_publi_file := publi_files_location + publi[val]
-							libs.PlayPubli(all_publi_file, win)
+							duracion := win.SongLenght(all_publi_file)
+							win.Load("\"" + all_publi_file + "\"")
+							win.Play()
+							time.Sleep(time.Duration(duracion) * time.Second)
 							break
 						}
 						//Volvemos a poner el contador de playlist 0
@@ -150,7 +153,10 @@ func reproduccion() {
 						for _, val := range shuffle2 {
 							//Directorio publi + Fichero publi
 							all_publi_file := publi_files_location + publi[val]
-							libs.PlayPubli(all_publi_file, win)
+							duracion := win.SongLenght(all_publi_file)
+							win.Load("\"" + all_publi_file + "\"")
+							win.Play()
+							time.Sleep(time.Duration(duracion) * time.Second)
 							break
 						}
 						//Volvemos a poner el contador de playlist 0
@@ -188,7 +194,10 @@ func reproduccion() {
 						for _, val := range shuffle2 {
 							//Directorio publi + Fichero publi
 							all_publi_file := publi_files_location + publi[val]
-							libs.PlayPubli(all_publi_file, win)
+							duracion := win.SongLenght(all_publi_file)
+							win.Load("\"" + all_publi_file + "\"")
+							win.Play()
+							time.Sleep(time.Duration(duracion) * time.Second)
 							break
 						}
 						//Volvemos a poner el contador de playlist 0
@@ -228,8 +237,10 @@ func reproduccion() {
 						for _, val := range shuffle2 {
 							//Directorio publi + Fichero publi
 							all_publi_file := publi_files_location + publi[val]
+							duracion := win.SongLenght(all_publi_file)
+							win.Load("\"" + all_publi_file + "\"")
+							win.Play()
 							fmt.Println(all_publi_file)
-							duracion := libs.PlaySong(all_publi_file, win)
 							//Esperamos lo que dure el archivo de publicidad
 							time.Sleep(time.Duration(duracion) * time.Second)
 							break

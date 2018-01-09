@@ -582,17 +582,6 @@ func PlaySongCif(song_cif string, win winamp.Winamp) (string, int) {
 }
 
 /*
-PlayPubli: Reproduce un fichero de publicidad
-	f_publi: Fichero de publicidad
-	win:     Objeto Winamp
-*/
-func PlayPubli(f_publi string, win winamp.Winamp) int {
-	win.Load("\"" + f_publi + "\"")
-	win.Play()
-	return win.SongLenght(f_publi)
-}
-
-/*
 MainDomain: Obtener el dominio principal de la tienda
 	file: Nombre del fichero que contiene el dominio (configShop)
 Devuelve el dominio principal de la tienda al completo
