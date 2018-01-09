@@ -236,7 +236,7 @@ func reproduccion() {
 						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
 						for _, val := range shuffle2 {
 							//Directorio publi + Fichero publi
-							all_publi_file := publi_files_location + publi[val]
+							all_publi_file := "..\\" + publi_files_location + publi[val]
 							duracion := win.SongLenght(all_publi_file)
 							win.Load("\"" + all_publi_file + "\"")
 							win.Play()
