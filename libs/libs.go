@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/isaacml/instore/winamp"
 	"github.com/todostreaming/ratelimit"
 	"io"
 	"io/ioutil"
@@ -526,59 +525,6 @@ func MusicToPlay(ruta string, st int, mapa map[int]string) {
 		mapa[a] = strings.TrimSpace(line)
 		a++
 	}
-}
-
-/*
-PlaySong: Toma una cancion del listado y la reproduce.
-	song:  Nombre de la cancion
-	win:   Objeto Winamp
-Devolvemos la cantidad de segundos que tiene que esperar
-*/
-func PlaySong(song string, win winamp.Winamp) int {
-	//Comprobamos si winamp está abierto
-	isOpen := win.WinampIsOpen()
-	if isOpen == false {
-		//Rulamos el Winamp
-		win.RunWinamp()
-		time.Sleep(1 * time.Second)
-		win.Volume()
-	}
-	//Carga y reproduccion de cancion
-	win.Load("\"" + song + "\"")
-	win.Play()
-	return win.SongLenght(song)
-}
-
-/*
-PlaySongCif: Toma una cancion cifrada del listado y la reproduce.
-	song:  Nombre de la cancion cifrada
-	win:   Objeto Winamp
-Devolvemos la cancion(.mp3) y la cantidad de segundos que tiene que esperar
-*/
-func PlaySongCif(song_cif string, win winamp.Winamp) (string, int) {
-	var song_to_play string
-	var song_duration int
-	//Comprobamos si winamp está abierto
-	isOpen := win.WinampIsOpen()
-	if isOpen == false {
-		//Rulamos el Winamp
-		win.RunWinamp()
-		time.Sleep(1 * time.Second)
-		win.Volume()
-	}
-	segment := strings.Split(song_cif, ".xxx")
-	song_to_play = segment[0] + ".mp3"
-	fmt.Println("song to play: ", song_cif, song_to_play)
-	//Proceso de descifrado de la cancion: ver en libreria de funciones.
-	_, st_cif := Cifrado(song_cif, song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-	if st_cif == "GOOD" {
-		//Guardamos la duracion total de la cancion
-		song_duration = win.SongLenght(song_to_play)
-		//Carga y reproduccion de cancion
-		win.Load("\"" + song_to_play + "\"")
-		win.Play()
-	}
-	return song_to_play, song_duration
 }
 
 /*
