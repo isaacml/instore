@@ -188,9 +188,9 @@
                                     </div>
                                 </div>
                                 <br>
-                                <div class="form-group" align="center" id="stat"></div>      
                             </fieldset>
                         </form>
+                        <div class="form-group" align="center" id="stat"></div>
                         <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
                         <button id="modificar" class="btn btn-lg btn-success btn-block" name="modificar">Modificar</button>
                         </div>
@@ -241,6 +241,7 @@
         table();
         $("#stat").hide();
         $("#modificar").hide();
+        $("#box_alm").show();
         $("#box_pais").hide();
         $("#box_region").hide();
         $("#box_provincia").hide();
@@ -308,7 +309,7 @@
                 $("#address").val("");
                 $("#phone").val("");
                 $("#extra").val("");
-				table();
+				location.reload();
 	        });
         });
 	});
