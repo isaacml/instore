@@ -58,28 +58,8 @@ func reproduccion() {
 				continue
 			}
 			var win winamp.Winamp
-			var gap int
-			publi := make(map[int]string)
 			musica := make(map[int]string)
-			p, pl := 0, 1
-			//Sacamos la fecha actual
-			fecha := libs.MyCurrentDate()
-			//Obtenemos el GAP
-			publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
-			if errP != nil {
-				Error.Println(errP)
-				gap = 0
-			}
-			for publicidad.Next() {
-				var fichero string
-				//Tomamos el nombre del fichero mensaje
-				err := publicidad.Scan(&fichero, &gap)
-				if err != nil {
-					Error.Println(err)
-				}
-				publi[p] = fichero
-				p++
-			}
+			pl := 1
 			if statusProgammedMusic == "Inicial" {
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
@@ -100,11 +80,12 @@ func reproduccion() {
 						time.Sleep(1 * time.Second)
 						win.Volume()
 					}
+					//Obtenemos la publicidad
+					publi, gap := publi_q_toca()
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						segment := strings.Split(musica[v], ".xxx")
 						song_to_play := segment[0] + ".mp3"
-						fmt.Println("song to play: ", musica[v], song_to_play)
 						//Proceso de descifrado de la cancion: ver en libreria de funciones.
 						_, st_cif := libs.Cifrado(musica[v], song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
 						if st_cif == "GOOD" {
@@ -164,11 +145,12 @@ func reproduccion() {
 						time.Sleep(1 * time.Second)
 						win.Volume()
 					}
+					//Obtenemos la publicidad
+					publi, gap := publi_q_toca()
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						segment := strings.Split(musica[v], ".xxx")
 						song_to_play := segment[0] + ".mp3"
-						fmt.Println("song to play: ", musica[v], song_to_play)
 						//Proceso de descifrado de la cancion: ver en libreria de funciones.
 						_, st_cif := libs.Cifrado(musica[v], song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
 						if st_cif == "GOOD" {
@@ -228,11 +210,12 @@ func reproduccion() {
 						time.Sleep(1 * time.Second)
 						win.Volume()
 					}
+					//Obtenemos la publicidad
+					publi, gap := publi_q_toca()
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						segment := strings.Split(musica[v], ".xxx")
 						song_to_play := segment[0] + ".mp3"
-						fmt.Println("song to play: ", musica[v], song_to_play)
 						//Proceso de descifrado de la cancion: ver en libreria de funciones.
 						_, st_cif := libs.Cifrado(musica[v], song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
 						if st_cif == "GOOD" {
@@ -288,12 +271,12 @@ func reproduccion() {
 						time.Sleep(1 * time.Second)
 						win.Volume()
 					}
-					fmt.Println("tocando:... ", musica[v])
+					//Obtenemos la publicidad
+					publi, gap := publi_q_toca()
 					//Evaluamos cada una de las canciones: cif o nocif
 					if strings.Contains(musica[v], ".xxx") {
 						segment := strings.Split(musica[v], ".xxx")
 						song_to_play := segment[0] + ".mp3"
-						fmt.Println("song to play: ", musica[v], song_to_play)
 						//Proceso de descifrado de la cancion: ver en libreria de funciones.
 						_, st_cif := libs.Cifrado(musica[v], song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
 						if st_cif == "GOOD" {
@@ -313,7 +296,6 @@ func reproduccion() {
 						win.Play()
 						time.Sleep(time.Duration(win.SongLenght(musica[v])) * time.Second)
 					}
-					fmt.Println("fin... ")
 					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
 					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
 					if pl == gap {
@@ -390,4 +372,29 @@ func reproduccion_msgs() {
 		}
 		time.Sleep(1 * time.Minute)
 	}
+}
+//Hace un select de la publicidad diaria y la guarda en un mapa junto con el GAP
+func publi_q_toca() (map[int]string, int){
+	p := 0
+	publi := make(map[int]string)
+	//Sacamos la fecha actual
+	fecha := libs.MyCurrentDate()
+	//Obtenemos el GAP
+	var gap int
+	publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
+	if errP != nil {
+		Error.Println(errP)
+		gap = 0
+	}
+	for publicidad.Next() {
+		var fichero string
+		//Tomamos el nombre del fichero publi
+		err := publicidad.Scan(&fichero, &gap)
+		if err != nil {
+			Error.Println(err)
+		}
+		publi[p] = fichero
+		p++
+	}
+	return publi, gap
 }

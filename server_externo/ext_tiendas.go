@@ -115,12 +115,12 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 					db_mu.Unlock()
 					if err1 != nil {
 						Error.Println(err1)
-						output = "<div class='form-group text-danger'>Fallo al modificar tienda</div>"
+						output = "<div class='form-group text-danger'>Fallo al añadir la tienda</div>"
 					} else {
-						output = "<div class='form-group text-success'>Tienda modificada correctamente</div>"
+						output = "<div class='form-group text-success'>Tienda añadida correctamente</div>"
 					}
 				} else {
-					output = "<div class='form-group text-danger'>La provincia ya tiene esa tienda asociada</div>"
+					output = "<div class='form-group text-danger'>Esa tienda ya existe</div>"
 				}
 			} else {
 				output = "<div class='form-group text-danger'>Solo un usuario ROOT puede editar una tienda</div>"

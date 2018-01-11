@@ -301,6 +301,7 @@
         $("#modificar").click(function(){
 			$.post("/tiendas.cgi?sid={{sid}}&accion=edit_tienda", $("#testform").serialize(), function(data, status) {
 				$("#modificar").hide();
+                $("#box_alm").show();
 				$("#enviar").show();
                 $("#stat").show();
                 $("#stat").html(data);
@@ -309,7 +310,7 @@
                 $("#address").val("");
                 $("#phone").val("");
                 $("#extra").val("");
-				location.reload();
+                table();
 	        });
         });
 	});
