@@ -15,6 +15,7 @@ func horario_reproduccion() {
 	for {
 		var actual int                      //Minutos actuales totales
 		var hora_inicial, hora_final string //Variables de base de datos
+		mins_of_day := 1440                 //Minutos que tiene un dia
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
 		//Obtenemos hora inicial y final de la SQL
@@ -32,6 +33,12 @@ func horario_reproduccion() {
 				actual = libs.Hour2min(libs.ToInt(arr_clock[0]), libs.ToInt(arr_clock[1]))
 				inicial := libs.Hour2min(libs.ToInt(arr_hinicial[0]), libs.ToInt(arr_hinicial[1]))
 				final := libs.Hour2min(libs.ToInt(arr_hfinal[0]), libs.ToInt(arr_hfinal[1]))
+				//Si la hora inicial es mayor que la final, pasa un dia completo
+				if inicial > final {
+					final = mins_of_day + final
+					actual = mins_of_day + actual
+				}
+				fmt.Println(inicial, actual, final)
 				//Miramos que la hora actual de reproduccion esté dentro del rango
 				if actual >= inicial && final >= actual {
 					db_mu.Lock()
@@ -373,8 +380,9 @@ func reproduccion_msgs() {
 		time.Sleep(1 * time.Minute)
 	}
 }
+
 //Hace un select de la publicidad diaria y la guarda en un mapa junto con el GAP
-func publi_q_toca() (map[int]string, int){
+func publi_q_toca() (map[int]string, int) {
 	p := 0
 	publi := make(map[int]string)
 	//Sacamos la fecha actual
