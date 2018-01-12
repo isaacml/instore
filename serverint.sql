@@ -1,7 +1,7 @@
 /*
 Navicat SQLite Data Transfer
 
-Source Server         : Pruebas
+Source Server         : Programaciones
 Source Server Version : 30808
 Source Host           : :0
 
@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2017-06-23 03:30:30
+Date: 2017-12-25 21:10:56
 */
 
 PRAGMA foreign_keys = OFF;
@@ -43,3 +43,13 @@ CREATE TABLE "publi" (
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."sqlite_sequence";
 CREATE TABLE sqlite_sequence(name,seq);
+
+-- ----------------------------
+-- Table structure for usuarios
+-- ----------------------------
+DROP TABLE IF EXISTS "main"."usuarios";
+CREATE TABLE "usuarios" (
+"id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+"user"  TEXT,
+"pass"  TEXT
+);

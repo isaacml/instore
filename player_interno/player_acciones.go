@@ -126,35 +126,72 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		if accion == "recoger_horas" {
 			r.ParseForm()
 			var h_ini, h_fin string
-			var hora_inicial, hora_final string
-			//Formamos la hora inicial y hora final
-			hora_inicial = r.FormValue("hora1") + ":" + r.FormValue("min1")
-			hora_final = r.FormValue("hora2") + ":" + r.FormValue("min2")
+			//Formamos la hora inicial y hora final (para usuario)
+			hora_inicial := r.FormValue("hora1") + ":" + r.FormValue("min1")
+			hora_final := r.FormValue("hora2") + ":" + r.FormValue("min2")
 			db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&h_ini, &h_fin)
 			//Se comprueba las variable en base de datos para insertar o actualizar
-			if h_ini == "" && h_fin == "" {
-				//Guardamos en base de datos
-				stm, err := db.Prepare("INSERT INTO horario (`hora_inicial`, `hora_final`) VALUES (?,?)")
+			if h_ini != "" && h_fin != "" {
+				//Borramos los datos que habían anteriormente
+				db_mu.Lock()
+				_, err := db.Exec("DELETE FROM horario")
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
 				}
-				db_mu.Lock()
-				_, err1 := stm.Exec(hora_inicial, hora_final)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
+			}
+			//Guardamos en base de datos horario
+			stm, err := db.Prepare("INSERT INTO horario (`hora_inicial`, `hora_final`) VALUES (?,?)")
+			if err != nil {
+				Error.Println(err)
+			}
+			db_mu.Lock()
+			_, err1 := stm.Exec(hora_inicial, hora_final)
+			db_mu.Unlock()
+			if err1 != nil {
+				Error.Println(err1)
+			}
+			//Hora inicial y final en entero (para nuestro programa)
+			h_ini_int := libs.Hour2min(libs.ToInt(r.FormValue("hora1")), libs.ToInt(r.FormValue("min1")))
+			h_fin_int := libs.Hour2min(libs.ToInt(r.FormValue("hora2")), libs.ToInt(r.FormValue("min2")))
+			//Se comprueba la existencia de datos en la tabla
+			db.QueryRow("SELECT hora_inicial, hora_final FROM aux").Scan(&h_ini, &h_fin)
+			//Comprobamos si la hora inicial es mayor que la final
+			if h_ini_int > h_fin_int {
+				//Se comprueba la existencia de datos en la tabla
+				if h_ini != "" && h_fin != "" {
+					//Borramos los datos que habían anteriormente
+					db_mu.Lock()
+					_, err := db.Exec("DELETE FROM aux")
+					db_mu.Unlock()
+					if err != nil {
+						Error.Println(err)
+					}
+					//Metemos el dato nuevo
+					_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, h_fin_int)
+					if err1 != nil {
+						Error.Println(err1)
+					}
 				}
 			} else {
-				//Actualizamos el horario en base de datos
-				ok, err := db.Prepare("UPDATE horario SET hora_inicial=?, hora_final=?")
-				if err != nil {
-					Error.Println(err)
-				}
-				db_mu.Lock()
-				_, err1 := ok.Exec(hora_inicial, hora_final)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
+				//Se comprueba la existencia de datos en la tabla
+				if h_ini != "" && h_fin != "" {
+					//Borramos los datos que habían anteriormente
+					db_mu.Lock()
+					_, err := db.Exec("DELETE FROM aux")
+					db_mu.Unlock()
+					if err != nil {
+						Error.Println(err)
+					}
+					//Metemos los nuevos datos
+					_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, 1439)
+					if err1 != nil {
+						Error.Println(err1)
+					}
+					_, err2 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", 0, h_fin_int)
+					if err2 != nil {
+						Error.Println(err2)
+					}
 				}
 			}
 		}
@@ -196,7 +233,6 @@ func playInstantaneos(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "FinMensaje")
 	}
 }
-
 
 //Programar Musica para la Tienda
 func programarMusica(w http.ResponseWriter, r *http.Request) {

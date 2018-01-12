@@ -13,44 +13,30 @@ import (
 //Comparamos la hora guardada con la hora del sistema
 func horario_reproduccion() {
 	for {
-		var actual int                      //Minutos actuales totales
 		var hora_inicial, hora_final string //Variables de base de datos
-		mins_of_day := 1440                 //Minutos que tiene un dia
+		var sol bool
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
+		//Segmentamos para obtener horas y mins actuales
+		arr_clock := strings.Split(clock, ":")
+		//Pasamos las horas y minutos --> Minutos actuales totales
+		actual := libs.Hour2min(libs.ToInt(arr_clock[0]), libs.ToInt(arr_clock[1]))
 		//Obtenemos hora inicial y final de la SQL
-		db.QueryRow("SELECT hora_inicial, hora_final FROM horario").Scan(&hora_inicial, &hora_final)
-		//Comprobamos que los datos obtenidos en base de datos no son vacíos
-		if hora_inicial != "" && hora_final != "" {
-			//Segmentamos para obtener horas y mins actuales
-			arr_clock := strings.Split(clock, ":")
-			//Segmentamos para obtener la hora inicial y final
-			arr_hinicial := strings.Split(hora_inicial, ":")
-			arr_hfinal := strings.Split(hora_final, ":")
-			//Se comprueba que el array no está vacío
-			if len(arr_clock) > 1 || len(arr_hinicial) > 1 || len(arr_hfinal) > 1 {
-				//Pasamos las horas y minutos a minutos totales
-				actual = libs.Hour2min(libs.ToInt(arr_clock[0]), libs.ToInt(arr_clock[1]))
-				inicial := libs.Hour2min(libs.ToInt(arr_hinicial[0]), libs.ToInt(arr_hinicial[1]))
-				final := libs.Hour2min(libs.ToInt(arr_hfinal[0]), libs.ToInt(arr_hfinal[1]))
-				//Si la hora inicial es mayor que la final, pasa un dia completo
-				if inicial > final {
-					final = mins_of_day + final
-					actual = mins_of_day + actual
-				}
-				fmt.Println(inicial, actual, final)
-				//Miramos que la hora actual de reproduccion esté dentro del rango
-				if actual >= inicial && final >= actual {
-					db_mu.Lock()
-					schedule = true
-					db_mu.Unlock()
-				}
-				//Fuera de horario
-				if actual > final {
-					db_mu.Lock()
-					schedule = false
-					db_mu.Unlock()
-				}
+		query, err := db.Query("SELECT hora_inicial, hora_final FROM aux")
+		if err != nil {
+			Warning.Println(err)
+		}
+		for query.Next() {
+			var inicial, final int
+			err = query.Scan(&hora_inicial, &hora_final)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Miramos que la hora actual de reproduccion esté dentro del rango
+			if actual > inicial && actual < final {
+				db_mu.Lock()
+				sol = sol || true
+				db_mu.Unlock()
 			}
 		}
 		time.Sleep(1 * time.Minute)
