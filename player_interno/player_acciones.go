@@ -167,11 +167,15 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 					if err != nil {
 						Error.Println(err)
 					}
-					//Metemos el dato nuevo
-					_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, h_fin_int)
-					if err1 != nil {
-						Error.Println(err1)
-					}
+				}
+				//Metemos los nuevos datos
+				_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, 1439)
+				if err1 != nil {
+					Error.Println(err1)
+				}
+				_, err2 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", 0, h_fin_int)
+				if err2 != nil {
+					Error.Println(err2)
 				}
 			} else {
 				//Se comprueba la existencia de datos en la tabla
@@ -183,15 +187,11 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 					if err != nil {
 						Error.Println(err)
 					}
-					//Metemos los nuevos datos
-					_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, 1439)
-					if err1 != nil {
-						Error.Println(err1)
-					}
-					_, err2 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", 0, h_fin_int)
-					if err2 != nil {
-						Error.Println(err2)
-					}
+				}
+				//Metemos el dato nuevo
+				_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, h_fin_int)
+				if err1 != nil {
+					Error.Println(err1)
 				}
 			}
 		}

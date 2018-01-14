@@ -13,7 +13,7 @@ import (
 //Comparamos la hora guardada con la hora del sistema
 func horario_reproduccion() {
 	for {
-		var hora_inicial, hora_final string //Variables de base de datos
+		var hora_inicial, hora_final int 
 		var sol bool
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
@@ -27,18 +27,18 @@ func horario_reproduccion() {
 			Warning.Println(err)
 		}
 		for query.Next() {
-			var inicial, final int
 			err = query.Scan(&hora_inicial, &hora_final)
 			if err != nil {
 				Error.Println(err)
 			}
 			//Miramos que la hora actual de reproduccion esté dentro del rango
-			if actual > inicial && actual < final {
-				db_mu.Lock()
+			if actual > hora_inicial && actual < hora_final {
 				sol = sol || true
-				db_mu.Unlock()
 			}
 		}
+		db_mu.Lock()
+		schedule = sol
+		db_mu.Unlock()
 		time.Sleep(1 * time.Minute)
 	}
 }
