@@ -161,11 +161,11 @@
                                 <div id="ent"></div>
                                 <div class='panel-heading'>Delegar Acciones</div>
                                 <div class="form-group" id="defaultActions">
-                                    <input type="checkbox" name="prog_pub" value="1"/> Programar Publicidad<br>
-                                    <input type="checkbox" name="prog_mus" value="2"/> Programar Música<br>
-                                    <input type="checkbox" name="prog_msg" value="4"/> Programar Mensajes Nuevos<br>
-                                    <input type="checkbox" name="add_mus" value="8"/> Añadir Música No Cifrada<br>
-                                    <input type="checkbox" name="msg_normal" value="16"/> Reproducir Mensajes Normales<br>
+                                    <div id="prog_pub"><input type="checkbox" name="prog_pub" value="1"/> Programar Publicidad<br></div>
+                                    <div id="prog_mus"><input type="checkbox" name="prog_mus" value="2"/> Programar Música<br></div>
+                                    <div id="prog_msg"><input type="checkbox" name="prog_msg" value="4"/> Programar Mensajes Nuevos<br></div>
+                                    <div id="add_mus"><input type="checkbox" name="add_mus" value="8"/> Añadir Música No Cifrada<br></div>
+                                    <div id="msg_normal"><input type="checkbox" name="msg_normal" value="16"/> Reproducir Mensajes Normales<br></div>
                                 </div>
                                 <div class="form-group" id="editActions"></div>
                                 <br>
@@ -218,9 +218,20 @@
             var res = data.split(";");
             if (res[0] == 0){
                 $("#zona_publi").hide();
+                $("#prog_pub").hide();
+            }
+            if (res[1] == 0){
+                $("#prog_mus").hide();
             }
             if (res[2] == 0){
                 $("#zona_msg").hide();
+                $("#prog_msg").hide();
+            }
+            if (res[3] == 0){
+                $("#add_mus").hide();
+            }
+            if (res[4] == 0){
+                $("#msg_normal").hide();
             }
             if ((res[0] == 0) && (res[2] == 0)){
                 $("#publi_and_msg").hide();
