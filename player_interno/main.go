@@ -46,7 +46,8 @@ func init() {
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
-	libs.LoadSettingsWin(serverRoot, settings) // Se carga los valores del fichero SettingsShop.reg
+	libs.LoadSettingsLin(serverRoot, settings) // Se carga los valores del fichero SettingsShop.reg
+	fmt.Println(settings)
 }
 
 // Funcion principal del programa

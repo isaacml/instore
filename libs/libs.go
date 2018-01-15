@@ -624,7 +624,7 @@ func LoadSettingsLin(filename string, mapa map[string]string) {
 			if rerr != nil {
 				break
 			}
-			linea = strings.TrimRight(linea, "\n")
+			linea = strings.TrimSpace(linea)
 			item := strings.Split(linea, " = ")
 			if len(item) == 2 {
 				mapa[item[0]] = item[1]

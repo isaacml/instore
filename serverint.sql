@@ -1,7 +1,7 @@
 /*
 Navicat SQLite Data Transfer
 
-Source Server         : Programaciones
+Source Server         : Servidor Interno
 Source Server Version : 30808
 Source Host           : :0
 
@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2017-12-25 21:10:56
+Date: 2018-01-15 10:26:10
 */
 
 PRAGMA foreign_keys = OFF;

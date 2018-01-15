@@ -23,8 +23,8 @@ var (
 	settings          map[string]string = make(map[string]string) //Guarda los datos del archivo de configuracion(SettingsAdmin.reg)
 	username, good    string                                      //Variable de usuario y estado global
 	directorio_actual string                                      //Va a contener en todo momento la dirección del explorador WIN(handles_publi.go)
-	estado_destino 	  string 									  //Variable que guarda el estado del destino
-	back_org 		  string									  //Variable para retroceder en una organizacion cuando se pulsa fuera del text-area
+	estado_destino    string                                      //Variable que guarda el estado del destino
+	back_org          string                                      //Variable para retroceder en una organizacion cuando se pulsa fuera del text-area
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -44,7 +44,7 @@ func init() {
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
-	libs.LoadSettingsWin(serverRoot, settings)
+	libs.LoadSettingsLin(serverRoot, settings)
 }
 
 // funcion principal del programa
