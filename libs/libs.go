@@ -624,31 +624,7 @@ func LoadSettingsLin(filename string, mapa map[string]string) {
 			if rerr != nil {
 				break
 			}
-			linea = strings.TrimSpace(linea)
-			item := strings.Split(linea, " = ")
-			if len(item) == 2 {
-				mapa[item[0]] = item[1]
-			}
-		}
-	}
-}
-
-/*
-LoadSettingsWin: esta función va a abrir un fichero, leer los datos que contiene y guardarlos en un mapa (PARA WINDOWS)
-	filename: ruta donde se encuentra nuestro fichero "SettingsShop.reg, SettingAdmin.reg"
-	mapa: donde guardamos los datos extraidos del fichero
-*/
-func LoadSettingsWin(filename string, mapa map[string]string) {
-	fr, err := os.Open(filename)
-	defer fr.Close()
-	if err == nil {
-		reader := bufio.NewReader(fr)
-		for {
-			linea, rerr := reader.ReadString('\n')
-			if rerr != nil {
-				break
-			}
-			linea = strings.TrimRight(linea, "\r\n")
+			linea = strings.TrimRight(linea, "\n")
 			item := strings.Split(linea, " = ")
 			if len(item) == 2 {
 				mapa[item[0]] = item[1]

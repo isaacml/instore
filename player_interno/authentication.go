@@ -11,7 +11,7 @@ func authentication(username, password string) string {
 	db.QueryRow("SELECT user, pass FROM usuarios WHERE user = ?", username).Scan(&usuario, &contrasenia)
 	//Si en la base de datos de la tienda estan vacios...
 	if usuario == "" && contrasenia == "" {
-		libs.LoadSettingsWin(serverRoot, settings)
+		libs.LoadSettingsLin(serverRoot, settings)
 		//Probamos a autenticar con los datos del server interno de la tienda
 		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/auth.cgi", "user;"+username, "pass;"+password))
 		//Si la auth es correcta, guardamos los datos de usuario en la BD de la tienda

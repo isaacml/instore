@@ -85,7 +85,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		//Recoge de SettingsShop.reg la IP del servidor y la muestra en el html
 		if accion == "send_ip" {
 			var ip1, ip2, ip3, ip4, port int
-			libs.LoadSettingsWin(serverRoot, settings)
+			libs.LoadSettingsLin(serverRoot, settings)
 			fmt.Sscanf(settings["serverinterno"], "http://%d.%d.%d.%d:%d", &ip1, &ip2, &ip3, &ip4, &port)
 			output := fmt.Sprintf("%d;%d;%d;%d;%d", ip1, ip2, ip3, ip4, port)
 			fmt.Fprintf(w, output)
