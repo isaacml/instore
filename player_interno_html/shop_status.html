@@ -137,15 +137,7 @@
                         <div class="panel-body" align="center">
                             <form id="testform" action="" method="post">
                                 <div>
-                                    <input required id="ip1" name="ip1" maxlength="3" type="text" size="3" autofocus>
-                                    .
-                                    <input required id="ip2" name="ip2" maxlength="3" type="text" size="3" autofocus>
-                                    .
-                                    <input required id="ip3" name="ip3" maxlength="3" type="text" size="3" autofocus>
-                                    .
-                                    <input required id="ip4" name="ip4" maxlength="3" type="text" size="3" autofocus>
-                                    :
-                                    <input required id="port" name="port" maxlength="5" type="text" size="5" autofocus>
+                                    <input required id="ip" name="ip" type="text" autofocus>
                                 </div>
                                 <br>
                                 <div id="info_ip"></div>
@@ -199,12 +191,7 @@
         }
         function getIP(){
             $.post("/acciones.cgi?sid={{sid}}&accion=send_ip", function(data, status) {
-                var res = data.split(";");
-                $("#ip1").val(res[0]);
-                $("#ip2").val(res[1]);
-                $("#ip3").val(res[2]);
-                $("#ip4").val(res[3]);
-                $("#port").val(res[4]);
+                $("#ip").val(data);
              });
         }
 	</script>

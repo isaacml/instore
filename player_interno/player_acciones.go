@@ -84,11 +84,8 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		}
 		//Recoge de SettingsShop.reg la IP del servidor y la muestra en el html
 		if accion == "send_ip" {
-			var ip1, ip2, ip3, ip4, port int
 			libs.LoadSettingsLin(serverRoot, settings)
-			fmt.Sscanf(settings["serverinterno"], "http://%d.%d.%d.%d:%d", &ip1, &ip2, &ip3, &ip4, &port)
-			output := fmt.Sprintf("%d;%d;%d;%d;%d", ip1, ip2, ip3, ip4, port)
-			fmt.Fprintf(w, output)
+			fmt.Fprintf(w, settings["serverinterno"])
 		}
 		//Recoge del html la direccion ip de la tienda y la modifica en SettingsShop.reg
 		if accion == "edit_ip" {
@@ -97,18 +94,18 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			lines := strings.Split(string(input), "\r\n")
+			lines := strings.Split(string(input), "\n")
 			for i, line := range lines {
 				if strings.Contains(line, "serverinterno") {
-					lines[i] = fmt.Sprintf("serverinterno = http://%s.%s.%s.%s:%s", r.FormValue("ip1"), r.FormValue("ip2"), r.FormValue("ip3"), r.FormValue("ip4"), r.FormValue("port"))
+					lines[i] = fmt.Sprintf("serverinterno = %s", r.FormValue("ip"))
 				}
 			}
 			output := strings.Join(lines, "\r\n")
-			err = ioutil.WriteFile(serverRoot, []byte(output), 0644)
+			err = ioutil.WriteFile(serverRoot, []byte(output), 0755)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprint(w, "<div class='text-success'>La IP del servidor se ha modificado</div>")
+			fmt.Fprint(w, "<div class='text-success'>La dirección del servidor se ha modificado</div>")
 		}
 		//Muestra las horas en el fichero de programacion de música
 		if accion == "mostrar_horas" {

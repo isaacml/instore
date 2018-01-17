@@ -3,7 +3,7 @@ package main
 const (
 	// variables de configuracion del servidor HTTP
 	rootdir              = "player_interno_html\\"       // raiz de nuestro sitio web = C:\\instore\\player_interno_html\\"
-	session_timeout      = 1200                          // segundos de timeout de una session
+	session_timeout      = 3600                          // segundos de timeout de una session
 	segs_of_day          = 86400                         // segundos que tiene un día
 	first_page           = "index"                       // Sería la página de login (siempre es .html)
 	enter_page           = "menu.html"                   // Sería la página de entrada tras el login

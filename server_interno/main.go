@@ -44,7 +44,7 @@ func init() {
 // funcion principal del programa
 func main() {
 
-	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
+	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", serverext["puerto_interno"])
 	go BuscarNuevosFicheros()
 	go BorrarFicherosAntiguos()
 	//servidor de ficheros
@@ -56,7 +56,7 @@ func main() {
 	http.HandleFunc("/publi_msg.cgi", publi_msg)
 
 	s := &http.Server{
-		Addr:           ":" + http_port,
+		Addr:           ":" + serverext["puerto_interno"],
 		Handler:        nil,
 		ReadTimeout:    20 * time.Second,
 		WriteTimeout:   20 * time.Second,
