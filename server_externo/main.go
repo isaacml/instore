@@ -19,6 +19,7 @@ var (
 	Error         *log.Logger
 	db            *sql.DB
 	db_mu         sync.RWMutex
+	port 		  map[string]string = make(map[string]string) //Mapa que guarda el puerto del servidor externo
 	bad, empty    string //Variables de estado global
 	status_dom    string //Variable que va a guardar el dominio de la tienda
 	enviar_estado bool   //Variable de estado para saber si podemos guardar el dominio de la tienda o NO
@@ -49,11 +50,12 @@ func init() {
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
+	libs.LoadSettingsLin(port_external_file, port) // Se carga el puerto del fichero portext.reg
 }
 
 // funcion principal del programa
 func main() {
-	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", http_port)
+	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", port["puerto_externo"])
 	go BorrarFicherosAntiguos()
 	// handlers del servidor
 	http.HandleFunc("/login.cgi", login)
@@ -83,7 +85,7 @@ func main() {
 	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
 
 	s := &http.Server{
-		Addr:           ":" + http_port,
+		Addr:           ":" + port["puerto_externo"],
 		Handler:        nil,
 		ReadTimeout:    20 * time.Second,
 		WriteTimeout:   20 * time.Second,
@@ -99,7 +101,7 @@ func BorrarFicherosAntiguos() {
 		//fecha de ahora
 		now := libs.MyCurrentDate()
 		//tiempo limite = 1 mes 2592000
-		limit_time := time.Now().Unix() - 86400
+		limit_time := time.Now().Unix() - 2592000
 		//PUBLICIDAD
 		publi, errP := db.Query("SELECT id, fichero FROM publi WHERE fecha_final < ? AND timestamp < ? ", now, limit_time)
 		if errP != nil {

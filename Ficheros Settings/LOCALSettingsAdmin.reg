@@ -1,0 +1,4 @@
+serverroot = http://192.168.1.173:8000
+usuarioPropietario = admin
+port = 1999
+

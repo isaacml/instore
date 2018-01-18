@@ -1,0 +1,3 @@
+serverexterno = http://localhost:80
+puerto_interno = 8080
+

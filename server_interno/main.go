@@ -43,7 +43,6 @@ func init() {
 
 // funcion principal del programa
 func main() {
-
 	fmt.Printf("Golang HTTP Server starting at Port %s ...\n", serverext["puerto_interno"])
 	go BuscarNuevosFicheros()
 	go BorrarFicherosAntiguos()

@@ -97,10 +97,11 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			lines := strings.Split(string(input), "\n")
 			for i, line := range lines {
 				if strings.Contains(line, "serverinterno") {
+					
 					lines[i] = fmt.Sprintf("serverinterno = %s", r.FormValue("ip"))
 				}
 			}
-			output := strings.Join(lines, "\r\n")
+			output := strings.Join(lines, "\n")
 			err = ioutil.WriteFile(serverRoot, []byte(output), 0755)
 			if err != nil {
 				Error.Println(err)
