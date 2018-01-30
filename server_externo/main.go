@@ -83,6 +83,7 @@ func main() {
 	http.HandleFunc("/config_shop.cgi", config_shop)
 	http.HandleFunc("/send_shop.cgi", send_shop)
 	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
+	http.HandleFunc("/info.cgi", info)
 
 	s := &http.Server{
 		Addr:           ":" + port["puerto_externo"],
@@ -150,4 +151,11 @@ func BorrarFicherosAntiguos() {
 		}
 		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
 	}
+}
+
+//PB PROBE
+func info(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm() // recupera campos del form tanto GET como POST
+	fmt.Println("Recogemos de PB: ", r.Form)
+	fmt.Fprint("Hola Mundo!")
 }
