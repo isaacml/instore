@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/isaacml/instore/libs"
+	_ "github.com/mattn/go-sqlite3"
 	"io"
 	"log"
 	"net/http"
@@ -19,10 +19,10 @@ var (
 	Error         *log.Logger
 	db            *sql.DB
 	db_mu         sync.RWMutex
-	port 		  map[string]string = make(map[string]string) //Mapa que guarda el puerto del servidor externo
-	bad, empty    string //Variables de estado global
-	status_dom    string //Variable que va a guardar el dominio de la tienda
-	enviar_estado bool   //Variable de estado para saber si podemos guardar el dominio de la tienda o NO
+	port          map[string]string = make(map[string]string) //Mapa que guarda el puerto del servidor externo
+	bad, empty    string                                      //Variables de estado global
+	status_dom    string                                      //Variable que va a guardar el dominio de la tienda
+	enviar_estado bool                                        //Variable de estado para saber si podemos guardar el dominio de la tienda o NO
 )
 
 //MASCARAS PARA BITMAP
