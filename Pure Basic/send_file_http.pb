@@ -4,7 +4,7 @@
 EOL$ = Chr(13)+Chr(10) 
 URL$ = "192.168.4.22" ; the main domain
 PATH$ = "/info.cgi" ; or what ever script that accepts the enctype="multipart/form-data"
-FullFileName$ = "C:\Users\Isaac\Desktop\Cuñas\Supersol_Andalucia.mp3" ; Full path+filename 
+FullFileName$ = "C:/Users/Isaac/Desktop/Cuñas/Supersol_Andalucia.mp3" ; Full path+filename 
 ActionName$ = "file" ; this is important!! this action must be the same as  <form ... name="file">
 FileHeader$ = "Content-Disposition: form-Data; name="+Chr(34)+ActionName$ + Chr(34) +"; filename="+Chr(34)+ FullFileName$+ Chr(34) +EOL$ 
 FileHeader$ + "Content-Type: text/plain" ; <= Here change the content type regarding your file! (text,image etc...) we go on text
@@ -28,7 +28,8 @@ If InitNetwork()
       FILE$ = "------"+Border$ + EOL$ + FileHeader$ +EOL$ + FILE$ + "------" + Border$ + "--" 
       ; Back to post, while sending header with the correct content length (border+file+border)
       POST$ + EOL$ + "Content-Type: multipart/form-Data, boundary=----"+Border$ + EOL$ + "Content-Length: " + Str(Len(FILE$)) 
-      POST$ + EOL$ + EOL$ + FILE$ 
+      POST$ + EOL$ + EOL$ + FILE$
+      Debug POST$
       CloseFile(1)
       PokeS(*Buffer,"",0)
       PokeS(*Buffer,POST$,Len(POST$))
@@ -43,5 +44,5 @@ If InitNetwork()
   EndIf
 EndIf
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 23
+; CursorPosition = 31
 ; EnableXP

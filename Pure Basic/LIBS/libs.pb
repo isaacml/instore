@@ -1,13 +1,4 @@
-﻿host$     = "192.168.4.22"              ; Domain name 
-path$   = "/info.cgi"                 ; Specific program 
-port.l    = 9999                        ; Port 
-
-parameters$ = "test1=bla&test2=foo"
-
-InitNetwork()
-ConnectionID = OpenNetworkConnection(host$, port.l) 
-
-Procedure.s POST_PB(ConnectionID, host$, path$, parameters$)
+﻿Procedure.s POST_PB(ConnectionID, host$, path$, parameters$)
   lenstr$ = Str(Len(parameters$)) ;Longitud de los parámetros
   request$  = "POST " + path$ + " HTTP/1.1" + Chr(13) + Chr(10)
   request$  + "Host: " + host$ + Chr(13) + Chr(10) 
@@ -44,8 +35,26 @@ Procedure.s POST_PB(ConnectionID, host$, path$, parameters$)
   CloseNetworkConnection(ConnectionID) 
 EndProcedure
 
-Debug POST_PB(ConnectionID, host$, path$, parameters$)
+;Librería que copia una página HTML completa
+Procedure.s DOWN_PAGE(host$, port.l, origen$, destino$)
+  If ReceiveHTTPFile("http://"+host$+":"+port.l+"/"+origen$, destino$)
+    res$ = "Success"
+  Else
+    res$ = "Failed"
+  EndIf
+  ProcedureReturn res$ ;Devuelve respuesta
+EndProcedure
+
+;Librería que toma un fichero MP3 del servidor y realiza una copia
+Procedure.s DOWN_MP3(host$, port.l, origen$, action$, destino$)
+  If ReceiveHTTPFile("http://"+host$+":"+port.l+"/"+origen$+"?accion="+action$, destino$)
+    res$ = "Success"
+  Else
+    res$ = "Failed"
+  EndIf
+  ProcedureReturn res$ ;Devuelve respuesta
+EndProcedure
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 46
+; CursorPosition = 47
 ; Folding = -
 ; EnableXP
