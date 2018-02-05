@@ -38,11 +38,10 @@ If InitNetwork()
     Debug(Str(FileSize("C:/Users/Isaac/Desktop/file.dat")))
     PokeS(sendBuffer + Len(inputData) + fileLen,finisher)
     res.l = SendNetworkData(conid,sendBuffer,postDataLength)
-    Debug res
   Else 
     Debug "NO CONNECTION"
   EndIf
 EndIf
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 43
+; CursorPosition = 39
 ; EnableXP
