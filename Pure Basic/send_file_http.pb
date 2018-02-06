@@ -12,7 +12,7 @@ majorContentLength.s = "Content-Length: <length>" + #CRLF$
 submit.s = "Content-Disposition: form-data; name=" + #DOUBLEQUOTE$ + "submit" + #DOUBLEQUOTE$ + #CRLF$ + "Submit"
 boundary = "--" + boundary + #CRLF$
 fileUploadField.s = boundary + "Content-Disposition: form-data; name=" + #DOUBLEQUOTE$ + "file" + #DOUBLEQUOTE$ +"; filename=" + #DOUBLEQUOTE$ + fileToUpload + #DOUBLEQUOTE$ + #CRLF$
-minorContentType.s = "Content-Type: audio/mpeg3" + #CRLF$
+minorContentType.s = "Content-Type: audio/mpeg" + #CRLF$
 
 If InitNetwork()
   conid.l = OpenNetworkConnection(URL$,9999)
@@ -43,5 +43,5 @@ If InitNetwork()
   EndIf
 EndIf
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 39
+; CursorPosition = 14
 ; EnableXP

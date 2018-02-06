@@ -55,6 +55,6 @@ Procedure.s DOWN_MP3(host$, port.l, origen$, action$, destino$)
   ProcedureReturn res$ ;Devuelve respuesta
 EndProcedure
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 47
+; CursorPosition = 20
 ; Folding = -
 ; EnableXP
