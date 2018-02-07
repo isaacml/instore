@@ -1,75 +1,53 @@
-﻿;#File$ = "c:\tmp\1.jpg"
-#File$ = "C:/Users/Isaac/Desktop/Cuñas/Supersol_Andalucia.mp3"
-#Boundary$ = "---------------------------47972514120"
+﻿EOL$ = Chr(13)+Chr(10) 
+QT$=Chr(34)
+URL$ = "192.168.1.173" ; the main domain "posttestserver.com" is a good test domain
+PATH$ = "/info.cgi"         ; /post.php works fine at "posttestserver.com" or what ever script that accepts the enctype="multipart/form-data"    
 
-Define.l Bytes_read
-Define.i SendFile, ReceiveFile, Length, Ptr
-Define.i Open_handle, Connect_handle, Request_handle, Send_handle
-Define.s Host, Page, Header, Post, Buffer, Html
+FullFileName$ = "C:\Users\0oIsa\Desktop\perrillo.txt"
+ActionName$ = "filesend"            ; this is important!! this action must be the same as  <form ... name="filesend">
+Border$ = "232323RANDOMLETTERSNUMBERS23232" ; Border to the file data (Check RFC for more info)
 
-SendFile = ReadFile(#PB_Any, #File$)
-If SendFile
-  Length = Lof(SendFile)                            
-  *MemoryID = AllocateMemory(Length + 1024)
-  
-  If *MemoryID
-    
-    Post = "--" + #Boundary$ + #CRLF$
-    Post + "Content-Disposition: form-data; name=" + #DQUOTE$ + "attached" + #DQUOTE$ + "; filename=" + #DQUOTE$ + "publicidad.mp3" + #DQUOTE$ + #CRLF$
-    Post + "Content-Type: audio/mpeg" + #CRLF$
-    Post + #CRLF$
-    
-    PokeS(*MemoryID, Post, -1, #PB_Ascii)
-    
-    Ptr = Len(Post)
-    
-    If ReadData(SendFile, *MemoryID + Ptr, Length) = Length
-      Ptr + Length
-      
-      Post = #CRLF$ + "--" + #Boundary$ + "--" + #CRLF$
-      
-      PokeS(*MemoryID + Ptr, Post, -1, #PB_Ascii)
-      Ptr + Len(Post)
-      
-      
-      ;Wininet stuff
-      Host = "192.168.4.22"
-      Page = "/info.cgi"
-      Open_handle = InternetOpen_("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)", 1, "", "", 0)
-      InternetSetOption_(Open_handle, 2, 1000, 4)
-      Connect_handle = InternetConnect_(Open_handle, Host, 9999, "", "", 3, 0, 0)
-      Request_handle = HttpOpenRequest_(Connect_handle, "POST", Page, "", "", 0, $00080000|$00000100|$04000000, 0)
-      
-      Header = "Content-Type: multipart/form-data; boundary=" + #Boundary$ + #CRLF$ + #CRLF$
-      HttpAddRequestHeaders_(Request_handle, Header, Len(Header), $80000000|$20000000)
-      
-      Send_handle = HttpSendRequest_(Request_handle, "", 0, *MemoryID, Ptr)
-      
-      Buffer = Space(1024)
+; added an extra POST variable because sometimes you need this when you are posting like a security password etc.
+; so the post on this will be "varnonumber" and the data will be "dataforvarnonumber 1" I called it varnonumber because "var2" would not work!!
+FileHeader$ = "Content-Disposition: form-Data; name="+QT$+"varnonumber"+ QT$+EOL$+EOL$+"dataforvarnonumber 1"+EOL$+"--"+Border$+EOL$; Silly var names no numbers
+
+FileHeader$ + "Content-Disposition: form-Data; name="+QT$+ActionName$ + QT$ +"; filename="+QT$+ FullFileName$+ QT$ +EOL$ 
+FileHeader$ + "Content-Type: text/plain" ; <= Here change the content type regarding your file! (text,image etc...) we go on text
+; ^^^ note: Havn't been tested with binary files.
+
+If InitNetwork()
+  conid.l = OpenNetworkConnection(URL$,9999)
+  If conid
+      Debug "Connected"
+      *Buffer = AllocateMemory(100000) ; some memory for our file buffer
+      POST$ = "POST "+ PATH$ +" HTTP/1.1"+#CRLF$+"Host: "+URL$+#CRLF$+"Accept: */*"+#CRLF$+"User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204"
+   
+      OpenFile(1,FullFileName$)
       Repeat
-        InternetReadFile_(Request_handle, @Buffer, 1024, @Bytes_read)
-        Html + Left(PeekS(@Buffer, -1, #PB_Ascii), Bytes_read)
-        Buffer = Space(1024)
-      Until Bytes_read = 0
-      
-      InternetCloseHandle_(Send_handle)
-      InternetCloseHandle_(Request_handle)
-      InternetCloseHandle_(Connect_handle)
-      InternetCloseHandle_(Open_handle)
-      
-      ; write received html to file
-      ReceiveFile = CreateFile(#PB_Any, "C:\Output.html")
-      If ReceiveFile
-        WriteString(ReceiveFile, Html)
-        CloseFile(ReceiveFile)
-        RunProgram("C:\Output.html")
-      EndIf
-    EndIf
-    FreeMemory(*MemoryID)
+        Text$ = ReadString(1)
+        FILE$ + EOL$+Text$
+      Until Eof(1)
+      ; This is the border header for uploading
+      FILE$ = "--"+Border$ + EOL$ + FileHeader$ +EOL$ + FILE$ +EOL$+ "--" + Border$ + "--" 
+      ; Back to post, while sending header with the correct content length (border+file+border)
+      POST$ + EOL$ + "Content-Type: multipart/form-Data, boundary="+Border$ + EOL$ + "Content-Length: " + Str(Len(FILE$)) 
+      POST$ + EOL$ + EOL$ + FILE$ 
+      CloseFile(1)
+      Debug POST$
+      Debug "+++++++++++++++++++"
+      PokeS(*Buffer,"",0)
+      PokeS(*Buffer,POST$,Len(POST$))
+      SendNetworkData(conid,*Buffer,Len(POST$))
+      Repeat
+        Server$ = PeekS(*Buffer)
+        res.l = ReceiveNetworkData(conid, *Buffer, 1000)
+      Until Server$ = PeekS(*Buffer)
+      Debug Server$
+  Else 
+    Debug "NO CONNECTION"
   EndIf
-  CloseFile(SendFile)
 EndIf
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 45
-; FirstLine = 18
+; IDE Options = PureBasic 5.61 (Windows - x64)
+; CursorPosition = 22
+; FirstLine = 6
 ; EnableXP
