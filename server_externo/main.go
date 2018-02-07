@@ -156,6 +156,14 @@ func BorrarFicherosAntiguos() {
 //PB PROBE
 func info(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
+	r.ParseMultipartForm(32 << 20)
+	fmt.Println(r.FormFile("file"))
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		Error.Println(err)
+		return
+	}
+	fmt.Println("la copia a salido bien", file)
 	fmt.Println("Recogemos de PB: ", r.Form)
 	fmt.Fprint(w, "Hola Mundo!")
 }

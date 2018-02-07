@@ -1,45 +1,49 @@
 ﻿fichero$ = "C:/Users/Isaac/Desktop/pajaro.txt"
 
-Procedure.s ReadBlock64(File.i, Size.i)
-  Protected BytesRead.i
-  Protected Result.s = ""
- 
-  If (IsFile(File))
-    *Block = AllocateMemory(Size)
-    If (*Block)
-      BytesRead = ReadData(File, *Block, Size)
-      If (BytesRead > 0)
-        *Encode = AllocateMemory(Int(BytesRead * 1.4))
-        If (*Encode)
-          Base64EncoderBuffer(*Block, BytesRead, *Encode, Int(BytesRead * 1.4))
-          Result = PeekS(*Encode)
-          FreeMemory(*Encode)
+Procedure.i NetworkSendFile(Connection.i, Filename$)
+  
+  Protected Result.i, File.i, Size.q, *Buffer, Offset.i
+  
+  File = ReadFile(#PB_Any, Filename$)
+  If File
+    Size = Lof(File)
+    Filename$ = "file:" + GetFilePart(Filename$) + ":" + Str(Size)
+    *Buffer =  AllocateMemory(Size + Len(Filename$) + 1)
+    If *Buffer
+      PokeS(*Buffer, Filename$)
+      If ReadData(File, *Buffer + Len(Filename$) + 1, Size) = Size
+        If SendNetworkData(Connection, *Buffer, MemorySize(*Buffer)) = MemorySize(*Buffer)
+          Result = #True
         EndIf
-      Else
       EndIf
-      FreeMemory(*Block)
     EndIf
+    CloseFile(File)
   EndIf
- 
+  
   ProcedureReturn Result
+  
 EndProcedure
 
-; Write 100 random bytes between 0 and 32
-If CreateFile(0, "C:/Users/Isaac/Desktop/algo.data")
-  For i = 1 To 100
-    WriteByte(0, Random(32))
-  Next i
-  CloseFile(0)
-EndIf
 
-; Read the data back as a safe, alphanumeric string
-If ReadFile(0, "C:/Users/Isaac/Desktop/algo.data")
-  Encoded.s = ReadBlock64(0, 1000)
-  Debug Encoded
-  CloseFile(0)
-EndIf
 
+
+If InitNetwork()
+  
+  Filename$ = OpenFileRequester("Chose a file to send", "", "*.*|*.*", 0)
+  If Filename$ <> ""
+    Connection = OpenNetworkConnection("192.168.4.22", 9999)
+    If Connection
+      If NetworkSendFile(Connection, Filename$)
+        MessageRequester("Info", Filename$ + " transmitted.")
+      Else
+        MessageRequester("Error", "Failed to send " + Filename$)
+      EndIf
+      CloseNetworkConnection(Connection)
+    EndIf
+  EndIf
+  
+EndIf
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 40
+; CursorPosition = 31
 ; Folding = -
 ; EnableXP
