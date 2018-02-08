@@ -1,10 +1,10 @@
 ﻿EOL$ = Chr(13)+Chr(10) 
 QT$=Chr(34)
-URL$ = "192.168.1.173" ; the main domain "posttestserver.com" is a good test domain
+URL$ = "192.168.4.22" ; the main domain "posttestserver.com" is a good test domain
 PATH$ = "/info.cgi"         ; /post.php works fine at "posttestserver.com" or what ever script that accepts the enctype="multipart/form-data"    
 
-FullFileName$ = "C:\Users\0oIsa\Desktop\perrillo.txt"
-ActionName$ = "filesend"            ; this is important!! this action must be the same as  <form ... name="filesend">
+FullFileName$ = "C:\Users\Isaac\Desktop\pajaro.txt"
+ActionName$ = "file"            ; this is important!! this action must be the same as  <form ... name="filesend">
 Border$ = "232323RANDOMLETTERSNUMBERS23232" ; Border to the file data (Check RFC for more info)
 
 ; added an extra POST variable because sometimes you need this when you are posting like a security password etc.
@@ -47,7 +47,6 @@ If InitNetwork()
     Debug "NO CONNECTION"
   EndIf
 EndIf
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 22
-; FirstLine = 6
+; IDE Options = PureBasic 5.61 (Windows - x86)
+; CursorPosition = 5
 ; EnableXP

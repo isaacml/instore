@@ -84,6 +84,7 @@ func main() {
 	http.HandleFunc("/send_shop.cgi", send_shop)
 	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
 	http.HandleFunc("/info.cgi", info)
+	http.HandleFunc("/down_probe.cgi", down_probe)
 
 	s := &http.Server{
 		Addr:           ":" + port["puerto_externo"],
@@ -156,6 +157,11 @@ func BorrarFicherosAntiguos() {
 //PB PROBE
 func info(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
+	fmt.Println("Recogemos de PB: ", r.Form)
+	fmt.Fprint(w, "Hola Mundo!")
+}
+
+func down_probe(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
 	fmt.Println(r.FormFile("file"))
 	file, _, err := r.FormFile("file")
@@ -164,6 +170,4 @@ func info(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("la copia a salido bien", file)
-	fmt.Println("Recogemos de PB: ", r.Form)
-	fmt.Fprint(w, "Hola Mundo!")
 }
