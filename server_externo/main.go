@@ -163,11 +163,24 @@ func info(w http.ResponseWriter, r *http.Request) {
 
 func down_probe(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
-	fmt.Println(r.FormFile("file"))
 	file, _, err := r.FormFile("file")
 	if err != nil {
 		Error.Println(err)
 		return
 	}
-	fmt.Println("la copia a salido bien", file)
+	//Formato nombre de fichero - yyyymmdd-username-filename -
+	nameFileServer := "nuevo.mp3"
+	//Creamos el fichero con ese formato, si ya está creado, lo machaca
+	f, err := os.OpenFile(publi_files_location+nameFileServer, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		Error.Println(err)
+		return
+	}
+	defer f.Close()
+	//Proceso de copia de fichero
+	_, copy_err := io.Copy(f, file)
+	if copy_err != nil {
+		Error.Println(copy_err)
+		return
+	}
 }

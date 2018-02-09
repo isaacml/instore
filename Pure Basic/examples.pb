@@ -1,8 +1,8 @@
 ﻿IncludeFile  "LIBS/libs.pb"
-IncludeFile  "LIBS/lib_file.pb"
 
 host$     = "192.168.4.22"                           ; Domain name 
-path$     = "/info.cgi"                               ; Specific program 
+path$     = "/info.cgi"                              ; Specific program
+path2$    = "down_probe.cgi"
 port.l    = 9999                                      ; Port 
 page$     = "C:/Users/Isaac/Documents/page.php"       ; Página PHP para guardado
 mp3_destino$ = "C:/Users/Isaac/Documents/song.mp3"    ; Fichero MP3 destino
@@ -19,8 +19,8 @@ Debug DOWN_PAGE(host$, port.l, "http://www.purebasic.com/index.php", page$)
 
 Debug DOWN_MP3(host$, port.l, "musiqueta.mp3", "publicidad", mp3_destino$)
 
-
+Debug POST_PB_FILE(host$, port.l, path2$, mp3_destino$)
 
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 21
+; CursorPosition = 4
 ; EnableXP

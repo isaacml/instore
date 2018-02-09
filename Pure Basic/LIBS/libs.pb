@@ -54,8 +54,25 @@ Procedure.s DOWN_MP3(host$, port.l, origen$, action$, destino$)
   EndIf
   ProcedureReturn res$ ;Devuelve respuesta
 EndProcedure
+;Subir un fichero de Música vía POST
+Procedure.s POST_PB_FILE(host$, port.l, path$, file$)
+  Compiler = RunProgram("curl.exe", "-F file=@"+file$+";type=audio/mpeg http://"+host$+":"+port+"/"+path$, "", #PB_Program_Open | #PB_Program_Read)
+  Output$ = ""
+  If Compiler
+    While ProgramRunning(Compiler)
+      If AvailableProgramOutput(Compiler)
+        Output$ + ReadProgramString(Compiler) + Chr(13)
+      EndIf
+    Wend
+    Output$ + Chr(13) + Chr(13)
+    Output$ + "Exitcode: " + Str(ProgramExitCode(Compiler))
+    
+    CloseProgram(Compiler) ; Close the connection to the program
+  EndIf
+  ProcedureReturn Output$ ;Devuelve respuesta
+ EndProcedure
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 55
-; FirstLine = 4
+; CursorPosition = 61
+; FirstLine = 21
 ; Folding = -
 ; EnableXP
