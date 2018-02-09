@@ -83,8 +83,6 @@ func main() {
 	http.HandleFunc("/config_shop.cgi", config_shop)
 	http.HandleFunc("/send_shop.cgi", send_shop)
 	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
-	http.HandleFunc("/info.cgi", info)
-	http.HandleFunc("/down_probe.cgi", down_probe)
 
 	s := &http.Server{
 		Addr:           ":" + port["puerto_externo"],
@@ -151,36 +149,5 @@ func BorrarFicherosAntiguos() {
 			db_mu.Unlock()
 		}
 		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
-	}
-}
-
-//PB PROBE
-func info(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm() // recupera campos del form tanto GET como POST
-	fmt.Println("Recogemos de PB: ", r.Form)
-	fmt.Fprint(w, "Hola Mundo!")
-}
-
-func down_probe(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(32 << 20)
-	file, _, err := r.FormFile("file")
-	if err != nil {
-		Error.Println(err)
-		return
-	}
-	//Formato nombre de fichero - yyyymmdd-username-filename -
-	nameFileServer := "nuevo.mp3"
-	//Creamos el fichero con ese formato, si ya está creado, lo machaca
-	f, err := os.OpenFile(publi_files_location+nameFileServer, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		Error.Println(err)
-		return
-	}
-	defer f.Close()
-	//Proceso de copia de fichero
-	_, copy_err := io.Copy(f, file)
-	if copy_err != nil {
-		Error.Println(copy_err)
-		return
 	}
 }
