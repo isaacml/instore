@@ -715,5 +715,12 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 
 //Vista: muestra una vista detallada de la publicidad y los mensajes
 func vista(w http.ResponseWriter, r *http.Request) {
-
+	r.ParseForm()
+	sid := r.FormValue("sid")
+	_, ok := user[sid]
+	if ok {
+		search := r.FormValue("buscar_por")
+		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;mostrar", "search;"+search))
+		fmt.Fprint(w, respuesta)
+	}
 }

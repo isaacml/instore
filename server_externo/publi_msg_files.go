@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"github.com/isaacml/instore/libs"
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -98,4 +101,36 @@ func msg_files(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
+
+//Manda los datos de publicidad/mensajes al administrador
+func modo_vista(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var output string
+	//Muestra los datos detallados de publicidad y mensajes
+	if r.FormValue("accion") == "mostrar" {
+		search := r.FormValue("search")
+		query, err := db.Query("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM publi")
+		if err != nil {
+			Error.Println(err)
+		}
+		for query.Next() {
+			var fichero, f_ini, f_fin, destinos string
+			var id, timestamp, gap int64
+			err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &gap)
+			if err != nil {
+				Error.Println(err)
+			}
+			if strings.Contains(destinos, search) {
+				//Se obtiene la fecha de creacion de una entidad
+				f_creacion := libs.FechaCreacion(timestamp)
+				output += fmt.Sprintf("<tr class='odd gradeX'><td>%s<a href='#' onclick='borrar(%d)' title='Borrar fichero' style='float:right'><span class='fa fa-trash-o'></a>", fichero, id)
+				output += fmt.Sprintf("</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", f_ini, f_fin, destinos, f_creacion, gap)
+			}
+		}
+	}
+	if r.FormValue("accion") == "borrar" {
+
+	}
+	fmt.Fprint(w, output) //fmt.Println(output)
 }

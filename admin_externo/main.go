@@ -76,6 +76,7 @@ func main() {
 	//Publicidad
 	http.HandleFunc("/explorer.cgi", explorer)
 	http.HandleFunc("/dest_explorer.cgi", dest_explorer)
+	http.HandleFunc("/vista.cgi", vista)
 	//Encriptar Musica de JR
 	http.HandleFunc("/encriptar_musica.cgi", encriptar_musica)
 	http.HandleFunc("/estado_encriptacion.cgi", estado_encriptacion)

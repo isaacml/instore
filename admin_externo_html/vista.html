@@ -156,35 +156,42 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            EXPLORADOR DE WINDOWS
+                            VISTA PUBLICIDAD / MENSAJES
                         </div>
                         <div class="panel-body" align="center">
                         <form id="testform" action="" method="post">
                             <fieldset>
-                                <h5 class="text-muted">Buscar por: </h5>
+                                <h5 class="text-muted">Buscador: </h5>
                                 <br>
                                 <div class="form-group">
-                                    <select id="buscar_por" name="buscar_por" style="width:40%;"></select>
+                                    <input type="text" id="buscar_por" name="buscar_por" style="width:30%;"/>
                                 </div>   
                             </fieldset>
                         </form>
-                        </div>
-                        <div class="panel-body" align="center">
-                        <form id="testform1" action="" method="post">
-                            <fieldset>
-                                <h5 class="text-muted">Directorios</h5>
-                                <br>
-                                <div class="form-group">
-                                    <select id="directory" name="directory" style="width:40%;"></select>
-                                </div>
-                                <div class="form-group" id="stat">
-                                </div>
-                                <br>     
-                            </fieldset>
-                        </form>
-                        </div>
-                        <div class="panel-body" align="center">
                         <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="dataTable_wrapper">
+                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                    <thead>
+                                        <tr>
+                                            <th>Fichero</th>
+                                            <th>Fecha Inicio</th>
+                                            <th>Fecha Fin</th>
+                                            <th class='hidden-xs'>Destino</th>
+                                            <th>Fecha Creacion</th>
+                                            <th>GAP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla"></tbody>
+                                </table> 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -210,45 +217,9 @@
                 $("#publi_and_msg").hide();
             }
         });
-        $.post("/acciones.cgi?sid={{sid}}&accion=show_org", function(data, status) {
-            if (data == "Ocultar"){
-                $("#organizaciones").hide();
-            }
-        });
-        $.post("/acciones.cgi?sid={{sid}}&action=buscar_por",  $("#testform").serialize(), function(data, status) {
-    		$("#buscar_por").html(data);
-		});
-        $("#unidades").change(function(){
-            $.post("/explorer.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
-                var res = data.split(";");
-				$("#directory").html(res[0]);
-                $("#stat").show();
-				$("#stat").html(res[1]);
-                $("#stat2").hide();
-            });
-            $.post("/explorer.cgi?sid={{sid}}&action=ficheros",  function(data, status) {
-                $("#files").html(data);
-            });
-        });
-        $("#directory").change(function(){
-            $.post("/explorer.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
-                var res = data.split(";");
-                $("#directory").html(res[0]);
-				$("#stat").show();
-				$("#stat").html(res[1]);
-                $("#stat2").hide();
-            });
-            $.post("/explorer.cgi?sid={{sid}}&action=ficheros", function(data, status) {
-                $("#files").html(data);
-            });
-        });
         $("#enviar").click(function(){
-            $.post("/explorer.cgi?sid={{sid}}&action=get_ficheros&type=publi", $("#testform2").serialize(), function(data, status) {
-                var res = data.split(";");
-                $("#stat2").show();
-				$("#stat2").html(res[1]);
-                $("#popup_container").val("");
-                $("#popup_container2").val("");
+            $.post("/vista.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
+                $("#tabla").html(data);
             });
         });
 	});

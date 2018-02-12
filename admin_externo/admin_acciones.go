@@ -40,16 +40,5 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			mins := libs.MostrarMinutos("")
 			fmt.Fprint(w, mins)
 		}
-		//Genera un select para decidir en que base de datos buscar
-		if accion == "buscar_por" {
-			output := "<option value='entidades'>Entidad</option>"
-			output += "<option value='almacenes'>Almacen</option>"
-			output += "<option value='pais'>País</option>"
-			output += "<option value='region'>Región</option>"
-			output += "<option value='provincia'>Provincia</option>"
-			output += "<option value='tiendas'>Tienda</option>"
-			fmt.Println(output)
-			fmt.Fprint(w, output)
-		}
 	}
 }

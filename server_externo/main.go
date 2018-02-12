@@ -79,6 +79,7 @@ func main() {
 	//RECOGER LOS FICHEROS
 	http.HandleFunc("/publi_files.cgi", publi_files)
 	http.HandleFunc("/msg_files.cgi", msg_files)
+	http.HandleFunc("/modo_vista.cgi", modo_vista)
 	//SELECTS PARA EL PLAYER INTERNO
 	http.HandleFunc("/config_shop.cgi", config_shop)
 	http.HandleFunc("/send_shop.cgi", send_shop)
