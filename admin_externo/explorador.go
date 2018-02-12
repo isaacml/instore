@@ -712,3 +712,8 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+//Vista: muestra una vista detallada de la publicidad y los mensajes
+func vista(w http.ResponseWriter, r *http.Request) {
+
+}

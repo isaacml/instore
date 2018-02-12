@@ -7,9 +7,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <meta http-equiv="Pragma" content="no-cache">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <title>Entidades</title>
+    <link rel="stylesheet" type="text/css" href="css/epoch_styles.css" />
+	<script type="text/javascript" src="js/epoch_classes.js"></script>
+	<script type="text/javascript">
+	var bas_cal,dp_cal,ms_cal;      
+	window.onload = function () {
+		dp_cal  = new Epoch('epoch_popup','popup',document.getElementById('popup_container'));
+		dp_cal2  = new Epoch('epoch_popup','popup',document.getElementById('popup_container2'));
+	};
+	</script>        
+
+    <title>Ficheros de Publicidad</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -47,8 +56,7 @@
 </head>
 
 <body>
-    <div id="wrapper">
-        <!-- PANEL DE NAVEGACION -->
+   <div id="wrapper">
         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -144,69 +152,52 @@
         <div id="page-wrapper">
             <br>
             <div class="row">
-                <div class="col-md-3 col-md-offset-4">
+               <br>
+                <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Añadir o Editar Entidad
+                            EXPLORADOR DE WINDOWS
                         </div>
-                        <div class="panel-body">
-                        <form id="testform" action="" >
+                        <div class="panel-body" align="center">
+                        <form id="testform" action="" method="post">
                             <fieldset>
-                                <input name="id" type="hidden">
+                                <h5 class="text-muted">Buscar por: </h5>
+                                <br>
                                 <div class="form-group">
-                                    <input class="form-control" id="entidad" placeholder='Nombre de la Entidad' name='entidad' type='text' autofocus> 
-                                </div>
-                                <div class="form-group" align="center" id="stat"></div>
+                                    <select id="buscar_por" name="buscar_por" style="width:40%;"></select>
+                                </div>   
                             </fieldset>
                         </form>
-                        <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
-                        <button id="modificar" class="btn btn-lg btn-success btn-block" name="modificar">Modificar</button>
-                        <br>
-                        <div class="form-group" align="center" id="stat2"></div>
                         </div>
-                        <!-- /.panel-body -->
+                        <div class="panel-body" align="center">
+                        <form id="testform1" action="" method="post">
+                            <fieldset>
+                                <h5 class="text-muted">Directorios</h5>
+                                <br>
+                                <div class="form-group">
+                                    <select id="directory" name="directory" style="width:40%;"></select>
+                                </div>
+                                <div class="form-group" id="stat">
+                                </div>
+                                <br>     
+                            </fieldset>
+                        </form>
+                        </div>
+                        <div class="panel-body" align="center">
+                        <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
+                        </div>
                     </div>
-                    <!-- /.panel -->
                 </div>
-                <!-- /.col-lg-12 -->
             </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Mantenimiento de Entidades
-                        </div>
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">
-                            <div class="dataTable_wrapper">
-                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
-                                    <thead>
-                                        <tr>
-                                            <th>Entidad</th>
-                                            <th class='hidden-xs'>Fecha de creación</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tabla"></tbody>
-                                </table> 
-                            </div>
-                        </div>
-                        <!-- /.panel-body -->
-                    </div>
-                    <!-- /.panel -->
-                </div>
-                <!-- /.col-lg-12 -->
-            </div>
-        </div>
+       </div>
     </div>
-    <!-- /#wrapper -->
 	<script type="text/javascript">
 	$(document).ready(function(){
-        table();
         $("#stat").hide();
         $("#stat2").hide();
-        $("#modificar").hide();
-        $("#st_ent").hide();
+        $("#dest_stat").hide();
+        $("#dest_noadmin").hide();
+        $("#dest_admin").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -224,57 +215,43 @@
                 $("#organizaciones").hide();
             }
         });
-		$("#enviar").click(function(){
-			$.post("/entidades.cgi?sid={{sid}}&accion=entidad", $("#testform").serialize(), function(data, status) {
+        $.post("/acciones.cgi?sid={{sid}}&action=buscar_por",  $("#testform").serialize(), function(data, status) {
+    		$("#buscar_por").html(data);
+		});
+        $("#unidades").change(function(){
+            $.post("/explorer.cgi?sid={{sid}}&action=dir_unidad",  $("#testform").serialize(), function(data, status) {
+                var res = data.split(";");
+				$("#directory").html(res[0]);
                 $("#stat").show();
-				$("#stat").html(data);
-				$("#entidad").val("");
-                table();
-	        });
+				$("#stat").html(res[1]);
+                $("#stat2").hide();
+            });
+            $.post("/explorer.cgi?sid={{sid}}&action=ficheros",  function(data, status) {
+                $("#files").html(data);
+            });
         });
-        $("#modificar").click(function(){
-            $("#modificar").hide();
-            $("#enviar").show();
-            $("#stat").show();
-            $("#st_ent").hide();
-			$.post("/entidades.cgi?sid={{sid}}&accion=edit_entidad", $("#testform").serialize(), function(data, status) {
-                $("#stat").html(data);
-                $("#id").val("");
-				$("#entidad").val("");
-				table();
-	        });
+        $("#directory").change(function(){
+            $.post("/explorer.cgi?sid={{sid}}&action=directorios",  $("#testform1").serialize(), function(data, status) {
+                var res = data.split(";");
+                $("#directory").html(res[0]);
+				$("#stat").show();
+				$("#stat").html(res[1]);
+                $("#stat2").hide();
+            });
+            $.post("/explorer.cgi?sid={{sid}}&action=ficheros", function(data, status) {
+                $("#files").html(data);
+            });
+        });
+        $("#enviar").click(function(){
+            $.post("/explorer.cgi?sid={{sid}}&action=get_ficheros&type=publi", $("#testform2").serialize(), function(data, status) {
+                var res = data.split(";");
+                $("#stat2").show();
+				$("#stat2").html(res[1]);
+                $("#popup_container").val("");
+                $("#popup_container2").val("");
+            });
         });
 	});
-    //Función que carga los datos de las Entidades
-	function table(){
-    	$.post("/entidades.cgi?sid={{sid}}&accion=get_entidad",  function(data, status) {
-    		$("#tabla").html(data);
-		});
-	}
-    //Función que carga los datos de una entidad
-	function load(id){
-        $("#stat").hide();
-		$("#modificar").show();
-    	$("#enviar").hide();
-        $("#st_ent").show();
-        $.post("/entidades.cgi?sid={{sid}}&accion=load_entidad", "load="+id , function(data, status) {
-	    	$.each(data.split('&'), function (index, elem) {
-				var vals = elem.split('=');
-				$("[name=\"" + vals[0].trim() + "\"]").val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
-    		});
-		});
-	}
-    //Función que cambia el estado de una entidad
-    function status(val, id){
-        if(confirm("¿Seguro que quiere cambiar el estado?")){
-            $.post("/entidades.cgi?sid={{sid}}&accion=edit_status", "st_ent="+val+"&id="+id, function(data, status) {
-                $("#stat2").show();
-                $("#stat2").html(data);
-            });
-        }else{
-            location.reload();
-        }
-    }
 	</script>
 </body>
 </html>
