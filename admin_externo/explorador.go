@@ -713,14 +713,20 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//Vista: muestra una vista detallada de la publicidad y los mensajes
+//Vista: acciones sobre la publicidad y los mensajes
 func vista(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	sid := r.FormValue("sid")
 	_, ok := user[sid]
 	if ok {
-		search := r.FormValue("buscar_por")
-		respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;mostrar", "search;"+search))
-		fmt.Fprint(w, respuesta)
+		accion := r.FormValue("accion")
+		if accion == "mostrar"{
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;"+accion, "tabla;"+r.FormValue("tabla"), "search;"+r.FormValue("buscar_por"), "username;"+username))
+			fmt.Fprint(w, respuesta)
+		}
+		if accion == "borrar"{
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;"+accion, "tabla;"+r.FormValue("tabla"), "borrar;"+r.FormValue("borrar")))
+			fmt.Fprint(w, respuesta)
+		}
 	}
 }

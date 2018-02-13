@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+	"strings"
+	"io/ioutil"
 )
 
 //Mapas de control de sesiones
@@ -65,6 +67,22 @@ func login(w http.ResponseWriter, r *http.Request) {
 	respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/login.cgi", "user;"+username, "pass;"+password))
 	//RECOGEMOS LA RESPUESTA
 	if respuesta == "OK" {
+		//Se añade el usuario propietario al fichero Settings
+		input, err := ioutil.ReadFile(serverRoot)
+		if err != nil {
+			Error.Println(err)
+		}
+		lines := strings.Split(string(input), "\n")
+		for i, line := range lines {
+			if strings.Contains(line, "usuarioPropietario") {
+				lines[i] = fmt.Sprintf("usuarioPropietario = %s", username)
+			}
+		}
+		output := strings.Join(lines, "\n")
+		err = ioutil.WriteFile(serverRoot, []byte(output), 0755)
+		if err != nil {
+			Error.Println(err)
+		}
 		//Cuando se repite autenticacion de usuario
 		for key, _ := range user {
 			//Si el usuario e IP existen pero el navegador es distinto, se abre una nueva sesion para el

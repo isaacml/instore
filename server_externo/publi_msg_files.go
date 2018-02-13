@@ -107,10 +107,16 @@ func msg_files(w http.ResponseWriter, r *http.Request) {
 func modo_vista(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var output string
+	var id_user string
 	//Muestra los datos detallados de publicidad y mensajes
 	if r.FormValue("accion") == "mostrar" {
 		search := r.FormValue("search")
-		query, err := db.Query("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM publi")
+		err0 := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", r.FormValue("username")).Scan(&id_user)
+		if err0 != nil {
+			Error.Println(err0)
+		}
+		sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+		query, err := db.Query(sql)
 		if err != nil {
 			Error.Println(err)
 		}
@@ -130,7 +136,14 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if r.FormValue("accion") == "borrar" {
-
+		sql := fmt.Sprintf("DELETE FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("borrar"))
+		db_mu.Lock()
+		_, err := db.Exec(sql)
+		db_mu.Unlock()
+		if err != nil {
+			Error.Println(err)
+		}
+		output = "OK"
 	}
 	fmt.Fprint(w, output) //fmt.Println(output)
 }

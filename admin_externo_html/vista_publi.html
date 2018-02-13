@@ -127,7 +127,10 @@
                                     <a href="mensajes.html?{{sid}}">Mensajes</a>
                                 </li>
                                 <li>
-                                    <a href="vista.html?{{sid}}">Vista</a>
+                                    <a href="vista_publi.html?{{sid}}">Vista Publicidad</a>
+                                </li>
+                                <li>
+                                    <a href="vista_msg.html?{{sid}}">Vista Mensajes</a>
                                 </li>
                             </ul>
                         </li>
@@ -156,7 +159,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            VISTA PUBLICIDAD / MENSAJES
+                            VISTA DE LOS FICHEROS DE PUBLICIDAD
                         </div>
                         <div class="panel-body" align="center">
                         <form id="testform" action="" method="post">
@@ -168,6 +171,7 @@
                                 </div>   
                             </fieldset>
                         </form>
+                        <div id="stat"></div>
                         <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
                         </div>
                     </div>
@@ -201,10 +205,6 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
         $("#stat").hide();
-        $("#stat2").hide();
-        $("#dest_stat").hide();
-        $("#dest_noadmin").hide();
-        $("#dest_admin").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -218,11 +218,21 @@
             }
         });
         $("#enviar").click(function(){
-            $.post("/vista.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {
+            $.post("/vista.cgi?sid={{sid}}&accion=mostrar&tabla=publi", $("#testform").serialize(), function(data, status) {
                 $("#tabla").html(data);
             });
         });
 	});
+    //Borrar fichero
+	function borrar(id){
+        if(confirm("¿Seguro que quieres borrar éste fichero?")){
+            $.post("/vista.cgi?sid={{sid}}&accion=borrar&tabla=publi", "borrar="+id , function(data, status) {
+                if (data == "OK"){ 
+                    location.reload();
+                }
+            });
+        }    
+    }
 	</script>
 </body>
 </html>
