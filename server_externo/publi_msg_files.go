@@ -115,23 +115,48 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 		if err0 != nil {
 			Error.Println(err0)
 		}
-		sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
-		query, err := db.Query(sql)
-		if err != nil {
-			Error.Println(err)
-		}
-		for query.Next() {
-			var fichero, f_ini, f_fin, destinos string
-			var id, timestamp, gap int64
-			err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &gap)
+		if r.FormValue("tabla") == "publi" {
+			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
 			}
-			if strings.Contains(destinos, search) {
-				//Se obtiene la fecha de creacion de una entidad
-				f_creacion := libs.FechaCreacion(timestamp)
-				output += fmt.Sprintf("<tr class='odd gradeX'><td>%s<a href='#' onclick='borrar(%d)' title='Borrar fichero' style='float:right'><span class='fa fa-trash-o'></a>", fichero, id)
-				output += fmt.Sprintf("</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", f_ini, f_fin, destinos, f_creacion, gap)
+			for query.Next() {
+				var fichero, f_ini, f_fin, destinos string
+				var id, timestamp, gap int64
+				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &gap)
+				if err != nil {
+					Error.Println(err)
+				}
+				if strings.Contains(destinos, search) {
+					//Se obtiene la fecha de creacion de una entidad
+					f_creacion := libs.FechaCreacion(timestamp)
+					output += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Editar Publicidad'>%s</a>", id, fichero)
+					output += fmt.Sprintf("<a href='#' onclick='borrar(%d)' title='Borrar Publicidad' style='float:right'><span class='fa fa-trash-o'></a></td>", id)
+					output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", f_ini, f_fin, destinos, f_creacion, gap)
+				}
+			}
+		}
+		if r.FormValue("tabla") == "mensaje" {
+			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, playtime FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			query, err := db.Query(sql)
+			if err != nil {
+				Error.Println(err)
+			}
+			for query.Next() {
+				var fichero, f_ini, f_fin, destinos, playtime string
+				var id, timestamp int64
+				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &playtime)
+				if err != nil {
+					Error.Println(err)
+				}
+				if strings.Contains(destinos, search) {
+					//Se obtiene la fecha de creacion de una entidad
+					f_creacion := libs.FechaCreacion(timestamp)
+					output += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Editar Mensaje'>%s</a>", id, fichero)
+					output += fmt.Sprintf("<a href='#' onclick='borrar(%d)' title='Borrar Mensaje' style='float:right'><span class='fa fa-trash-o'></a></td>", id)
+					output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", f_ini, f_fin, destinos, f_creacion, playtime)
+				}
 			}
 		}
 	}
@@ -144,6 +169,22 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		output = "OK"
+	}
+	if r.FormValue("accion") == "load" {
+		var id, gap int
+		var f_inicio, f_fin string
+		sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, gap FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
+		query, err := db.Query(sql)
+		if err != nil {
+			Error.Println(err)
+		}
+		for query.Next() {
+			err = query.Scan(&id, &f_inicio, &f_fin, &gap)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&gap=%d", id, f_inicio, f_fin, gap)
+		}
 	}
 	fmt.Fprint(w, output) //fmt.Println(output)
 }

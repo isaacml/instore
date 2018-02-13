@@ -159,7 +159,7 @@
                 <div class="col-md-6 col-md-offset-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            VISTA DE LOS FICHEROS DE PUBLICIDAD
+                            VISTA DE LOS MENSAJES
                         </div>
                         <div class="panel-body" align="center">
                         <form id="testform" action="" method="post">
@@ -171,22 +171,8 @@
                                 </div>   
                             </fieldset>
                         </form>
-                        <form id="testform2" action="" method="post">
-                            <fieldset>
-                                <input name="id" type="hidden">
-                                <div class="form-group">
-                                    <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
-                                </div> 
-                                <div class="form-group">
-                                    <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
-                                </div>
-                                <div class="form-group">
-                                    <input placeholder="Gap" name="gap" type="text" maxlenght="2" size="3">
-                                </div>  
-                            </fieldset>
-                        </form>
+                        <div id="stat"></div>
                         <button id="enviar" class="btn btn-lg btn-success" name="enviar">Enviar</button>
-                        <button id="modificar" class="btn btn-lg btn-success" name="modificar">Modificar</button>
                         </div>
                     </div>
                 </div>
@@ -204,7 +190,7 @@
                                             <th>Fecha Fin</th>
                                             <th class='hidden-xs'>Destino</th>
                                             <th>Fecha Creacion</th>
-                                            <th>GAP</th>
+                                            <th>Horario</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tabla"></tbody>
@@ -218,8 +204,7 @@
     </div>
 	<script type="text/javascript">
 	$(document).ready(function(){
-        $("#modificar").hide();
-        $("#testform2").hide();
+        $("#stat").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -233,37 +218,15 @@
             }
         });
         $("#enviar").click(function(){
-            $.post("/vista.cgi?sid={{sid}}&accion=mostrar&tabla=publi", $("#testform").serialize(), function(data, status) {
+            $.post("/vista.cgi?sid={{sid}}&accion=mostrar&tabla=mensaje", $("#testform").serialize(), function(data, status) {
                 $("#tabla").html(data);
             });
         });
-        $("#modificar").click(function(){
-			$.post("/vista.cgi?sid={{sid}}&accion=modificar&tabla=publi", $("#testform2").serialize(), function(data, status) {
-				$("#modificar").hide();
-                $("#testform2").hide();
-				$("#enviar").show();
-                $("#testform").show();
-                $("#id").val("");
-	        });
-        });
 	});
-    //Cargar datos de publicidad
-	function load(id){
-		$("#modificar").show();
-    	$("#enviar").hide();
-        $("#testform").hide();
-        $("#testform2").show();
-        $.post("/vista.cgi?sid={{sid}}&accion=load&tabla=publi", "load="+id , function(data, status) {
-	    	$.each(data.split('&'), function (index, elem) {
-				var vals = elem.split('=');
-				$("[name=\"" + vals[0].trim() + "\"]").val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
-    		});
-		});
-	}
     //Borrar fichero
 	function borrar(id){
         if(confirm("¿Seguro que quieres borrar éste fichero?")){
-            $.post("/vista.cgi?sid={{sid}}&accion=borrar&tabla=publi", "borrar="+id , function(data, status) {
+            $.post("/vista.cgi?sid={{sid}}&accion=borrar&tabla=mensaje", "borrar="+id , function(data, status) {
                 if (data == "OK"){ 
                     location.reload();
                 }

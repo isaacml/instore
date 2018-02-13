@@ -95,6 +95,7 @@ func main() {
 //MANTENIMIENTO
 func mantenimiento() {
 	for {
+		libs.LoadSettingsLin(serverRoot, settings)
 		var ruta, fichero, fecha_inicio, fecha_final, destino, playtime, gap string
 		var id int
 		//ZONA PUBLICIDAD

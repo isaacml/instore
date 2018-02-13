@@ -12,14 +12,16 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	accion := r.FormValue("action")
 	//Generamos el select de entidades
 	if accion == "entidad" {
-		var padre_id, entity_id int
-		var list string
+		var list, padre_id, entity_id string
 		user := r.FormValue("username")
 		err := db.QueryRow("SELECT padre_id, entidad_id FROM usuarios WHERE user = ?", user).Scan(&padre_id, &entity_id)
 		if err != nil {
 			Error.Println(err)
 		}
-		if padre_id == 0 || padre_id == 1 { // Cuando es un usuario SUPER_ADMIN o ROOT, no es necesaria una configuracion.
+		if padre_id == "" && padre_id == "" {
+			list = "<br><span style='color: #C90101'>Usuario Desconocido: el usuario no existe</span>"
+		}
+		if padre_id == "0" || padre_id == "1" { // Cuando es un usuario SUPER_ADMIN o ROOT, no es necesaria una configuracion.
 			//Mostramos un mensaje informativo
 			list = "<br><span style='color: #C90101'>Usuario Administrador: no requiere configuración</span>"
 		} else {
@@ -46,7 +48,6 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 				list += "<option value='' selected>No hay entidades</option>"
 			}
 			list += "</select></div>"
-
 		}
 		fmt.Fprint(w, list)
 	}
