@@ -173,22 +173,24 @@
                         </form>
                         <form id="testform2" action="" method="post">
                             <fieldset>
-                                <input name="id" type="hidden">
+                                <input id="id" name="id" type="hidden">
                                 <div class="form-group">
                                     <input class="form-control sign-up-input" id="popup_container" placeholder="Fecha Inicio de Programación" name="f_inicio" type="text">
                                 </div> 
                                 <div class="form-group">
                                     <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
                                 </div>
-                                <div class="form-group">
-                                    <label class="text-muted">Destino Original:&nbsp;</label><input name="original" id="original" style="width:75%;border:none;"readonly/>
+                                <div class="form-group" id="original"></div>
+                                <div id="show_dest">
+                                    <div class="form-group" id="dest_noadmin"></div>
+                                    <div class="form-group" id="dest_admin">
+                                        <select id="destinos" name="destinos" style="width:75%;height:85px;" multiple></select>
+                                    </div>
+                                    
+                                    <div class="form-group" id="dest_stat"></div>
+                                    <div class="form-group" id="stat2"></div>
                                 </div>
-                                <div class="form-group" id="dest_noadmin"></div>
-                                <div class="form-group" id="dest_admin">
-                                    <select id="destinos" name="destinos" style="width:75%;height:85px;" multiple></select>
-                                </div>
-                                <div class="form-group" id="dest_stat"></div>
-                                <div class="form-group" id="stat2"></div>
+                                <input id="tomar_dest" name="tomar_dest" type="hidden">
                                 <div class="form-group">
                                     <input placeholder="Gap" name="gap" type="text" maxlenght="2" size="3">
                                 </div>  
@@ -228,6 +230,7 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
         $("#modificar").hide();
+        $("#show_dest").hide();
         $("#testform2").hide();
         $("#stat2").hide();
         $("#dest_stat").hide();
@@ -289,12 +292,22 @@
         $("#testform").hide();
         $("#testform2").show();
         $.post("/vista.cgi?sid={{sid}}&accion=load&tabla=publi", "load="+id , function(data, status) {
-	    	$.each(data.split('&'), function (index, elem) {
+            var res = data.split(":.:");
+	    	$.each(res[0].split('&'), function (index, elem) {
 				var vals = elem.split('=');
 				$("[name=\"" + vals[0].trim() + "\"]").val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
     		});
+            $("#original").html(res[1]);
 		});
 	}
+    //Mostrar zona de destinos
+	function edit_dom(){
+        $("#show_dest").show();
+        $("#tomar_dest").val("SI");
+        $("#destinos").click(function(){
+            
+        }
+    }
     //Borrar fichero
 	function borrar(id){
         if(confirm("¿Seguro que quieres borrar éste fichero?")){

@@ -601,11 +601,36 @@ FechaCreacion: Función para obtener la fecha y hora de creación
 Nos devuelve la fecha y la hora
 */
 func FechaCreacion(timestamp int64) string {
-	var out string
+	var anio, mes, dia string
 	localtime := time.Unix(timestamp, 0)
 	toString := localtime.String()
 	inSlice := strings.Split(toString, " ")
-	out = fmt.Sprintf("%s / %s", inSlice[0], inSlice[1])
+	fmt.Sscanf(inSlice[0], "%4s-%2s-%2s", &anio, &mes, &dia)
+	out := fmt.Sprintf("%s/%s/%s - %s", dia, mes, anio, inSlice[1])
+	return out
+}
+
+/*
+FechaSQLtoNormal: pasamos de un formato de fecha SQL a uno normal
+	fecha: la fecha en este formato --> 20070405
+Salida de la fecha convertida: 05/04/2007
+*/
+func FechaSQLtoNormal(fecha string) string {
+	var anio, mes, dia string
+	fmt.Sscanf(fecha, "%4s%2s%2s", &anio, &mes, &dia)
+	out := fmt.Sprintf("%s/%s/%s", dia, mes, anio)
+	return out
+}
+
+/*
+FechaNormaltoSQL: pasamos de un formato de fecha normal al formato SQL
+	fecha: la fecha en este formato --> 05/04/2007
+Salida de la fecha convertida: 20070405
+*/
+func FechaNormaltoSQL(fecha string) string {
+	var anio, mes, dia int
+	fmt.Sscanf(fecha, "%s/%s/%s", &dia, &mes, &anio)
+	out := fmt.Sprintf("%s%s%s", anio, mes, dia)
 	return out
 }
 

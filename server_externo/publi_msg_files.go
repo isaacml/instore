@@ -131,9 +131,13 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				if strings.Contains(destinos, search) {
 					//Se obtiene la fecha de creacion de una entidad
 					f_creacion := libs.FechaCreacion(timestamp)
+					//Convertimos a fecha normal
+					f_ini_conv := libs.FechaSQLtoNormal(f_ini)
+					f_fin_conv := libs.FechaSQLtoNormal(f_fin)
+					//Generamos la tabla
 					output += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Editar Publicidad'>%s</a>", id, fichero)
 					output += fmt.Sprintf("<a href='#' onclick='borrar(%d)' title='Borrar Publicidad' style='float:right'><span class='fa fa-trash-o'></a></td>", id)
-					output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", f_ini, f_fin, destinos, f_creacion, gap)
+					output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", f_ini_conv, f_fin_conv, destinos, f_creacion, gap)
 				}
 			}
 		}
@@ -179,16 +183,30 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var
-			err = query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
+			var err = query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&original=%s&gap=%d", id, f_inicio, f_fin, destino, gap)
+			f_ini_conv := libs.FechaSQLtoNormal(f_inicio)
+			f_fin_conv := libs.FechaSQLtoNormal(f_fin)
+			destino = destino + "&nbsp;&nbsp;<a href='#' onclick='edit_dom()' title='Editar Dominio'><span class='fa fa-edit'></a>"
+			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&gap=%d:.:%s", id, f_ini_conv, f_fin_conv, gap, destino)
 		}
 	}
 	if r.FormValue("accion") == "modificar" {
-		fmt.Println(r.Form)
+		var err1 error
+		if r.FormValue("destino") == "" {
+			db_mu.Lock()
+			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, gap=? WHERE id = ?", r.FormValue("f_ini"), r.FormValue("f_fin"), r.FormValue("gap"), r.FormValue("id"))
+			db_mu.Unlock()
+		} else {
+			db_mu.Lock()
+			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, destino=?, gap=? WHERE id = ?", r.FormValue("f_ini"), r.FormValue("f_fin"), r.FormValue("destino"), r.FormValue("gap"), r.FormValue("id"))
+			db_mu.Unlock()
+		}
+		if err1 != nil {
+			Error.Println(err1)
+		}
 	}
 	fmt.Fprint(w, output) //fmt.Println(output)
 }
