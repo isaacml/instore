@@ -181,6 +181,15 @@
                                     <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
                                 </div>
                                 <div class="form-group">
+                                    <label class="text-muted">Destino Original:&nbsp;</label><input name="original" id="original" style="width:75%;border:none;"readonly/>
+                                </div>
+                                <div class="form-group" id="dest_noadmin"></div>
+                                <div class="form-group" id="dest_admin">
+                                    <select id="destinos" name="destinos" style="width:75%;height:85px;" multiple></select>
+                                </div>
+                                <div class="form-group" id="dest_stat"></div>
+                                <div class="form-group" id="stat2"></div>
+                                <div class="form-group">
                                     <input placeholder="Gap" name="gap" type="text" maxlenght="2" size="3">
                                 </div>  
                             </fieldset>
@@ -220,6 +229,8 @@
 	$(document).ready(function(){
         $("#modificar").hide();
         $("#testform2").hide();
+        $("#stat2").hide();
+        $("#dest_stat").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -239,13 +250,37 @@
         });
         $("#modificar").click(function(){
 			$.post("/vista.cgi?sid={{sid}}&accion=modificar&tabla=publi", $("#testform2").serialize(), function(data, status) {
-				$("#modificar").hide();
-                $("#testform2").hide();
-				$("#enviar").show();
-                $("#testform").show();
-                $("#id").val("");
+				location.reload();
 	        });
         });
+        ///////////////////////////// ZONA DE DESTINOS //////////////////////////////
+        $.post("/dest_explorer.cgi?sid={{sid}}&action=destinos", function(data, status) {
+            var res1 = data.split(";");
+            if (res1[0] == "NOADMIN"){
+                $("#dest_stat").show();
+                $("#dest_noadmin").show();
+                $("#dest_stat").html(res1[1]);
+                $("#dest_noadmin").html(res1[2]);
+            }else{
+                $("#dest_stat").show();
+                $("#dest_admin").show();
+                $("#stat2").show();
+                $("#destinos").html(res1[0]);
+                $("#dest_stat").html(res1[1]);
+                $("#stat2").html(res1[2]);
+            }
+        });
+        $("#destinos").dblclick(function(){
+            $.post("/dest_explorer.cgi?sid={{sid}}&action=recoger_id", $("#testform2").serialize(), function(data, status) {
+                var res1 = data.split(";");
+                $("#dest_stat").show();
+                $("#stat2").show();
+                $("#destinos").html(res1[0]);
+                $("#dest_stat").html(res1[1]);
+                $("#stat2").html(res1[2]);
+            });
+        });
+        ////////////////////// FIN ZONA DE DESTINOS //////////////////////
 	});
     //Cargar datos de publicidad
 	function load(id){

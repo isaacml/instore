@@ -172,19 +172,23 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.FormValue("accion") == "load" {
 		var id, gap int
-		var f_inicio, f_fin string
-		sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, gap FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
+		var f_inicio, f_fin, destino string
+		sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, destino, gap FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
 		query, err := db.Query(sql)
 		if err != nil {
 			Error.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &f_inicio, &f_fin, &gap)
+			var
+			err = query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&gap=%d", id, f_inicio, f_fin, gap)
+			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&original=%s&gap=%d", id, f_inicio, f_fin, destino, gap)
 		}
+	}
+	if r.FormValue("accion") == "modificar" {
+		fmt.Println(r.Form)
 	}
 	fmt.Fprint(w, output) //fmt.Println(output)
 }

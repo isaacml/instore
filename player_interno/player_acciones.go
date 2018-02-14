@@ -97,7 +97,6 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			lines := strings.Split(string(input), "\n")
 			for i, line := range lines {
 				if strings.Contains(line, "serverinterno") {
-					
 					lines[i] = fmt.Sprintf("serverinterno = %s", r.FormValue("ip"))
 				}
 			}
