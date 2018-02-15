@@ -628,8 +628,8 @@ FechaNormaltoSQL: pasamos de un formato de fecha normal al formato SQL
 Salida de la fecha convertida: 20070405
 */
 func FechaNormaltoSQL(fecha string) string {
-	var anio, mes, dia int
-	fmt.Sscanf(fecha, "%s/%s/%s", &dia, &mes, &anio)
+	var anio, mes, dia string
+	fmt.Sscanf(fecha, "%2s/%2s/%4s", &dia, &mes, &anio)
 	out := fmt.Sprintf("%s%s%s", anio, mes, dia)
 	return out
 }

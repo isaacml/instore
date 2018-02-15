@@ -181,6 +181,7 @@
                                     <input class="form-control sign-up-input" id="popup_container2" placeholder="Fecha Fin de Programación" name="f_fin" type="text">
                                 </div>
                                 <div class="form-group" id="original"></div>
+                                <input id="origen" name="origen" type="hidden">
                                 <div id="show_dest">
                                     <div class="form-group" id="dest_noadmin"></div>
                                     <div class="form-group" id="dest_admin">
@@ -302,10 +303,11 @@
 	}
     //Mostrar zona de destinos
 	function edit_dom(){
-        $("#show_dest").show();
-        $("#tomar_dest").val("SI");
-        $("#destinos").click(function(){
-            
+        if ($("#show_dest").is(':hidden')){
+            $("#show_dest").show();
+            $("#tomar_dest").val("SI");
+        } else {
+            $("#show_dest").hide();
         }
     }
     //Borrar fichero

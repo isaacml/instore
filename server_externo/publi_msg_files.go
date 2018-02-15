@@ -189,19 +189,23 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			}
 			f_ini_conv := libs.FechaSQLtoNormal(f_inicio)
 			f_fin_conv := libs.FechaSQLtoNormal(f_fin)
-			destino = destino + "&nbsp;&nbsp;<a href='#' onclick='edit_dom()' title='Editar Dominio'><span class='fa fa-edit'></a>"
-			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&gap=%d:.:%s", id, f_ini_conv, f_fin_conv, gap, destino)
+			panel_destino := destino + "&nbsp;&nbsp;<a href='#' onclick='edit_dom()' title='Pulsa para editar dominio'><span class='fa fa-edit'></a>"
+			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&origen=%s&gap=%d:.:%s", id, f_ini_conv, f_fin_conv, destino, gap, panel_destino)
 		}
 	}
 	if r.FormValue("accion") == "modificar" {
 		var err1 error
+		//Generamos las fechas en formato SQL (Ej. 20170212)
+		f_ini := libs.FechaNormaltoSQL(r.FormValue("f_ini"))
+		f_fin := libs.FechaNormaltoSQL(r.FormValue("f_fin"))
+		//Si el destino está vacio, no lo modificamos.
 		if r.FormValue("destino") == "" {
 			db_mu.Lock()
-			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, gap=? WHERE id = ?", r.FormValue("f_ini"), r.FormValue("f_fin"), r.FormValue("gap"), r.FormValue("id"))
+			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("gap"), r.FormValue("id"))
 			db_mu.Unlock()
 		} else {
 			db_mu.Lock()
-			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, destino=?, gap=? WHERE id = ?", r.FormValue("f_ini"), r.FormValue("f_fin"), r.FormValue("destino"), r.FormValue("gap"), r.FormValue("id"))
+			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, destino=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), r.FormValue("gap"), r.FormValue("id"))
 			db_mu.Unlock()
 		}
 		if err1 != nil {
