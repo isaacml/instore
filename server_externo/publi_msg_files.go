@@ -108,9 +108,61 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var output string
 	var id_user string
-	//Muestra los datos detallados de publicidad y mensajes
+	//Primera vez que se muestran los ficheros publi /msg
+	if r.FormValue("accion") == "first_show" {
+		err0 := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", r.FormValue("username")).Scan(&id_user)
+		if err0 != nil {
+			Error.Println(err0)
+		}
+		if r.FormValue("tabla") == "publi" {
+			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			query, err := db.Query(sql)
+			if err != nil {
+				Error.Println(err)
+			}
+			for query.Next() {
+				var fichero, f_ini, f_fin, destinos string
+				var id, timestamp, gap int64
+				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &gap)
+				if err != nil {
+					Error.Println(err)
+				}
+				//Se obtiene la fecha de creacion de una entidad
+				f_creacion := libs.FechaCreacion(timestamp)
+				//Convertimos a fecha normal
+				f_ini_conv := libs.FechaSQLtoNormal(f_ini)
+				f_fin_conv := libs.FechaSQLtoNormal(f_fin)
+				//Generamos la tabla
+				output += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Editar Publicidad'>%s</a>", id, fichero)
+				output += fmt.Sprintf("<a href='#' onclick='borrar(%d)' title='Borrar Publicidad' style='float:right'><span class='fa fa-trash-o'></a></td>", id)
+				output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", f_ini_conv, f_fin_conv, destinos, f_creacion, gap)
+			}
+		}
+		if r.FormValue("tabla") == "mensaje" {
+			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, playtime FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			query, err := db.Query(sql)
+			if err != nil {
+				Error.Println(err)
+			}
+			for query.Next() {
+				var fichero, f_ini, f_fin, destinos, playtime string
+				var id, timestamp int64
+				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &playtime)
+				if err != nil {
+					Error.Println(err)
+				}
+				//Se obtiene la fecha de creacion de una entidad
+				f_creacion := libs.FechaCreacion(timestamp)
+				//Generamos la tabla
+				output += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Editar Mensaje'>%s</a>", id, fichero)
+				output += fmt.Sprintf("<a href='#' onclick='borrar(%d)' title='Borrar Mensaje' style='float:right'><span class='fa fa-trash-o'></a></td>", id)
+				output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", f_ini, f_fin, destinos, f_creacion, playtime)
+			}
+		}
+	}
+	//Muestra los datos detallados de publicidad y mensajes recibiendo un patrón de busqueda
 	if r.FormValue("accion") == "mostrar" {
-		search := r.FormValue("search")
+		search := r.FormValue("search") //Patrón de Busqueda
 		err0 := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", r.FormValue("username")).Scan(&id_user)
 		if err0 != nil {
 			Error.Println(err0)
@@ -176,21 +228,45 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.FormValue("accion") == "load" {
 		var id, gap int
-		var f_inicio, f_fin, destino string
-		sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, destino, gap FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
-		query, err := db.Query(sql)
-		if err != nil {
-			Error.Println(err)
-		}
-		for query.Next() {
-			var err = query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
+		var f_inicio, f_fin, destino, horario string
+		if r.FormValue("tabla") == "publi" {
+			sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, destino, gap FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
+			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
 			}
-			f_ini_conv := libs.FechaSQLtoNormal(f_inicio)
-			f_fin_conv := libs.FechaSQLtoNormal(f_fin)
-			panel_destino := destino + "&nbsp;&nbsp;<a href='#' onclick='edit_dom()' title='Pulsa para editar dominio'><span class='fa fa-edit'></a>"
-			fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&origen=%s&gap=%d:.:%s", id, f_ini_conv, f_fin_conv, destino, gap, panel_destino)
+			for query.Next() {
+				var err = query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
+				if err != nil {
+					Error.Println(err)
+				}
+				//Convertimos a fecha normal
+				f_ini_conv := libs.FechaSQLtoNormal(f_inicio)
+				f_fin_conv := libs.FechaSQLtoNormal(f_fin)
+				panel_destino := destino + "&nbsp;&nbsp;<a href='#' onclick='edit_dom()' title='Pulsa para editar dominio'><span class='fa fa-edit'></a>"
+				fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&origen=%s&gap=%d:.:%s", id, f_ini_conv, f_fin_conv, destino, gap, panel_destino)
+			}
+		}
+		if r.FormValue("tabla") == "mensaje" {
+			sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, destino, playtime FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
+			query, err := db.Query(sql)
+			if err != nil {
+				Error.Println(err)
+			}
+			for query.Next() {
+				var err = query.Scan(&id, &f_inicio, &f_fin, &destino, &horario)
+				if err != nil {
+					Error.Println(err)
+				}
+				//Convertimos a fecha normal
+				f_ini_conv := libs.FechaSQLtoNormal(f_inicio)
+				f_fin_conv := libs.FechaSQLtoNormal(f_fin)
+				//Obtenemos hora y minutos por separado
+				hora := libs.MostrarHoras(horario)
+				minuto := libs.MostrarMinutos(horario)
+				panel_destino := destino + "&nbsp;&nbsp;<a href='#' onclick='edit_dom()' title='Pulsa para editar dominio'><span class='fa fa-edit'></a>"
+				fmt.Fprintf(w, "id=%d&f_inicio=%s&f_fin=%s&origen=%s:.:%s:.:%s:.:%s", id, f_ini_conv, f_fin_conv, destino, panel_destino, hora, minuto)
+			}
 		}
 	}
 	if r.FormValue("accion") == "modificar" {

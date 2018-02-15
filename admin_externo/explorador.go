@@ -720,6 +720,10 @@ func vista(w http.ResponseWriter, r *http.Request) {
 	_, ok := user[sid]
 	if ok {
 		accion := r.FormValue("accion")
+		if accion == "first_show" {
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;"+accion, "tabla;"+r.FormValue("tabla"), "username;"+username))
+			fmt.Fprint(w, respuesta)
+		}
 		if accion == "mostrar" {
 			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;"+accion, "tabla;"+r.FormValue("tabla"), "search;"+r.FormValue("buscar_por"), "username;"+username))
 			fmt.Fprint(w, respuesta)

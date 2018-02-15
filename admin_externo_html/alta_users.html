@@ -114,13 +114,13 @@
                                 <li id="zona_publi">
                                     <a href="publi.html?{{sid}}">Publicidad</a>
                                 </li>
+                                <li id="vista_publi">
+                                    <a href="vista_publi.html?{{sid}}">Vista Publicidad</a>
+                                </li>
                                 <li id="zona_msg">
                                     <a href="mensajes.html?{{sid}}">Mensajes</a>
                                 </li>
-                                <li>
-                                    <a href="vista_publi.html?{{sid}}">Vista Publicidad</a>
-                                </li>
-                                <li>
+                                <li id="vista_msg">
                                     <a href="vista_msg.html?{{sid}}">Vista Mensajes</a>
                                 </li>
                             </ul>
@@ -225,6 +225,7 @@
             if (res[0] == 0){
                 $("#zona_publi").hide();
                 $("#prog_pub").hide();
+                $("#vista_publi").hide();
             }
             if (res[1] == 0){
                 $("#prog_mus").hide();
@@ -232,6 +233,7 @@
             if (res[2] == 0){
                 $("#zona_msg").hide();
                 $("#prog_msg").hide();
+                $("#vista_msg").hide();
             }
             if (res[3] == 0){
                 $("#add_mus").hide();
