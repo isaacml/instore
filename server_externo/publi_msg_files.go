@@ -153,10 +153,13 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				}
 				//Se obtiene la fecha de creacion de una entidad
 				f_creacion := libs.FechaCreacion(timestamp)
+				//Convertimos a fecha normal
+				f_ini_conv := libs.FechaSQLtoNormal(f_ini)
+				f_fin_conv := libs.FechaSQLtoNormal(f_fin)
 				//Generamos la tabla
 				output += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Editar Mensaje'>%s</a>", id, fichero)
 				output += fmt.Sprintf("<a href='#' onclick='borrar(%d)' title='Borrar Mensaje' style='float:right'><span class='fa fa-trash-o'></a></td>", id)
-				output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", f_ini, f_fin, destinos, f_creacion, playtime)
+				output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", f_ini_conv, f_fin_conv, destinos, f_creacion, playtime)
 			}
 		}
 	}
@@ -209,9 +212,12 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				if strings.Contains(destinos, search) {
 					//Se obtiene la fecha de creacion de una entidad
 					f_creacion := libs.FechaCreacion(timestamp)
+					//Convertimos a fecha normal
+					f_ini_conv := libs.FechaSQLtoNormal(f_ini)
+					f_fin_conv := libs.FechaSQLtoNormal(f_fin)
 					output += fmt.Sprintf("<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Editar Mensaje'>%s</a>", id, fichero)
 					output += fmt.Sprintf("<a href='#' onclick='borrar(%d)' title='Borrar Mensaje' style='float:right'><span class='fa fa-trash-o'></a></td>", id)
-					output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", f_ini, f_fin, destinos, f_creacion, playtime)
+					output += fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", f_ini_conv, f_fin_conv, destinos, f_creacion, playtime)
 				}
 			}
 		}
@@ -274,18 +280,37 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 		//Generamos las fechas en formato SQL (Ej. 20170212)
 		f_ini := libs.FechaNormaltoSQL(r.FormValue("f_ini"))
 		f_fin := libs.FechaNormaltoSQL(r.FormValue("f_fin"))
-		//Si el destino está vacio, no lo modificamos.
-		if r.FormValue("destino") == "" {
-			db_mu.Lock()
-			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("gap"), r.FormValue("id"))
-			db_mu.Unlock()
-		} else {
-			db_mu.Lock()
-			_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, destino=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), r.FormValue("gap"), r.FormValue("id"))
-			db_mu.Unlock()
+		if r.FormValue("tabla") == "publi" {
+			//Si el destino está vacio, no lo modificamos.
+			if r.FormValue("destino") == "" {
+				db_mu.Lock()
+				_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("gap"), r.FormValue("id"))
+				db_mu.Unlock()
+			} else {
+				db_mu.Lock()
+				_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, destino=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), r.FormValue("gap"), r.FormValue("id"))
+				db_mu.Unlock()
+			}
+			if err1 != nil {
+				Error.Println(err1)
+			}
 		}
-		if err1 != nil {
-			Error.Println(err1)
+		if r.FormValue("tabla") == "mensaje" {
+			//Formamos el horario
+			horario := r.FormValue("hora") + ":" + r.FormValue("minutos")
+			//Si el destino está vacio, no lo modificamos.
+			if r.FormValue("destino") == "" {
+				db_mu.Lock()
+				_, err1 = db.Exec("UPDATE mensaje SET fecha_inicio=?, fecha_final=?, playtime=? WHERE id = ?", f_ini, f_fin, horario, r.FormValue("id"))
+				db_mu.Unlock()
+			} else {
+				db_mu.Lock()
+				_, err1 = db.Exec("UPDATE mensaje SET fecha_inicio=?, fecha_final=?, destino=?, playtime=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), horario, r.FormValue("id"))
+				db_mu.Unlock()
+			}
+			if err1 != nil {
+				Error.Println(err1)
+			}
 		}
 	}
 	fmt.Fprint(w, output) //fmt.Println(output)
