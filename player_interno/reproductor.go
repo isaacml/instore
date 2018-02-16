@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
+	"fmt"
 )
 
 //Comparamos la hora guardada con la hora del sistema
@@ -53,11 +53,17 @@ func reproduccion() {
 			var win winamp.Winamp
 			musica := make(map[int]string)
 			pl := 1
+			fmt.Println(statusProgammedMusic)
 			if statusProgammedMusic == "Inicial" {
+				cont := 0
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					libs.MusicToPlay(full_route, st_music, musica)
+					arr_music := libs.MusicToPlay(full_route, st_music)
+					for _, v := range arr_music {
+						musica[cont] = v
+						cont++
+					}	
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -119,80 +125,20 @@ func reproduccion() {
 					pl++
 				}
 			} else if statusProgammedMusic == "Actualizada" {
+				cont := 0
 				for _, val := range programmedMusic {
 					//generamos la ruta completa a esas carpetas
 					full_route := music_files + val + "\\"
-					libs.MusicToPlay(full_route, st_music, musica)
+					arr_music := libs.MusicToPlay(full_route, st_music)
+					for _, v := range arr_music {
+						musica[cont] = v
+						cont++
+					}
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					if statusProgammedMusic == "Modificar" || block == true || schedule == false {
-						break
-					}
-					//Comprobamos si winamp está abierto
-					isOpen := win.WinampIsOpen()
-					if isOpen == false {
-						//Rulamos el Winamp
-						win.RunWinamp()
-						time.Sleep(1 * time.Second)
-						win.Volume()
-					}
-					//Obtenemos la publicidad
-					publi, gap := publi_q_toca()
-					//Evaluamos cada una de las canciones: cif o nocif
-					if strings.Contains(musica[v], ".xxx") {
-						segment := strings.Split(musica[v], ".xxx")
-						song_to_play := segment[0] + ".mp3"
-						//Proceso de descifrado de la cancion: ver en libreria de funciones.
-						_, st_cif := libs.Cifrado(musica[v], song_to_play, []byte{11, 22, 33, 44, 55, 66, 77, 88})
-						if st_cif == "GOOD" {
-							//Carga y reproduccion de cancion
-							win.Load("\"" + song_to_play + "\"")
-							win.Play()
-							//Esperamos el tiempo de duracion de la canción
-							time.Sleep(time.Duration(win.SongLenght(song_to_play)) * time.Second)
-							//Una vez finalizada la reproduccion del fichero encriptado: Limpiamos la playlist
-							win.Clear()
-							//Borramos el descifrado(.mp3)
-							os.Remove(song_to_play)
-						}
-					} else {
-						//Carga y reproduccion de cancion
-						win.Load("\"" + musica[v] + "\"")
-						win.Play()
-						time.Sleep(time.Duration(win.SongLenght(musica[v])) * time.Second)
-					}
-					//Controlamos el GAP: Cuando el contador de canciones es igual al número de gap, metemos publicidad.
-					//Un gap = 0 --> No hay publicidad, las canciones corren una detrás de otra.
-					if pl == gap {
-						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
-						rand.Seed(time.Now().UnixNano())
-						shuffle2 := rand.Perm(len(publi))
-						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
-						for _, val := range shuffle2 {
-							//Directorio publi + Fichero publi
-							all_publi_file := publi_files_location + publi[val]
-							win.Load("\"" + all_publi_file + "\"")
-							win.Play()
-							time.Sleep(time.Duration(win.SongLenght(all_publi_file)) * time.Second)
-							break
-						}
-						//Volvemos a poner el contador de playlist 0
-						pl = 0
-					}
-					pl++
-				}
-			} else if statusProgammedMusic == "Modificar" {
-				for _, val := range programmedMusic {
-					//generamos la ruta completa a esas carpetas
-					full_route := music_files + val + "\\"
-					libs.MusicToPlay(full_route, st_music, musica)
-				}
-				rand.Seed(time.Now().UnixNano())
-				shuffle := rand.Perm(len(musica))
-				for _, v := range shuffle {
-					if statusProgammedMusic == "Actualizada" || block == true || schedule == false {
+					if statusProgammedMusic == "Inicial" || block == true || schedule == false {
 						break
 					}
 					//Comprobamos si winamp está abierto
@@ -249,7 +195,10 @@ func reproduccion() {
 					pl++
 				}
 			} else {
-				libs.MusicToPlay(music_files, st_music, musica)
+				arr_music := libs.MusicToPlay(music_files, st_music)
+				for k, v := range arr_music {
+					musica[k] = v
+				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
@@ -315,7 +264,6 @@ func reproduccion() {
 		time.Sleep(1 * time.Second)
 	}
 }
-
 //Reproduce los mensajes automáticos de la tienda: bucle infinito que busca cada minuto un mensaje nuevo para reproducir.
 func reproduccion_msgs() {
 	for {
@@ -342,7 +290,6 @@ func reproduccion_msgs() {
 				st := win.PlayFFplay(msg_files_location + fichero)
 				//Si el estado de la reproduccion del mensaje = END (ha acabado), procedemos al borrado.
 				if st == "END" {
-					fmt.Println("Borro el fichero: "+fichero, id)
 					//Borramos el fichero desde el directorio que contiene los mensajes en el player_int
 					err = os.Remove(msg_files_location + fichero)
 					if err != nil {

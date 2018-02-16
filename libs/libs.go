@@ -499,12 +499,11 @@ func Existencia(ruta string) bool {
 MusicToPlay: Esta función determina los ficheros que va a reproducir el player de la tienda.
 	ruta:  Ruta del directorio que va a contener los ficheros de música
 	st:    Estado de la música cifrada (0: solo cif / 1: cif y no cif)
-	mapa:  mapa donde se van a guardar los ficheros de música
-Devuelve un mapa con todos los ficheros a reproducir.
+Devuelve un array con todos los ficheros a reproducir.
 */
-func MusicToPlay(ruta string, st int, mapa map[int]string) {
+func MusicToPlay(ruta string, st int) []string {
 	var cmd *exec.Cmd
-	a := 0
+	var arr_music []string
 	if st == 0 {
 		//Se obtienen los ficheros del directorio y subdirectorios (solo música cif)
 		cmd = exec.Command("cmd", "/c", "dir /s /b "+ruta+"*.xxx")
@@ -522,9 +521,9 @@ func MusicToPlay(ruta string, st int, mapa map[int]string) {
 		if err != nil {
 			break
 		}
-		mapa[a] = strings.TrimSpace(line)
-		a++
+		arr_music = append(arr_music, strings.TrimSpace(line))
 	}
+	return arr_music
 }
 
 /*

@@ -273,6 +273,7 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		} else {
+			var status string
 			//Borramos los antiguos directorios programados
 			for k, _ := range programmedMusic {
 				delete(programmedMusic, k)
@@ -284,16 +285,18 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 						db_mu.Lock()
 						//Guardamos cada una de las carpetas seleccionadas
 						programmedMusic[cont] = v
+						if statusProgammedMusic == "Inicial" {
+							status = "Actualizada"
+						}
 						if statusProgammedMusic == "Actualizada" {
-							statusProgammedMusic = "Modificar"
-						} else {
-							statusProgammedMusic = "Actualizada"
+							status = "Inicial"
 						}
 						db_mu.Unlock()
 					}
 					cont++
 				}
 			}
+			statusProgammedMusic = status
 		}
 	}
 	fmt.Fprint(w, output)
