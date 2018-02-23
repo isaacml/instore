@@ -272,14 +272,13 @@ func (w *Winamp) SongLenght(file string) int {
 // Metodo que introduce la publicidad por ffplay
 func (w *Winamp) PlayFFplay(publi string) string {
 	var st string
-	//Bajo el volumen del reproductor Winamp a 0
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
+	//Paramos la cancion
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
 	//Reproduzco la publicidad del ffplay
 	play := fmt.Sprintf("apps\\ffplay.exe -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
-	//Vuelvo a subir el volumen a como estaba
-	inc := fmt.Sprintf("apps\\CLEvER.exe volume %d", volMax)
-	exec.Command("cmd", "/c", inc).Run()
+	//Vuelve a sonar la cancion
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
 	st = "END"
 	return st
 }

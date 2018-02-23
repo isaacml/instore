@@ -238,7 +238,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, val := range ficheros {
-			if !val.IsDir() {
+			if strings.Contains(val.Name(), ".mp3") {
 				output += fmt.Sprintf("<option style='color: #0000CC' value='%s'>%s</option>", val.Name(), val.Name())
 			}
 		}
@@ -741,9 +741,9 @@ func vista(w http.ResponseWriter, r *http.Request) {
 			if r.FormValue("tomar_dest") == "SI" {
 				recojo_destino = estado_destino
 			}
-			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;"+accion, 
-			"tabla;"+r.FormValue("tabla"), "id;"+r.FormValue("id"), "f_ini;"+r.FormValue("f_inicio"), "f_fin;"+r.FormValue("f_fin"), 
-			"destino;"+recojo_destino, "gap;"+r.FormValue("gap"), "origen;"+r.FormValue("origen"), "hora;"+r.FormValue("hora"), "minutos;"+r.FormValue("minutos")))
+			respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverroot"]+"/modo_vista.cgi", "accion;"+accion,
+				"tabla;"+r.FormValue("tabla"), "id;"+r.FormValue("id"), "f_ini;"+r.FormValue("f_inicio"), "f_fin;"+r.FormValue("f_fin"),
+				"destino;"+recojo_destino, "gap;"+r.FormValue("gap"), "origen;"+r.FormValue("origen"), "hora;"+r.FormValue("hora"), "minutos;"+r.FormValue("minutos")))
 			fmt.Fprint(w, respuesta)
 		}
 	}
