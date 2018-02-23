@@ -27,32 +27,38 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 	//Formamos una cadena con la publicidad y los mensajes para ese dominio y con la fecha que le corresponde
 	output += "[publi]"
 	for _, val := range domains {
-		publicidad, err := db.Query("SELECT fichero, fecha_inicio, gap FROM publi WHERE destino = ? AND fecha_inicio = ?", val, fecha)
+		publicidad, err := db.Query("SELECT fichero, fecha_inicio, fecha_final, gap FROM publi WHERE destino = ?", val)
 		if err != nil {
 			Error.Println(err)
 		}
 		for publicidad.Next() {
-			var f_publi, fecha_ini, gap string
-			err = publicidad.Scan(&f_publi, &fecha_ini, &gap)
+			var f_publi, fecha_ini, fecha_fin, gap string
+			err = publicidad.Scan(&f_publi, &fecha_ini, &fecha_fin, &gap)
 			if err != nil {
 				Error.Println(err)
 			}
-			output += ";" + f_publi + "<=>" + fecha_ini + "<=>" + gap
+			//BETWEEN
+			if fecha_ini >= fecha && fecha_fin <= fecha {
+				output += ";" + f_publi + "<=>" + fecha_ini + "<=>" + gap
+			}
 		}
 	}
 	output += "[mensaje]"
 	for _, val := range domains {
-		mensajes, err := db.Query("SELECT fichero, playtime FROM mensaje WHERE destino = ? AND fecha_inicio = ?", val, fecha)
+		mensajes, err := db.Query("SELECT fichero, fecha_inicio, fecha_final, playtime FROM mensaje WHERE destino = ?", val)
 		if err != nil {
 			Error.Println(err)
 		}
 		for mensajes.Next() {
-			var f_msg, playtime string
-			err = mensajes.Scan(&f_msg, &playtime)
+			var f_msg, fecha_ini, fecha_fin, playtime string
+			err = mensajes.Scan(&f_msg, &fecha_ini, &fecha_fin, &playtime)
 			if err != nil {
 				Error.Println(err)
 			}
-			output += ";" + f_msg + "<=>" + playtime
+			//BETWEEN
+			if fecha_ini >= fecha && fecha_fin <= fecha {
+				output += ";" + f_msg + "<=>" + playtime
+			}
 		}
 	}
 	//Enviamos la cadena
