@@ -9,10 +9,6 @@ import (
 	"sync"
 )
 
-var (
-	volMax int = 250
-)
-
 type Winamp struct {
 	// internal status variables
 	play   bool
@@ -39,7 +35,6 @@ func Winamper() *Winamp {
 	win.play = false
 	win.stop = false
 	win.pause = false
-	win.volume = 0
 	win.run = false
 
 	return win
@@ -64,7 +59,6 @@ func (w *Winamp) RunWinamp() {
 	if w.run == false {
 		exec.Command("cmd", "/c", "start /MIN winamp\\winamp.exe").Start()
 		w.mu.Lock()
-		w.volume = volMax
 		w.run = true
 		w.mu.Unlock()
 
@@ -73,8 +67,7 @@ func (w *Winamp) RunWinamp() {
 
 //Función que establece el volumen del Winamp
 func (w *Winamp) Volume() {
-	cmd := fmt.Sprintf("apps\\CLEvER.exe volume %d", w.volume)
-	err := exec.Command("cmd", "/c", cmd).Run()
+	err := exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
 	if err != nil {
 		err = fmt.Errorf("VOL: FAIL TO SEND VOLUME")
 	}
@@ -188,42 +181,6 @@ func (w *Winamp) SongEnd() int {
 
 	return totalsec
 }
-func (w *Winamp) VolumeUp() {
-	var cont int
-	for i := 1; i <= volMax; i += 25 {
-		exec.Command("cmd", "/c", "apps\\CLEvER.exe volup").Run()
-		cont++
-	}
-	if w.volume >= volMax {
-		w.mu.Lock()
-		w.volume = volMax
-		w.mu.Unlock()
-		return
-	} else {
-		w.mu.Lock()
-		w.volume = (w.volume + (cont * 4))
-		w.mu.Unlock()
-	}
-	fmt.Println(w.volume)
-}
-func (w *Winamp) VolumeDown() {
-	var cont int
-	for i := 1; i <= volMax; i += 25 {
-		exec.Command("cmd", "/c", "apps\\CLEvER.exe voldn").Run()
-		cont++
-	}
-	if w.volume < 10 {
-		w.mu.Lock()
-		w.volume = 0
-		w.mu.Unlock()
-		return
-	} else {
-		w.mu.Lock()
-		w.volume = (w.volume - (cont * 4))
-		w.mu.Unlock()
-	}
-	fmt.Println(w.volume)
-}
 
 //Limpia la playlist
 func (w *Winamp) Clear() {
@@ -271,14 +228,12 @@ func (w *Winamp) SongLenght(file string) int {
 
 // Metodo que introduce la publicidad por ffplay
 func (w *Winamp) PlayFFplay(publi string) string {
-	var st string
 	//Paramos la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
 	//Reproduzco la publicidad del ffplay
 	play := fmt.Sprintf("apps\\ffplay.exe -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
 	//Vuelve a sonar la cancion
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe play").Run()
-	st = "END"
-	return st
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
+	return "END"
 }

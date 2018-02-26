@@ -1,19 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
-	"fmt"
 )
 
 //Comparamos la hora guardada con la hora del sistema
 func horario_reproduccion() {
 	for {
-		var hora_inicial, hora_final int 
+		var hora_inicial, hora_final int
 		var sol bool
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
@@ -63,7 +63,7 @@ func reproduccion() {
 					for _, v := range arr_music {
 						musica[cont] = v
 						cont++
-					}	
+					}
 				}
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
@@ -264,49 +264,52 @@ func reproduccion() {
 		time.Sleep(1 * time.Second)
 	}
 }
+
 //Reproduce los mensajes automáticos de la tienda: bucle infinito que busca cada minuto un mensaje nuevo para reproducir.
 func reproduccion_msgs() {
 	for {
 		//Obtenemos la fecha actual
 		fecha := libs.MyCurrentDate()
-		fecha_sql := fecha + "%"
 		//Obtenemos la hora local
 		clock := libs.MyCurrentClock()
 		//Obtenemos todos los mensajes
-		mensajes, errM := db.Query("SELECT id, fichero, playtime FROM mensaje WHERE fecha LIKE ?", fecha_sql)
+		mensajes, errM := db.Query("SELECT id, fichero, fecha_ini, fecha_fin, playtime FROM mensaje")
 		if errM != nil {
 			Error.Println(errM)
 		}
 		for mensajes.Next() {
 			var id int
-			var fichero, playtime string
+			var fichero, fecha_ini, fecha_fin, playtime string
 			//Tomamos el id, nombre y playtime de la base de datos mensaje
-			err := mensajes.Scan(&id, &fichero, &playtime)
+			err := mensajes.Scan(&id, &fichero, &fecha_ini, &fecha_fin, &playtime)
 			if err != nil {
 				Error.Println(err)
 			}
-			if playtime == clock {
-				var win winamp.Winamp
-				st := win.PlayFFplay(msg_files_location + fichero)
-				//Si el estado de la reproduccion del mensaje = END (ha acabado), procedemos al borrado.
-				if st == "END" {
-					//Borramos el fichero desde el directorio que contiene los mensajes en el player_int
-					err = os.Remove(msg_files_location + fichero)
-					if err != nil {
-						Error.Println(err)
+			//BETWEEN
+			if fecha_ini >= fecha && fecha_fin <= fecha {
+				if playtime == clock {
+					var win winamp.Winamp
+					st := win.PlayFFplay(msg_files_location + fichero)
+					//Si el estado de la reproduccion del mensaje = END (ha acabado), procedemos al borrado.
+					if st == "END" {
+						//Borramos el fichero desde el directorio que contiene los mensajes en el player_int
+						err = os.Remove(msg_files_location + fichero)
+						if err != nil {
+							Error.Println(err)
+						}
+						//Ponemos el estado de mensaje en N (ya que lo hemos borrado y no existe)
+						ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE id = ?")
+						if err != nil {
+							Error.Println(err)
+						}
+						db_mu.Lock()
+						_, err1 := ok.Exec("N", id)
+						if err1 != nil {
+							Error.Println(err1)
+						}
+						db_mu.Unlock()
+						break
 					}
-					//Ponemos el estado de mensaje en N (ya que lo hemos borrado y no existe)
-					ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE id = ?")
-					if err != nil {
-						Error.Println(err)
-					}
-					db_mu.Lock()
-					_, err1 := ok.Exec("N", id)
-					if err1 != nil {
-						Error.Println(err1)
-					}
-					db_mu.Unlock()
-					break
 				}
 			}
 		}
@@ -322,20 +325,23 @@ func publi_q_toca() (map[int]string, int) {
 	fecha := libs.MyCurrentDate()
 	//Obtenemos el GAP
 	var gap int
-	publicidad, errP := db.Query("SELECT fichero, gap FROM publi  WHERE fecha_ini = ?", fecha)
+	var fichero, fecha_ini, fecha_fin string
+	publicidad, errP := db.Query("SELECT fichero, fecha_ini, fecha_fin, gap FROM publi")
 	if errP != nil {
 		Error.Println(errP)
 		gap = 0
 	}
 	for publicidad.Next() {
-		var fichero string
 		//Tomamos el nombre del fichero publi
-		err := publicidad.Scan(&fichero, &gap)
+		err := publicidad.Scan(&fichero, &fecha_ini, &fecha_fin, &gap)
 		if err != nil {
 			Error.Println(err)
 		}
-		publi[p] = fichero
-		p++
+		//BETWEEN
+		if fecha_ini >= fecha && fecha_fin <= fecha {
+			publi[p] = fichero
+			p++
+		}
 	}
 	return publi, gap
 }

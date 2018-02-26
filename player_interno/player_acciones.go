@@ -224,9 +224,12 @@ func playInstantaneos(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var win winamp.Winamp
 	//Reproducimos el mensaje instantaneo
+	fmt.Println(r.Form)
 	st := win.PlayFFplay(msg_files_location + r.FormValue("instantaneos"))
+	fmt.Println(st)
 	if st == "END" {
-		fmt.Fprint(w, "FinMensaje")
+		fmt.Fprint(w, "<div class='text-success'>Mensaje Reproducido</div>")
+		fmt.Println("llego aquí")
 	}
 }
 
