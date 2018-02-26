@@ -90,8 +90,6 @@ func saveListInBD() {
 	for {
 		//Comprobar que existe el fichero de configuracion de la tienda
 		existe := libs.Existencia(configShop)
-		//Fecha actual
-		fecha := libs.MyCurrentDate()
 		//Si el fichero de configuracion existe, enviamos dominio/os de la tienda
 		if existe == true {
 			if block == false {
@@ -121,7 +119,8 @@ func saveListInBD() {
 								separar := strings.Split(publi, "<=>")
 								f_pub := separar[0]
 								fecha_ini := separar[1]
-								gap := separar[2]
+								fecha_fin := separar[2]
+								gap := separar[3]
 								//Comprobamos si existen los ficheros de publi en la BD interna
 								publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
 								if errS != nil {
@@ -138,11 +137,11 @@ func saveListInBD() {
 									if err != nil {
 										//NO lo tiene, se guarda en la BD de player con el estado en N.
 										if os.IsNotExist(err) {
-											insert_publi(f_pub, "N", fecha_ini, gap)
+											insert_publi(f_pub, "N", fecha_ini, fecha_fin, gap)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										insert_publi(f_pub, "Y", fecha_ini, gap)
+										insert_publi(f_pub, "Y", fecha_ini, fecha_fin, gap)
 									}
 								}
 							}
@@ -159,7 +158,8 @@ func saveListInBD() {
 								separar := strings.Split(publi, "<=>")
 								f_pub := separar[0]
 								fecha_ini := separar[1]
-								gap := separar[2]
+								fecha_fin := separar[2]
+								gap := separar[3]
 								//Comprobamos si existen los ficheros de publi en la BD interna
 								publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
 								if errS != nil {
@@ -176,11 +176,11 @@ func saveListInBD() {
 									if err != nil {
 										//NO lo tiene, se guarda en la BD de player con el estado en N.
 										if os.IsNotExist(err) {
-											insert_publi(f_pub, "N", fecha_ini, gap)
+											insert_publi(f_pub, "N", fecha_ini, fecha_fin, gap)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										insert_publi(f_pub, "Y", fecha_ini, gap)
+										insert_publi(f_pub, "Y", fecha_ini, fecha_fin, gap)
 									}
 								}
 							}
@@ -190,7 +190,9 @@ func saveListInBD() {
 								//Separamos entre nombre y playtime de los mensajes
 								separar := strings.Split(msg, "<=>")
 								msgname := separar[0]
-								playtime := separar[1]
+								fecha_ini := separar[1]
+								fecha_fin := separar[2]
+								playtime := separar[3]
 								//Comprobamos si existen los mensajes en la BD interna
 								mensajes, errS := db.Query("SELECT * FROM mensaje WHERE fichero=?", msgname)
 								if errS != nil {
@@ -207,11 +209,11 @@ func saveListInBD() {
 									if err != nil {
 										//NO lo tiene, se guarda en la BD de player con el estado en N.
 										if os.IsNotExist(err) {
-											insert_msg(msgname, playtime, "N", fecha)
+											insert_msg(msgname, "N", fecha_ini, fecha_fin, playtime)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										insert_msg(msgname, playtime, "Y", fecha)
+										insert_msg(msgname, "Y", fecha_ini, fecha_fin, playtime)
 									}
 								}
 							}
@@ -227,7 +229,9 @@ func saveListInBD() {
 								//Separamos entre nombre de mensaje y playtime del mensaje
 								separar := strings.Split(msg, "<=>")
 								msgname := separar[0]
-								playtime := separar[1]
+								fecha_ini := separar[1]
+								fecha_fin := separar[2]
+								playtime := separar[3]
 								mensajes, errS := db.Query("SELECT * FROM mensaje WHERE fichero=?", msgname)
 								if errS != nil {
 									Error.Println(errS)
@@ -243,11 +247,11 @@ func saveListInBD() {
 									//NO lo tiene, se guarda en la BD de player con el estado en N.
 									if err != nil {
 										if os.IsNotExist(err) {
-											insert_msg(msgname, playtime, "N", fecha)
+											insert_msg(msgname, "N", fecha_ini, fecha_fin, playtime)
 										}
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
-										insert_msg(msgname, playtime, "Y", fecha)
+										insert_msg(msgname, "Y", fecha_ini, fecha_fin, playtime)
 									}
 								}
 							}
@@ -268,74 +272,80 @@ func solicitudDeFicheros() {
 			//Sacamos la fecha actual
 			fecha := libs.MyCurrentDate()
 			//Busqueda fichero de publicidad y existencia del mismo por fecha actual
-			publiQ, err := db.Query("SELECT fichero, existe, fecha_ini, gap FROM publi WHERE fecha_ini=?", fecha)
+			publiQ, err := db.Query("SELECT fichero, existe, fecha_ini, fecha_fin, gap FROM publi")
 			if err != nil {
 				Error.Println(err)
 			}
 			for publiQ.Next() {
-				var fichero, exist, fecha_ini, gap string
+				var fichero, exist, fecha_ini, fecha_fin, gap string
 				//Tomamos el nombre del fichero de publicidad y su existencia
-				err = publiQ.Scan(&fichero, &exist, &fecha_ini, &gap)
+				err = publiQ.Scan(&fichero, &exist, &fecha_ini, &fecha_fin, &gap)
 				if err != nil {
 					Error.Println(err)
 				}
-				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "gap;"+gap))
-				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
-				if respuesta == "Descarga" {
-					b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
-					//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
-					if err != nil || b == 0 {
-						Error.Println(err)
-					}
-					//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
-					if b != 0 || err == nil {
-						//Cambiamos el estado del fichero de publicidad en BD, a existe.
-						ok, err := db.Prepare("UPDATE publi SET existe=? WHERE fichero = ?")
-						if err != nil {
+				//BETWEEN
+				if fecha_ini >= fecha && fecha_fin <= fecha {
+					respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "fecha_fin;"+fecha_fin, "gap;"+gap))
+					//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
+					if respuesta == "Descarga" {
+						b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=publicidad", publi_files_location+fichero, 0, 1000)
+						//bytes igual a 0 o error diferente de nulo: la descarga ha ido mal
+						if err != nil || b == 0 {
 							Error.Println(err)
 						}
-						db_mu.Lock()
-						_, err1 := ok.Exec("Y", fichero)
-						db_mu.Unlock()
-						if err1 != nil {
-							Error.Println(err1)
+						//bytes distintos de 0 o error igual a nulo: la descarga se ha realizado correctamente.
+						if b != 0 || err == nil {
+							//Cambiamos el estado del fichero de publicidad en BD, a existe.
+							ok, err := db.Prepare("UPDATE publi SET existe=? WHERE fichero = ?")
+							if err != nil {
+								Error.Println(err)
+							}
+							db_mu.Lock()
+							_, err1 := ok.Exec("Y", fichero)
+							db_mu.Unlock()
+							if err1 != nil {
+								Error.Println(err1)
+							}
 						}
 					}
 				}
 			}
 			//Busqueda fichero de mensaje y existencia del mismo por fecha actual
-			msgQ, err := db.Query("SELECT fichero, existe FROM mensaje WHERE fecha=?", fecha)
+			msgQ, err := db.Query("SELECT fichero, existe, fecha_ini, fecha_fin, playtime FROM mensaje")
 			if err != nil {
 				Error.Println(err)
 			}
 			for msgQ.Next() {
-				var fichero, exist string
+				var fichero, exist, fecha_ini, fecha_fin, playtime string
 				//Tomamos el nombre del fichero mensaje y su existencia
-				err = msgQ.Scan(&fichero, &exist)
+				err = msgQ.Scan(&fichero, &exist, &fecha_ini, &fecha_fin, &playtime)
 				if err != nil {
 					Error.Println(err)
 				}
-				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist))
-				//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
-				if respuesta == "Descarga" {
-					b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
-					if err != nil {
-						Error.Println(err)
-					}
-					//bytes igual a 0: la descarga ha ido mal
-					if b == 0 {
-						Error.Println("Size Zero: NO se ha descargado el fichero")
-					} else { //la descarga se ha realizado correctamente.
-						//Cambiamos el estado del fichero de mensaje en BD, a existe.
-						ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE fichero = ?")
+				//BETWEEN
+				if fecha_ini >= fecha && fecha_fin <= fecha {
+					respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "fecha_fin;"+fecha_fin, "playtime;"+playtime))
+					//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
+					if respuesta == "Descarga" {
+						b, err := libs.DownloadFile(settings["serverinterno"]+"/"+fichero+"?accion=mensaje", msg_files_location+fichero, 0, 1000)
 						if err != nil {
 							Error.Println(err)
 						}
-						db_mu.Lock()
-						_, err1 := ok.Exec("Y", fichero)
-						db_mu.Unlock()
-						if err1 != nil {
-							Error.Println(err1)
+						//bytes igual a 0: la descarga ha ido mal
+						if b == 0 {
+							Error.Println("Size Zero: NO se ha descargado el fichero")
+						} else { //la descarga se ha realizado correctamente.
+							//Cambiamos el estado del fichero de mensaje en BD, a existe.
+							ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE fichero = ?")
+							if err != nil {
+								Error.Println(err)
+							}
+							db_mu.Lock()
+							_, err1 := ok.Exec("Y", fichero)
+							db_mu.Unlock()
+							if err1 != nil {
+								Error.Println(err1)
+							}
 						}
 					}
 				}
@@ -384,13 +394,13 @@ func estado_de_entidad() {
 }
 
 //Inserta la publicidad en la base de datos de la tienda
-func insert_publi(f_pub, existe, fecha_ini, gap string) {
-	stm, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `gap`) VALUES (?,?,?,?)")
+func insert_publi(f_pub, existe, fecha_ini, fecha_fin, gap string) {
+	stm, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?)")
 	if err != nil {
 		Error.Println(err)
 	}
 	db_mu.Lock()
-	_, err1 := stm.Exec(f_pub, existe, fecha_ini, gap)
+	_, err1 := stm.Exec(f_pub, existe, fecha_ini, fecha_fin, gap)
 	db_mu.Unlock()
 	if err1 != nil {
 		Error.Println(err1)
@@ -398,13 +408,13 @@ func insert_publi(f_pub, existe, fecha_ini, gap string) {
 }
 
 //Inserta los mensajes en la base de datos de la tienda
-func insert_msg(msgname, playtime, existe, fecha string) {
-	stm, err := db.Prepare("INSERT INTO mensaje (`fichero`, `playtime`, `existe`, `fecha`) VALUES (?,?,?,?)")
+func insert_msg(msgname, existe, fecha_ini, fecha_fin, playtime string) {
+	stm, err := db.Prepare("INSERT INTO mensaje (`fichero`, `existe`, `fecha_ini`, `fecha_fin`, `playtime`) VALUES (?,?,?,?,?)")
 	if err != nil {
 		Error.Println(err)
 	}
 	db_mu.Lock()
-	_, err1 := stm.Exec(msgname, playtime, existe, fecha)
+	_, err1 := stm.Exec(msgname, existe, fecha_ini, fecha_fin, playtime)
 	db_mu.Unlock()
 	if err1 != nil {
 		Error.Println(err1)

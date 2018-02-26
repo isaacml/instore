@@ -1,7 +1,7 @@
 /*
 Navicat SQLite Data Transfer
 
-Source Server         : tienda&admin
+Source Server         : shop mejorada
 Source Server Version : 30808
 Source Host           : :0
 
@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2018-01-15 10:34:18
+Date: 2018-02-26 04:31:40
 */
 
 PRAGMA foreign_keys = OFF;
@@ -24,10 +24,6 @@ CREATE TABLE "aux" (
 );
 
 -- ----------------------------
--- Records of aux
--- ----------------------------
-
--- ----------------------------
 -- Table structure for horario
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."horario";
@@ -37,24 +33,17 @@ CREATE TABLE "horario" (
 );
 
 -- ----------------------------
--- Records of horario
--- ----------------------------
-
--- ----------------------------
 -- Table structure for mensaje
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."mensaje";
 CREATE TABLE "mensaje" (
 "id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 "fichero"  TEXT(255),
-"playtime"  TEXT(5),
 "existe"  TEXT(1),
-"fecha"  TEXT(10)
+"fecha_ini"  TEXT(10),
+"fecha_fin"  TEXT(10),
+"playtime"  TEXT(5)
 );
-
--- ----------------------------
--- Records of mensaje
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for musica
@@ -69,10 +58,6 @@ CREATE TABLE "musica" (
 );
 
 -- ----------------------------
--- Records of musica
--- ----------------------------
-
--- ----------------------------
 -- Table structure for publi
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."publi";
@@ -81,27 +66,15 @@ CREATE TABLE "publi" (
 "fichero"  TEXT(255),
 "existe"  TEXT(1),
 "fecha_ini"  TEXT(10),
+"fecha_fin"  TEXT(10),
 "gap"  INTEGER
 );
-
--- ----------------------------
--- Records of publi
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for sqlite_sequence
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."sqlite_sequence";
 CREATE TABLE sqlite_sequence(name,seq);
-
--- ----------------------------
--- Records of sqlite_sequence
--- ----------------------------
-INSERT INTO "main"."sqlite_sequence" VALUES ('musica', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('mensaje', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('publi', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('tienda', 0);
-INSERT INTO "main"."sqlite_sequence" VALUES ('usuarios', 0);
 
 -- ----------------------------
 -- Table structure for tienda
@@ -114,10 +87,6 @@ CREATE TABLE "tienda" (
 );
 
 -- ----------------------------
--- Records of tienda
--- ----------------------------
-
--- ----------------------------
 -- Table structure for usuarios
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."usuarios";
@@ -126,7 +95,3 @@ CREATE TABLE "usuarios" (
 "user"  TEXT(25),
 "pass"  TEXT(25)
 );
-
--- ----------------------------
--- Records of usuarios
--- ----------------------------

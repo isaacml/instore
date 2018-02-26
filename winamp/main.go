@@ -278,7 +278,7 @@ func (w *Winamp) PlayFFplay(publi string) string {
 	play := fmt.Sprintf("apps\\ffplay.exe -nodisp %s -autoexit", publi)
 	exec.Command("cmd", "/c", play).Run()
 	//Vuelve a sonar la cancion
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe play").Run()
 	st = "END"
 	return st
 }

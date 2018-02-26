@@ -39,7 +39,7 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 			}
 			//BETWEEN
 			if fecha_ini >= fecha && fecha_fin <= fecha {
-				output += ";" + f_publi + "<=>" + fecha_ini + "<=>" + gap
+				output += ";" + f_publi + "<=>" + fecha_ini + "<=>" + fecha_fin + "<=>" + gap
 			}
 		}
 	}
@@ -57,7 +57,7 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 			}
 			//BETWEEN
 			if fecha_ini >= fecha && fecha_fin <= fecha {
-				output += ";" + f_msg + "<=>" + playtime
+				output += ";" + f_msg + "<=>" + fecha_ini + "<=>" + fecha_fin + "<=>" + playtime
 			}
 		}
 	}
