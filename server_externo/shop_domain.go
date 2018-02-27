@@ -62,5 +62,6 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//Enviamos la cadena
-	fmt.Fprint(w, output) //fmt.Println(output)
+	fmt.Fprint(w, output) 
+	fmt.Println(output)
 }
