@@ -145,7 +145,9 @@
             $("#enviar").click(function(){
                 $("#enviar").hide();
                 $.post("/playInstantaneos.cgi?sid={{sid}}",  $("#testform").serialize(), function(data, status) {
-                    $("#st_inst").html(data);
+                    if (data == "FIN"){
+                        location.reload();
+                    }
                 });
             });
         });
