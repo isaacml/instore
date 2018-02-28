@@ -37,8 +37,9 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
+			fmt.Println("FECHAS: ", fecha_ini, fecha, fecha_fin)
 			//BETWEEN
-			if fecha_ini >= fecha && fecha_fin <= fecha {
+			if fecha_ini <= fecha && fecha_fin >= fecha {
 				output += ";" + f_publi + "<=>" + fecha_ini + "<=>" + fecha_fin + "<=>" + gap
 			}
 		}
@@ -56,12 +57,11 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			//BETWEEN
-			if fecha_ini >= fecha && fecha_fin <= fecha {
+			if fecha_ini <= fecha && fecha_fin >= fecha {
 				output += ";" + f_msg + "<=>" + fecha_ini + "<=>" + fecha_fin + "<=>" + playtime
 			}
 		}
 	}
 	//Enviamos la cadena
-	fmt.Fprint(w, output) 
-	fmt.Println(output)
+	fmt.Fprint(w, output) //fmt.Println(output)
 }

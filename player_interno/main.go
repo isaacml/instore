@@ -284,7 +284,7 @@ func solicitudDeFicheros() {
 					Error.Println(err)
 				}
 				//BETWEEN
-				if fecha_ini >= fecha && fecha_fin <= fecha {
+				if fecha_ini <= fecha && fecha_fin >= fecha {
 					respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;PubliFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "fecha_fin;"+fecha_fin, "gap;"+gap))
 					//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 					if respuesta == "Descarga" {
@@ -323,7 +323,7 @@ func solicitudDeFicheros() {
 					Error.Println(err)
 				}
 				//BETWEEN
-				if fecha_ini >= fecha && fecha_fin <= fecha {
+				if fecha_ini <= fecha && fecha_fin >= fecha {
 					respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/publi_msg.cgi", "action;MsgFiles", "fichero;"+fichero, "existencia;"+exist, "fecha_ini;"+fecha_ini, "fecha_fin;"+fecha_fin, "playtime;"+playtime))
 					//Si en la respuesta obtenemos el valor "Descarga": el player tiene liste el fichero msg para descargarlo
 					if respuesta == "Descarga" {

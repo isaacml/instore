@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
@@ -53,7 +52,6 @@ func reproduccion() {
 			var win winamp.Winamp
 			musica := make(map[int]string)
 			pl := 1
-			fmt.Println(statusProgammedMusic)
 			if statusProgammedMusic == "Inicial" {
 				cont := 0
 				for _, val := range programmedMusic {
@@ -286,7 +284,7 @@ func reproduccion_msgs() {
 				Error.Println(err)
 			}
 			//BETWEEN
-			if fecha_ini >= fecha && fecha_fin <= fecha {
+			if fecha_ini <= fecha && fecha_fin >= fecha {
 				if playtime == clock {
 					var win winamp.Winamp
 					st := win.PlayFFplay(msg_files_location + fichero)
@@ -338,7 +336,7 @@ func publi_q_toca() (map[int]string, int) {
 			Error.Println(err)
 		}
 		//BETWEEN
-		if fecha_ini >= fecha && fecha_fin <= fecha {
+		if fecha_ini <= fecha && fecha_fin >= fecha {
 			publi[p] = fichero
 			p++
 		}
