@@ -37,7 +37,6 @@ func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Println("FECHAS: ", fecha_ini, fecha, fecha_fin)
 			//BETWEEN
 			if fecha_ini <= fecha && fecha_fin >= fecha {
 				output += ";" + f_publi + "<=>" + fecha_ini + "<=>" + fecha_fin + "<=>" + gap
