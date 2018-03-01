@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
@@ -52,6 +53,7 @@ func reproduccion() {
 			var win winamp.Winamp
 			musica := make(map[int]string)
 			pl := 1
+			fmt.Println(statusProgammedMusic)
 			if statusProgammedMusic == "Inicial"{
 				var carpeta string
 				query, err := db.Query("SELECT carpeta FROM musica")

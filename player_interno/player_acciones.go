@@ -195,7 +195,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
-				}	
+				}
 			}
 		}
 	}
@@ -239,26 +239,71 @@ func playInstantaneos(w http.ResponseWriter, r *http.Request) {
 //Programar Musica para la Tienda
 func programarMusica(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	var output string
 	accion := r.FormValue("accion")
 	//Muestra los directorios de musica de la tienda
 	if accion == "show_dirs" {
-		//Abrimos el directorio (C:\instore\Music\)
-		file, err := os.Open(music_files)
-		defer file.Close()
+		var numcarp int
+		var salida string
+		err := db.QueryRow("SELECT count(carpeta) FROM musica").Scan(&numcarp)
 		if err != nil {
 			Error.Println(err)
-			return
 		}
-		musicDirs, err := file.Readdir(0)
-		if err != nil {
-			Error.Println(err)
-			return
-		}
-		for _, val := range musicDirs {
-			if !strings.Contains(val.Name(), ".txt") {
-				output += fmt.Sprintf("<tr><td><input type='checkbox' name='musicDirs' value='%s'></td><td>&nbsp;</td><td>%s</td>", val.Name(), val.Name())
+		if numcarp == 0 {
+			//Abrimos el directorio (C:\instore\Music\)
+			file, err := os.Open(music_files)
+			defer file.Close()
+			if err != nil {
+				Error.Println(err)
+				return
 			}
+			musicDirs, err := file.Readdir(0)
+			if err != nil {
+				Error.Println(err)
+				return
+			}
+			for _, val := range musicDirs {
+				if !strings.Contains(val.Name(), ".txt") {
+					salida += fmt.Sprintf("<tr><td><input type='checkbox' name='musicDirs' value='%s'></td><td>&nbsp;</td><td>%s</td>", val.Name(), val.Name())
+				}
+			}
+			fmt.Fprint(w, salida)
+		} else {
+			var salida string
+			var cadena_salida string
+			//Abrimos el directorio (C:\instore\Music\)
+			file, err := os.Open(music_files)
+			defer file.Close()
+			if err != nil {
+				Error.Println(err)
+				return
+			}
+			musicDirs, err := file.Readdir(0)
+			if err != nil {
+				Error.Println(err)
+				return
+			}
+			query, err := db.Query("SELECT carpeta FROM musica")
+			if err != nil {
+				Error.Println(err)
+			}
+			for query.Next() {
+				var carpeta string
+				err = query.Scan(&carpeta)
+				if err != nil {
+					Error.Println(err)
+				}
+				cadena_salida += carpeta + ";"
+			}
+			for _, val := range musicDirs {
+				if !strings.Contains(val.Name(), ".txt") {
+					if strings.Contains(cadena_salida, val.Name()) {
+						salida += fmt.Sprintf("<tr><td><input type='checkbox' name='musicDirs' value='%s' checked></td><td>&nbsp;</td><td>%s</td>", val.Name(), val.Name())
+					} else {
+						salida += fmt.Sprintf("<tr><td><input type='checkbox' name='musicDirs' value='%s'></td><td>&nbsp;</td><td>%s</td>", val.Name(), val.Name())
+					}
+				}
+			}
+			fmt.Fprint(w, salida)
 		}
 	}
 	//Se recogen los datos de formulario (prog.html)
@@ -284,14 +329,14 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			statusProgammedMusic = "Inicial"
-		}else{
+		} else {
 			//Borramos las carpetas que habían anteriormente
 			db_mu.Lock()
 			_, err = db.Exec("DELETE FROM musica")
 			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
-			}else{
+			} else {
 				for clave, valor := range r.Form {
 					for _, v := range valor {
 						if clave == "musicDirs" {
@@ -305,9 +350,13 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 				}
-				statusProgammedMusic = "Actualizada"
+				if statusProgammedMusic == "Inicial" {
+					statusProgammedMusic = "Actualizada"
+				} else {
+					statusProgammedMusic = "Inicial"
+				}
 			}
 		}
 	}
-	fmt.Fprint(w, output)
+	fmt.Println(statusProgammedMusic)
 }
