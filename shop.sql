@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2018-02-26 04:31:40
+Date: 2018-03-01 06:20:34
 */
 
 PRAGMA foreign_keys = OFF;
@@ -50,11 +50,7 @@ CREATE TABLE "mensaje" (
 -- ----------------------------
 DROP TABLE IF EXISTS "main"."musica";
 CREATE TABLE "musica" (
-"id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-"carpetas"  TEXT(4096),
-"fecha_inicio"  TEXT(10),
-"fecha_final"  TEXT(10),
-"timestamp"  INTEGER
+"carpeta"  TEXT(4096)
 );
 
 -- ----------------------------

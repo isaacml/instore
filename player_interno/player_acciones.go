@@ -123,6 +123,7 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 		if accion == "recoger_horas" {
 			r.ParseForm()
 			var h_ini, h_fin string
+			var err error
 			//Formamos la hora inicial y hora final (para usuario)
 			hora_inicial := r.FormValue("hora1") + ":" + r.FormValue("min1")
 			hora_final := r.FormValue("hora2") + ":" + r.FormValue("min2")
@@ -131,19 +132,19 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 			if h_ini != "" && h_fin != "" {
 				//Borramos los datos que habían anteriormente
 				db_mu.Lock()
-				_, err := db.Exec("DELETE FROM horario")
+				_, err = db.Exec("DELETE FROM horario")
 				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
 				}
 			}
 			//Guardamos en base de datos horario
-			stm, err := db.Prepare("INSERT INTO horario (`hora_inicial`, `hora_final`) VALUES (?,?)")
-			if err != nil {
-				Error.Println(err)
+			stm, err1 := db.Prepare("INSERT INTO horario (`hora_inicial`, `hora_final`) VALUES (?,?)")
+			if err1 != nil {
+				Error.Println(err1)
 			}
 			db_mu.Lock()
-			_, err1 := stm.Exec(hora_inicial, hora_final)
+			_, err1 = stm.Exec(hora_inicial, hora_final)
 			db_mu.Unlock()
 			if err1 != nil {
 				Error.Println(err1)
@@ -159,37 +160,42 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 				if h_ini != "" && h_fin != "" {
 					//Borramos los datos que habían anteriormente
 					db_mu.Lock()
-					_, err := db.Exec("DELETE FROM aux")
+					_, err = db.Exec("DELETE FROM aux")
 					db_mu.Unlock()
 					if err != nil {
 						Error.Println(err)
 					}
 				}
-				//Metemos los nuevos datos
-				_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, 1439)
-				if err1 != nil {
-					Error.Println(err1)
+				db_mu.Lock()
+				_, err = db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, 1439)
+				db_mu.Unlock()
+				if err != nil {
+					Error.Println(err)
 				}
-				_, err2 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", 0, h_fin_int)
-				if err2 != nil {
-					Error.Println(err2)
+				db_mu.Lock()
+				_, err = db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", 0, h_fin_int)
+				db_mu.Unlock()
+				if err != nil {
+					Error.Println(err)
 				}
 			} else {
 				//Se comprueba la existencia de datos en la tabla
 				if h_ini != "" && h_fin != "" {
 					//Borramos los datos que habían anteriormente
 					db_mu.Lock()
-					_, err := db.Exec("DELETE FROM aux")
+					_, err = db.Exec("DELETE FROM aux")
 					db_mu.Unlock()
 					if err != nil {
 						Error.Println(err)
 					}
 				}
+				db_mu.Lock()
 				//Metemos el dato nuevo
-				_, err1 := db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, h_fin_int)
-				if err1 != nil {
-					Error.Println(err1)
-				}
+				_, err = db.Exec("INSERT INTO aux (`hora_inicial`, `hora_final`) VALUES (?,?)", h_ini_int, h_fin_int)
+				db_mu.Unlock()
+				if err != nil {
+					Error.Println(err)
+				}	
 			}
 		}
 	}
@@ -257,45 +263,50 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 	}
 	//Se recogen los datos de formulario (prog.html)
 	if accion == "enviar" {
-		cont := 0
-		if len(programmedMusic) == 0 {
+		var num_carp int
+		var err error
+		err = db.QueryRow("SELECT count(carpeta) FROM musica").Scan(&num_carp)
+		if err != nil {
+			Error.Println(err)
+		}
+		if num_carp == 0 {
 			for clave, valor := range r.Form {
 				for _, v := range valor {
 					if clave == "musicDirs" {
 						db_mu.Lock()
-						//Guardamos cada una de los directorios seleccionadas
-						programmedMusic[cont] = v
-						statusProgammedMusic = "Inicial"
+						//Guardamos cada una de los directorios seleccionadas en la BD
+						_, err = db.Exec("INSERT INTO musica (`carpeta`) VALUES (?)", v)
 						db_mu.Unlock()
+						if err != nil {
+							Error.Println(err)
+						}
 					}
-					cont++
 				}
 			}
-		} else {
-			var status string
-			//Borramos los antiguos directorios programados
-			for k, _ := range programmedMusic {
-				delete(programmedMusic, k)
-			}
-			//Añadimos los nuevos directorios
-			for clave, valor := range r.Form {
-				for _, v := range valor {
-					if clave == "musicDirs" {
-						db_mu.Lock()
-						//Guardamos cada una de las carpetas seleccionadas
-						programmedMusic[cont] = v
-						if statusProgammedMusic == "Inicial" {
-							status = "Actualizada"
+			statusProgammedMusic = "Inicial"
+		}else{
+			//Borramos las carpetas que habían anteriormente
+			db_mu.Lock()
+			_, err = db.Exec("DELETE FROM musica")
+			db_mu.Unlock()
+			if err != nil {
+				Error.Println(err)
+			}else{
+				for clave, valor := range r.Form {
+					for _, v := range valor {
+						if clave == "musicDirs" {
+							db_mu.Lock()
+							//Guardamos cada una de los directorios seleccionadas en la BD
+							_, err = db.Exec("INSERT INTO musica (`carpeta`) VALUES (?)", v)
+							db_mu.Unlock()
+							if err != nil {
+								Error.Println(err)
+							}
 						}
-						if statusProgammedMusic == "Actualizada" {
-							status = "Inicial"
-						}
-						db_mu.Unlock()
 					}
-					cont++
 				}
+				statusProgammedMusic = "Actualizada"
 			}
-			statusProgammedMusic = status
 		}
 	}
 	fmt.Fprint(w, output)

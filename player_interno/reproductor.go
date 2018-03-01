@@ -52,11 +52,20 @@ func reproduccion() {
 			var win winamp.Winamp
 			musica := make(map[int]string)
 			pl := 1
-			if statusProgammedMusic == "Inicial" {
+			if statusProgammedMusic == "Inicial"{
+				var carpeta string
+				query, err := db.Query("SELECT carpeta FROM musica")
+				if err != nil {
+					Error.Println(err)
+				}
 				cont := 0
-				for _, val := range programmedMusic {
+				for query.Next() {
+					err = query.Scan(&carpeta)
+					if err != nil {
+						Error.Println(err)
+					}
 					//generamos la ruta completa a esas carpetas
-					full_route := music_files + val + "\\"
+					full_route := music_files + carpeta + "\\"
 					arr_music := libs.MusicToPlay(full_route, st_music)
 					for _, v := range arr_music {
 						musica[cont] = v
@@ -123,10 +132,19 @@ func reproduccion() {
 					pl++
 				}
 			} else if statusProgammedMusic == "Actualizada" {
+				var carpeta string
+				query, err := db.Query("SELECT carpeta FROM musica")
+				if err != nil {
+					Error.Println(err)
+				}
 				cont := 0
-				for _, val := range programmedMusic {
+				for query.Next() {
+					err = query.Scan(&carpeta)
+					if err != nil {
+						Error.Println(err)
+					}
 					//generamos la ruta completa a esas carpetas
-					full_route := music_files + val + "\\"
+					full_route := music_files + carpeta + "\\"
 					arr_music := libs.MusicToPlay(full_route, st_music)
 					for _, v := range arr_music {
 						musica[cont] = v
