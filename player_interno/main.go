@@ -388,7 +388,7 @@ func estado_de_entidad() {
 			block = true
 			db_mu.Unlock()
 		}
-		time.Sleep(5 * time.Minute)
+		time.Sleep(43200 * time.Minute) //30 dias
 	}
 }
 
