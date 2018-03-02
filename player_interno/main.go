@@ -362,11 +362,7 @@ func estado_de_entidad() {
 		//Nos quedamos con el ent[0] que contiende el nombre de la entidad.
 		ent := strings.Split(dom, ".")
 		res := libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;check_entidad", "ent;"+ent[0])
-		db_mu.Lock()
-		//Guarda el estado de activo de la entidad: 0 - OFF / 1 - ON
-		estado_entidad, _ := strconv.Atoi(res)
-		db_mu.Unlock()
-		if estado_entidad == 1 { //ON
+		if res == "" {
 			var last_connect int64
 			var seg_del_mes int64
 			year, mes, _ := time.Now().Date()
@@ -374,7 +370,6 @@ func estado_de_entidad() {
 			dias_del_mes := libs.DaysIn(mes, year)
 			//total de dias * segundos que tiene un dia
 			seg_del_mes = dias_del_mes * segs_of_day
-			//Tomamos la ultima conexion de la tienda
 			db.QueryRow("SELECT last_connect FROM tienda WHERE dominio=?", dom).Scan(&last_connect)
 			db_mu.Lock()
 			if last_connect-(timestamp-seg_del_mes) < 0 {
@@ -383,12 +378,32 @@ func estado_de_entidad() {
 				block = false
 			}
 			db_mu.Unlock()
-		} else { //OFF
-			db_mu.Lock()
-			block = true
-			db_mu.Unlock()
+		} else {
+			//Guarda el estado de activo de la entidad: 0 - OFF / 1 - ON
+			estado_entidad, _ := strconv.Atoi(res)
+			//Dominio principal de la tienda guardado en el fichero de configuracion
+			domain := libs.MainDomain(configShop)
+			if estado_entidad == 1 {
+				timestamp := time.Now().Unix()
+				db_mu.Lock()
+				_, err1 := db.Exec("UPDATE tienda SET last_connect = ? WHERE dominio = ?", timestamp, domain)
+				db_mu.Unlock()
+				if err1 != nil {
+					Error.Println(err1)
+				}
+				block = false
+			}
+			if estado_entidad == 0 {
+				db_mu.Lock()
+				_, err1 := db.Exec("UPDATE tienda SET last_connect = ? WHERE dominio = ?", 1000, domain)
+				db_mu.Unlock()
+				if err1 != nil {
+					Error.Println(err1)
+				}
+				block = true
+			}
 		}
-		time.Sleep(43200 * time.Minute) //30 dias
+		time.Sleep(5 * time.Minute)
 	}
 }
 
