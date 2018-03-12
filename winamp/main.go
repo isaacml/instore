@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Winamp struct {
@@ -232,7 +233,10 @@ func (w *Winamp) PlayFFplay(publi string) string {
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
 	//Reproduzco la publicidad del ffplay
 	play := fmt.Sprintf("apps\\ffplay.exe -nodisp %s -autoexit", publi)
-	exec.Command("cmd", "/c", play).Run()
+	exec.Command("cmd", "/c", play).Start()
+	//tiempo que esperamos a que suene el mensaje
+	tiempo_espera := w.SongLenght(publi)
+	time.Sleep(time.Duration(tiempo_espera) * time.Second)
 	//Vuelve a sonar la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
 	return "END"
