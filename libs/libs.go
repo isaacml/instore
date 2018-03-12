@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"database/sql"
 )
 
 /*
@@ -747,4 +748,15 @@ func Min2hour(mm int) (int, int) {
 	hh := int(mm / 60)
 	min := mm % 60
 	return hh, min
+}
+
+func St_Prog_Music (db *sql.DB) (string, error) {
+	var err error
+	var st_prog string
+	err = db.QueryRow("SELECT estado FROM st_prog_music").Scan(&st_prog)
+	if err != nil {
+		err = fmt.Errorf("Fail Prog: fail to read status prog")
+		return "Fail", err
+	}
+	return st_prog, nil
 }
