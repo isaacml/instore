@@ -328,6 +328,12 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+			db_mu.Lock()
+			_, err = db.Exec("INSERT INTO st_prog_music (`estado`) VALUES (?)", "PrimerCambio")
+			db_mu.Unlock()
+			if err != nil {
+				Error.Println(err)
+			}
 		} else {
 			//Borramos las carpetas que habían anteriormente
 			db_mu.Lock()
@@ -354,14 +360,7 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					Error.Println(err)
 				}
-				if st_prog == "" {
-					db_mu.Lock()
-					_, err = db.Exec("UPDATE st_prog_music SET estado=?", "PrimerCambio")
-					db_mu.Unlock()
-					if err != nil {
-						Error.Println(err)
-					}
-				} else if st_prog == "PrimerCambio" {
+				if st_prog == "PrimerCambio" {
 					db_mu.Lock()
 					_, err = db.Exec("UPDATE st_prog_music SET estado=?", "SegundoCambio")
 					db_mu.Unlock()
@@ -370,7 +369,14 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 					}
 				} else if st_prog == "SegundoCambio" {
 					db_mu.Lock()
-					_, err := db.Exec("UPDATE st_prog_music SET estado=?", "PrimerCambio")
+					_, err := db.Exec("UPDATE st_prog_music SET estado=?", "TercerCambio")
+					db_mu.Unlock()
+					if err != nil {
+						Error.Println(err)
+					}
+				} else if st_prog == "TercerCambio" {
+					db_mu.Lock()
+					_, err := db.Exec("UPDATE st_prog_music SET estado=?", "SegundoCambio")
 					db_mu.Unlock()
 					if err != nil {
 						Error.Println(err)

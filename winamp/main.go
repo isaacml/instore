@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
+	//"time"
 )
 
 type Winamp struct {
@@ -229,15 +229,19 @@ func (w *Winamp) SongLenght(file string) int {
 
 // Metodo que introduce la publicidad por ffplay
 func (w *Winamp) PlayFFplay(publi string) string {
+	var gen_bat string
 	//Paramos la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
-	//Reproduzco la publicidad del ffplay
-	play := fmt.Sprintf("apps\\ffplay.exe -nodisp %s -autoexit", publi)
-	exec.Command("cmd", "/c", play).Start()
-	//tiempo que esperamos a que suene el mensaje
-	tiempo_espera := w.SongLenght(publi)
-	fmt.Println(tiempo_espera)
-	time.Sleep(time.Duration(tiempo_espera) * time.Second)
+	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
+	msg_file, err := os.Create("msg_file.bat")
+	if err != nil {
+		err = fmt.Errorf("msg_file: CANNOT CREATE MSG FILE")
+	}
+	defer msg_file.Close()
+	gen_bat = "@echo off\r\napps\\ffplay.exe -nodisp \"" + publi + "\" -autoexit"
+	msg_file.WriteString(gen_bat)
+	//Una vez creado el fichero, lo ejecutamos (se reproduce el mensaje)
+	exec.Command("cmd", "/c", "msg_file.bat").Run()
 	//Vuelve a sonar la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
 	return "END"

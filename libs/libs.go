@@ -3,6 +3,7 @@ package libs
 import (
 	"bufio"
 	"bytes"
+	"database/sql"
 	"fmt"
 	"github.com/todostreaming/ratelimit"
 	"io"
@@ -15,7 +16,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"database/sql"
 )
 
 /*
@@ -750,13 +750,19 @@ func Min2hour(mm int) (int, int) {
 	return hh, min
 }
 
-func St_Prog_Music (db *sql.DB) (string, error) {
+func St_Prog_Music(db *sql.DB) (string, error) {
 	var err error
+	var cont int
 	var st_prog string
-	err = db.QueryRow("SELECT estado FROM st_prog_music").Scan(&st_prog)
-	if err != nil {
-		err = fmt.Errorf("Fail Prog: fail to read status prog")
-		return "Fail", err
+	db.QueryRow("SELECT count(estado) FROM st_prog_music").Scan(&cont)
+	fmt.Println("Cantidad del estado", cont)
+	if cont == 0 {
+		st_prog = ""
+	} else {
+		err = db.QueryRow("SELECT estado FROM st_prog_music").Scan(&st_prog)
+		if err != nil {
+			err = fmt.Errorf("Fail Prog: fail to read status prog")
+		}
 	}
-	return st_prog, nil
+	return st_prog, err
 }
