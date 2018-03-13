@@ -236,6 +236,7 @@ func (w *Winamp) PlayFFplay(publi string) string {
 	exec.Command("cmd", "/c", play).Start()
 	//tiempo que esperamos a que suene el mensaje
 	tiempo_espera := w.SongLenght(publi)
+	fmt.Println(tiempo_espera)
 	time.Sleep(time.Duration(tiempo_espera) * time.Second)
 	//Vuelve a sonar la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
