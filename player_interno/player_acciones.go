@@ -218,7 +218,7 @@ func instantaneos(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, val := range ficheros {
 		//Tomamos solamente ficheros MP3
-		if strings.Contains(val.Name(), ".mp3") {
+		if strings.Contains(val.Name(), ".mp3") || strings.Contains(val.Name(), ".wma") {
 			//Formamos el select
 			output += fmt.Sprintf("<option value='%s'>%s</option>", val.Name(), val.Name())
 		}

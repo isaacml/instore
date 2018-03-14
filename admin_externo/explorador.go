@@ -238,7 +238,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, val := range ficheros {
-			if strings.Contains(val.Name(), ".mp3") {
+			if strings.Contains(val.Name(), ".mp3") || strings.Contains(val.Name(), ".wma") {
 				output += fmt.Sprintf("<option style='color: #0000CC' value='%s'>%s</option>", val.Name(), val.Name())
 			}
 		}

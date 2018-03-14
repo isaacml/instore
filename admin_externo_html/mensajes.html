@@ -209,7 +209,8 @@
                                 </div>
                                 <div class="form-group" id="dest_stat"></div>
                                 <br>
-                                <div class="form-group">
+                                <h5 class="text-muted">Hora de Reproducción <a href='#' onclick='show_hour()' title='Pulsa para añadir horario'><span class='fa fa-edit'></a></h5>
+                                <div id="show_hour" class="form-group">
                                     <table>
                                         <tr>
                                             <td>Hora</td>
@@ -241,6 +242,7 @@
         $("#dest_noadmin").hide();
         $("#dest_admin").hide();
         $("#dest_stat").hide();
+        $("#show_hour").hide();
         $.post("/acciones.cgi?sid={{sid}}&accion=bitmap_perm", function(data, status) {
             var res = data.split(";");
             if (res[0] == 0){
@@ -260,12 +262,6 @@
                 $("#organizaciones").hide();
             }
         });
-        $.post("/acciones.cgi?sid={{sid}}&accion=horas_msg", function(data, status) {
-    		$("#hora").html(data);
-		});
-        $.post("/acciones.cgi?sid={{sid}}&accion=minutos_msg", function(data, status) {
-    		$("#minutos").html(data);
-		});
         $.post("/explorer.cgi?sid={{sid}}&action=unidades",  $("#testform").serialize(), function(data, status) {
     		$("#unidades").html(data);
 		});
@@ -331,6 +327,20 @@
         });
         ////////////////////// FIN ZONA DE DESTINOS //////////////////////
 	});
+    //Show Hour for Msg
+	function show_hour(){
+        if ($("#show_hour").is(':hidden')){
+            $("#show_hour").show();
+            $.post("/acciones.cgi?sid={{sid}}&accion=horas_msg", function(data, status) {
+                $("#hora").html(data);
+            });
+            $.post("/acciones.cgi?sid={{sid}}&accion=minutos_msg", function(data, status) {
+                $("#minutos").html(data);
+            });
+        } else {
+            $("#show_hour").hide();
+        }
+    }
 	</script>
 </body>
 </html>
