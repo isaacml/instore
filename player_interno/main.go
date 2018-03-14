@@ -23,7 +23,6 @@ var (
 	db_mu                sync.RWMutex
 	settings             map[string]string = make(map[string]string) //Guarda los settings de la tienda
 	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
-	//statusProgammedMusic string                                      //Estado de la programacion: Inicial, Actualizada o Modificar
 	block                bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
 	schedule             bool                                        //Guarda el estado que genera el horario de reproducción (true: reproduce | false: no reproduce)
 )

@@ -755,7 +755,6 @@ func St_Prog_Music(db *sql.DB) (string, error) {
 	var cont int
 	var st_prog string
 	db.QueryRow("SELECT count(estado) FROM st_prog_music").Scan(&cont)
-	fmt.Println("Cantidad del estado", cont)
 	if cont == 0 {
 		st_prog = ""
 	} else {
