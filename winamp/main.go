@@ -231,7 +231,7 @@ func (w *Winamp) SongLenght(file string) int {
 func (w *Winamp) PlayFFplay(publi string) string {
 	var gen_bat string
 	//Paramos la cancion
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
 	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
 	msg_file, err := os.Create("msg_file.bat")
 	if err != nil {
@@ -240,9 +240,11 @@ func (w *Winamp) PlayFFplay(publi string) string {
 	defer msg_file.Close()
 	gen_bat = "@echo off\r\napps\\ffplay.exe -nodisp \"" + publi + "\" -autoexit"
 	msg_file.WriteString(gen_bat)
+	fmt.Println("bajo volumen")
 	//Una vez creado el fichero, lo ejecutamos (se reproduce el mensaje)
 	exec.Command("cmd", "/c", "msg_file.bat").Run()
+	fmt.Println("subo volumen")
 	//Vuelve a sonar la cancion
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe pause").Run()
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
 	return "END"
 }
