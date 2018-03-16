@@ -240,10 +240,8 @@ func (w *Winamp) PlayFFplay(publi string) string {
 	defer msg_file.Close()
 	gen_bat = "@echo off\r\napps\\ffplay.exe -nodisp \"" + publi + "\" -autoexit"
 	msg_file.WriteString(gen_bat)
-	fmt.Println("bajo volumen")
 	//Una vez creado el fichero, lo ejecutamos (se reproduce el mensaje)
 	exec.Command("cmd", "/c", "msg_file.bat").Run()
-	fmt.Println("subo volumen")
 	//Vuelve a sonar la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
 	return "END"

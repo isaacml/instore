@@ -132,26 +132,26 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 	if accion == "tabla_tienda" {
 		var id, creador_id int
 		var tiempo int64
-		var provincia, tienda, address, phone, extra string
+		var provincia, region, pais, almacen, tienda, address, phone, extra string
 		username := r.FormValue("username")
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
 		if err != nil {
 			Error.Println(err)
 		}
-		query, err := db.Query("SELECT tiendas.id, tiendas.tienda, tiendas.timestamp, provincia.provincia, tiendas.address, tiendas.phone, tiendas.extra FROM tiendas INNER JOIN provincia ON tiendas.provincia_id = provincia.id WHERE tiendas.creador_id = ?", creador_id)
+		query, err := db.Query("SELECT tiendas.id, tiendas.tienda, tiendas.timestamp, provincia.provincia, region.region, pais.pais, almacenes.almacen, tiendas.address, tiendas.phone, tiendas.extra FROM tiendas INNER JOIN provincia ON tiendas.provincia_id = provincia.id INNER JOIN region ON region.id = provincia.region_id INNER JOIN pais ON region.pais_id = pais.id INNER JOIN almacenes ON almacenes.id = pais.almacen_id WHERE tiendas.creador_id = ?", creador_id)
 		if err != nil {
 			Warning.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &tienda, &tiempo, &provincia, &address, &phone, &extra)
+			err = query.Scan(&id, &tienda, &tiempo, &provincia, &region, &pais, &almacen, &address, &phone, &extra)
 			if err != nil {
 				Error.Println(err)
 			}
 			//Se obtiene la fecha de creacion de un almacen
 			f_creacion := libs.FechaCreacion(tiempo)
 			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar tienda'>%s</a><a href='#' onclick='borrar(%d)' title='Borrar tienda' style='float:right'>"
-			cadena += "<span class='fa fa-trash-o'></a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
-			fmt.Fprintf(w, cadena, id, tienda, id, f_creacion, provincia, address, phone, extra)
+			cadena += "<span class='fa fa-trash-o'></a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
+			fmt.Fprintf(w, cadena, id, tienda, id, f_creacion, provincia, region, pais, almacen, address, phone, extra)
 		}
 	}
 	//CARGA LOS DATOS DE UNA TIENDA EN UN FORMULARIO

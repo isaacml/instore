@@ -126,18 +126,18 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 	if accion == "tabla_provincia" {
 		var id, creador_id int
 		var tiempo int64
-		var provincia, region string
+		var provincia, region, pais, almacen string
 		username := r.FormValue("username")
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
 		if err != nil {
 			Error.Println(err)
 		}
-		query, err := db.Query("SELECT provincia.id, provincia.provincia, provincia.timestamp, region.region FROM provincia INNER JOIN region ON provincia.region_id = region.id WHERE provincia.creador_id = ?", creador_id)
+		query, err := db.Query("SELECT provincia.id, provincia.provincia, provincia.timestamp, region.region, pais.pais, almacenes.almacen FROM provincia INNER JOIN region ON provincia.region_id = region.id INNER JOIN pais ON region.pais_id = pais.id INNER JOIN almacenes ON almacenes.id = pais.almacen_id WHERE provincia.creador_id = ?", creador_id)
 		if err != nil {
 			Warning.Println(err)
 		}
 		for query.Next() {
-			err = query.Scan(&id, &provincia, &tiempo, &region)
+			err = query.Scan(&id, &provincia, &tiempo, &region, &pais, &almacen)
 			if err != nil {
 				Error.Println(err)
 			}
@@ -145,8 +145,8 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			f_creacion := libs.FechaCreacion(tiempo)
 			cadena := "<tr class='odd gradeX'><td><a href='#' onclick='load(%d)' title='Pulsa para editar provincia'>%s</a>"
 			cadena += "<a href='#' onclick='borrar(%d)' title='Borrar provincia' style='float:right'><span class='fa fa-trash-o'></a></td>"
-			cadena += "<td>%s</td><td>%s</td></tr>"
-			fmt.Fprintf(w, cadena, id, provincia, id, f_creacion, region)
+			cadena += "<td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
+			fmt.Fprintf(w, cadena, id, provincia, id, f_creacion, region, pais, almacen)
 		}
 	}
 	//CARGA LOS DATOS DE UNA PROVINCIA EN UN FORMULARIO
