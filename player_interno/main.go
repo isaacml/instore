@@ -16,15 +16,15 @@ import (
 )
 
 var (
-	Info                 *log.Logger
-	Warning              *log.Logger
-	Error                *log.Logger
-	db                   *sql.DB
-	db_mu                sync.RWMutex
-	settings             map[string]string = make(map[string]string) //Guarda los settings de la tienda
-	capacidad_arr        int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
-	block                bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
-	schedule             bool                                        //Guarda el estado que genera el horario de reproducción (true: reproduce | false: no reproduce)
+	Info          *log.Logger
+	Warning       *log.Logger
+	Error         *log.Logger
+	db            *sql.DB
+	db_mu         sync.RWMutex
+	settings      map[string]string = make(map[string]string) //Guarda los settings de la tienda
+	capacidad_arr int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
+	block         bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
+	schedule      bool                                        //Guarda el estado que genera el horario de reproducción (true: reproduce | false: no reproduce)
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -98,7 +98,7 @@ func saveListInBD() {
 					dominios += val + ":.:"
 				}
 				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
-				//fmt.Println("La respuesta: ", respuesta)
+				fmt.Println("La respuesta: ", respuesta)
 				//Si la respuesta NO está vacía, comprobamos la respuesta.
 				if respuesta != "" {
 					//De la respuesta obtenemos el listado de mensajes y publicidad
@@ -185,6 +185,7 @@ func saveListInBD() {
 							//FICHEROS de MENSAJES
 							for _, msg := range f_mensajes {
 								var cont int
+								var bd_playtime, bd_f_ini, bd_f_fin string
 								//Separamos entre nombre y playtime de los mensajes
 								separar := strings.Split(msg, "<=>")
 								msgname := separar[0]
@@ -192,13 +193,9 @@ func saveListInBD() {
 								fecha_fin := separar[2]
 								playtime := separar[3]
 								//Comprobamos si existen los mensajes en la BD interna
-								mensajes, errS := db.Query("SELECT * FROM mensaje WHERE fichero=?", msgname)
+								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, playtime FROM mensaje WHERE fichero=?", msgname).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_playtime)
 								if errS != nil {
 									Error.Println(errS)
-								}
-								//Si existe, el contador incrementará
-								for mensajes.Next() {
-									cont++
 								}
 								//Contador = 0 --> La BD interna no tiene el mensaje
 								if cont == 0 {
@@ -213,6 +210,10 @@ func saveListInBD() {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
 										insert_msg(msgname, "Y", fecha_ini, fecha_fin, playtime)
 									}
+								} else {
+									if bd_playtime != playtime || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
+										update_msg(msgname, fecha_ini, fecha_fin, playtime)
+									}
 								}
 							}
 						}
@@ -224,19 +225,16 @@ func saveListInBD() {
 							mensajes := strings.Split(separar_mensaje[1], ";")
 							for _, msg := range mensajes {
 								var cont int
+								var bd_playtime, bd_f_ini, bd_f_fin string
 								//Separamos entre nombre de mensaje y playtime del mensaje
 								separar := strings.Split(msg, "<=>")
 								msgname := separar[0]
 								fecha_ini := separar[1]
 								fecha_fin := separar[2]
 								playtime := separar[3]
-								mensajes, errS := db.Query("SELECT * FROM mensaje WHERE fichero=?", msgname)
+								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, playtime FROM mensaje WHERE fichero=?", msgname).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_playtime)
 								if errS != nil {
 									Error.Println(errS)
-								}
-								//Si el mensaje existe, el contador se incrementará
-								for mensajes.Next() {
-									cont++
 								}
 								//contador = 0 --> no existe el mensaje en BD, por lo tanto vamos a añadirlo.
 								if cont == 0 {
@@ -250,6 +248,10 @@ func saveListInBD() {
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
 										insert_msg(msgname, "Y", fecha_ini, fecha_fin, playtime)
+									}
+								} else {
+									if bd_playtime != playtime || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
+										update_msg(msgname, fecha_ini, fecha_fin, playtime)
 									}
 								}
 							}
@@ -428,6 +430,21 @@ func insert_msg(msgname, existe, fecha_ini, fecha_fin, playtime string) {
 	}
 	db_mu.Lock()
 	_, err1 := stm.Exec(msgname, existe, fecha_ini, fecha_fin, playtime)
+	db_mu.Unlock()
+	if err1 != nil {
+		Error.Println(err1)
+	}
+}
+
+//Modifica los mensajes en la base de datos de la tienda
+func update_msg(msgname, fecha_ini, fecha_fin, playtime string) {
+	//Cambiamos el estado del fichero de publicidad en BD, a existe.
+	ok, err := db.Prepare("UPDATE mensaje SET fecha_ini=?, fecha_fin=?, playtime=? WHERE fichero=?")
+	if err != nil {
+		Error.Println(err)
+	}
+	db_mu.Lock()
+	_, err1 := ok.Exec(fecha_ini, fecha_fin, playtime, msgname)
 	db_mu.Unlock()
 	if err1 != nil {
 		Error.Println(err1)

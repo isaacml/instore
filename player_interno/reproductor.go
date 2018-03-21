@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
@@ -321,6 +322,7 @@ func reproduccion_msgs() {
 			if err != nil {
 				Error.Println(err)
 			}
+			fmt.Println("MSG", fichero, fecha_ini, fecha_fin, playtime)
 			//BETWEEN
 			if fecha_ini <= fecha && fecha_fin >= fecha {
 				if playtime == clock {
