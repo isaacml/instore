@@ -111,6 +111,7 @@ func saveListInBD() {
 							arch_publi := strings.Split(separar_publi[1], ";")
 							for _, publi = range arch_publi {
 								var cont int
+								var bd_gap, bd_f_ini, bd_f_fin string
 								if strings.Contains(publi, "[mensaje]") {
 									publi = strings.TrimRight(publi, "[mensaje]")
 								}
@@ -120,13 +121,9 @@ func saveListInBD() {
 								fecha_fin := separar[2]
 								gap := separar[3]
 								//Comprobamos si existen los ficheros de publi en la BD interna
-								publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
+								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, gap FROM publi WHERE fichero=?", f_pub).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_gap)
 								if errS != nil {
 									Error.Println(errS)
-								}
-								//Si existe, el contador incrementará
-								for publicidad.Next() {
-									cont++
 								}
 								//Contador = 0 --> La BD interna no tiene el fichero publi
 								if cont == 0 {
@@ -141,6 +138,10 @@ func saveListInBD() {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
 										insert_publi(f_pub, "Y", fecha_ini, fecha_fin, gap)
 									}
+								}else{
+									if bd_gap != gap || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
+										update_publi(f_pub, fecha_ini, fecha_fin, gap)
+									}
 								}
 							}
 						}
@@ -153,19 +154,16 @@ func saveListInBD() {
 							//FICHEROS de PUBLICIDAD
 							for _, publi := range f_publicidad {
 								var cont int
+								var bd_gap, bd_f_ini, bd_f_fin string
 								separar := strings.Split(publi, "<=>")
 								f_pub := separar[0]
 								fecha_ini := separar[1]
 								fecha_fin := separar[2]
 								gap := separar[3]
 								//Comprobamos si existen los ficheros de publi en la BD interna
-								publicidad, errS := db.Query("SELECT * FROM publi WHERE fichero=?", f_pub)
+								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, gap FROM publi WHERE fichero=?", f_pub).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_gap)
 								if errS != nil {
 									Error.Println(errS)
-								}
-								//Si existe, el contador incrementará
-								for publicidad.Next() {
-									cont++
 								}
 								//Contador = 0 --> La BD interna no tiene el fichero publi
 								if cont == 0 {
@@ -179,6 +177,10 @@ func saveListInBD() {
 									} else {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
 										insert_publi(f_pub, "Y", fecha_ini, fecha_fin, gap)
+									}
+								}else{
+									if bd_gap != gap || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
+										update_publi(f_pub, fecha_ini, fecha_fin, gap)
 									}
 								}
 							}
@@ -445,6 +447,20 @@ func update_msg(msgname, fecha_ini, fecha_fin, playtime string) {
 	}
 	db_mu.Lock()
 	_, err1 := ok.Exec(fecha_ini, fecha_fin, playtime, msgname)
+	db_mu.Unlock()
+	if err1 != nil {
+		Error.Println(err1)
+	}
+}
+//Modifica la publicidad en la base de datos de la tienda
+func update_publi(f_pub, fecha_ini, fecha_fin, gap string) {
+	//Cambiamos el estado del fichero de publicidad en BD, a existe.
+	ok, err := db.Prepare("UPDATE publi SET fecha_ini=?, fecha_fin=?, gap=? WHERE fichero=?")
+	if err != nil {
+		Error.Println(err)
+	}
+	db_mu.Lock()
+	_, err1 := ok.Exec(fecha_ini, fecha_fin, gap, f_pub)
 	db_mu.Unlock()
 	if err1 != nil {
 		Error.Println(err1)
