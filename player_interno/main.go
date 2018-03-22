@@ -57,6 +57,7 @@ func main() {
 	go saveListInBD()
 	go reproduccion()
 	go reproduccion_msgs()
+	go borrarPublicidad()
 
 	// handlers del servidor HTTP
 	http.HandleFunc("/", root)
@@ -98,7 +99,7 @@ func saveListInBD() {
 					dominios += val + ":.:"
 				}
 				respuesta := fmt.Sprintf("%s", libs.GenerateFORM(settings["serverinterno"]+"/acciones.cgi", "action;send_domains", "dominios;"+dominios))
-				fmt.Println("La respuesta: ", respuesta)
+				//fmt.Println("La respuesta: ", respuesta)
 				//Si la respuesta NO está vacía, comprobamos la respuesta.
 				if respuesta != "" {
 					//De la respuesta obtenemos el listado de mensajes y publicidad
@@ -138,7 +139,7 @@ func saveListInBD() {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
 										insert_publi(f_pub, "Y", fecha_ini, fecha_fin, gap)
 									}
-								}else{
+								} else {
 									if bd_gap != gap || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
 										update_publi(f_pub, fecha_ini, fecha_fin, gap)
 									}
@@ -178,7 +179,7 @@ func saveListInBD() {
 										//SI lo tiene, se guarda en la BD de player con el estado en Y.
 										insert_publi(f_pub, "Y", fecha_ini, fecha_fin, gap)
 									}
-								}else{
+								} else {
 									if bd_gap != gap || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
 										update_publi(f_pub, fecha_ini, fecha_fin, gap)
 									}
@@ -410,6 +411,41 @@ func estado_de_entidad() {
 	}
 }
 
+//Borramos los ficheros de publicidad con dos años de antigüedad
+func borrarPublicidad() {
+	for {
+		//año actual
+		anio_actual := time.Now().Year()
+		//PUBLICIDAD
+		publi, errP := db.Query("SELECT id, fichero, fecha_fin FROM publi")
+		if errP != nil {
+			Error.Println(errP)
+		}
+		for publi.Next() {
+			var id int
+			var fichero, fecha_fin, anio, mes, dia string
+			//Tomamos el id, nombre y playtime de la base de datos mensaje
+			err := publi.Scan(&id, &fichero, &fecha_fin)
+			if err != nil {
+				Error.Println(err)
+			}
+			fmt.Sscanf(fecha_fin, "%4s%2s%2s", &anio, &mes, &dia)
+			if libs.ToInt(anio) <= anio_actual-2 {
+				//Borramos el fichero desde la ruta interna
+				err = os.Remove(publi_files_location + fichero)
+				if err != nil {
+					Error.Println(err)
+				}
+				//Borramos de la base de datos los ficheros de publicidad
+				db_mu.Lock()
+				db.Exec("DELETE FROM publi WHERE fichero = ?", fichero)
+				db_mu.Unlock()
+			}
+		}
+		time.Sleep(20 * time.Hour) //Cada 20h revisa los ficheros para borrar
+	}
+}
+
 //Inserta la publicidad en la base de datos de la tienda
 func insert_publi(f_pub, existe, fecha_ini, fecha_fin, gap string) {
 	stm, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, `fecha_ini`, `fecha_fin`, `gap`) VALUES (?,?,?,?,?)")
@@ -452,6 +488,7 @@ func update_msg(msgname, fecha_ini, fecha_fin, playtime string) {
 		Error.Println(err1)
 	}
 }
+
 //Modifica la publicidad en la base de datos de la tienda
 func update_publi(f_pub, fecha_ini, fecha_fin, gap string) {
 	//Cambiamos el estado del fichero de publicidad en BD, a existe.

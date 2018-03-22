@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/isaacml/instore/libs"
 	"github.com/isaacml/instore/winamp"
 	"math/rand"
@@ -322,32 +321,11 @@ func reproduccion_msgs() {
 			if err != nil {
 				Error.Println(err)
 			}
-			fmt.Println("MSG", fichero, fecha_ini, fecha_fin, playtime)
 			//BETWEEN
 			if fecha_ini <= fecha && fecha_fin >= fecha {
 				if playtime == clock {
 					var win winamp.Winamp
-					st := win.PlayFFplay(msg_files_location + fichero)
-					//Si el estado de la reproduccion del mensaje = END (ha acabado), procedemos al borrado.
-					if st == "END" {
-						//Borramos el fichero desde el directorio que contiene los mensajes en el player_int
-						err = os.Remove(msg_files_location + fichero)
-						if err != nil {
-							Error.Println(err)
-						}
-						//Ponemos el estado de mensaje en N (ya que lo hemos borrado y no existe)
-						ok, err := db.Prepare("UPDATE mensaje SET existe=? WHERE id = ?")
-						if err != nil {
-							Error.Println(err)
-						}
-						db_mu.Lock()
-						_, err1 := ok.Exec("N", id)
-						if err1 != nil {
-							Error.Println(err1)
-						}
-						db_mu.Unlock()
-						break
-					}
+					win.PlayFFplay(msg_files_location + fichero)
 				}
 			}
 		}

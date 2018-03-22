@@ -242,7 +242,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			for query.Next() {
-				var err = query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
+				err := query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
 				if err != nil {
 					Error.Println(err)
 				}
@@ -260,7 +260,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			for query.Next() {
-				var err = query.Scan(&id, &f_inicio, &f_fin, &destino, &horario)
+				err := query.Scan(&id, &f_inicio, &f_fin, &destino, &horario)
 				if err != nil {
 					Error.Println(err)
 				}
