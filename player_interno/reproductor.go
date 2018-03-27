@@ -304,28 +304,32 @@ func reproduccion() {
 //Reproduce los mensajes automáticos de la tienda: bucle infinito que busca cada minuto un mensaje nuevo para reproducir.
 func reproduccion_msgs() {
 	for {
-		//Obtenemos la fecha actual
-		fecha := libs.MyCurrentDate()
-		//Obtenemos la hora local
-		clock := libs.MyCurrentClock()
-		//Obtenemos todos los mensajes
-		mensajes, errM := db.Query("SELECT id, fichero, fecha_ini, fecha_fin, playtime FROM mensaje")
-		if errM != nil {
-			Error.Println(errM)
-		}
-		for mensajes.Next() {
-			var id int
-			var fichero, fecha_ini, fecha_fin, playtime string
-			//Tomamos el id, nombre y playtime de la base de datos mensaje
-			err := mensajes.Scan(&id, &fichero, &fecha_ini, &fecha_fin, &playtime)
-			if err != nil {
-				Error.Println(err)
-			}
-			//BETWEEN
-			if fecha_ini <= fecha && fecha_fin >= fecha {
-				if playtime == clock {
-					var win winamp.Winamp
-					win.PlayFFplay(msg_files_location + fichero)
+		if block != true {
+			if schedule != false {
+				//Obtenemos la fecha actual
+				fecha := libs.MyCurrentDate()
+				//Obtenemos la hora local
+				clock := libs.MyCurrentClock()
+				//Obtenemos todos los mensajes
+				mensajes, errM := db.Query("SELECT id, fichero, fecha_ini, fecha_fin, playtime FROM mensaje")
+				if errM != nil {
+					Error.Println(errM)
+				}
+				for mensajes.Next() {
+					var id int
+					var fichero, fecha_ini, fecha_fin, playtime string
+					//Tomamos el id, nombre y playtime de la base de datos mensaje
+					err := mensajes.Scan(&id, &fichero, &fecha_ini, &fecha_fin, &playtime)
+					if err != nil {
+						Error.Println(err)
+					}
+					//BETWEEN
+					if fecha_ini <= fecha && fecha_fin >= fecha {
+						if playtime == clock {
+							var win winamp.Winamp
+							win.PlayFFplay(msg_files_location + fichero)
+						}
+					}
 				}
 			}
 		}

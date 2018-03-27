@@ -38,12 +38,16 @@ EndProcedure
 Dim output.s(0) ;this will be resized later
 
 explodeStringArray(output(), "<div class='panel-heading'>Entidad</div><div class='panel-body'><Select name='entidad'><option value='' selected>Selecciona una entidad</option><option value='2'>Dinosol</option><option value='3'>Mercadona</option></Select></div>", "<option")
-For i = 2 To ArraySize(output())
+For i = 1 To ArraySize(output())
+  value.s = output(i)
+  Debug value
+  cut1 = FindString(value, ">") + 1
+  first_key.s = Right(value, cut1)
+  cut2 = FindString(first_key, "</") + 1 
+  Debug cut2
 Next
 
-var$ = output(2)
-Debug var$
-Debug RTrim("value='2'>Dinosol</option>", "<") 
+var$ = output(3)
 
 ;Debug RTrim(variable, "</option>")
 ;CatchXML(0, @XML$,Len(XML$))
@@ -55,7 +59,7 @@ Debug RTrim("value='2'>Dinosol</option>", "<")
 ;Debug "Name: " + GetXMLNodeName(*SubNode)
 
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 45
-; FirstLine = 1
+; CursorPosition = 42
+; FirstLine = 8
 ; Folding = -
 ; EnableXP
