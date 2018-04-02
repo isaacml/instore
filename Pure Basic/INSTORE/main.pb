@@ -32,6 +32,8 @@ Repeat
               CloseWindow(panel_login)
               ents$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "user=" + user + "&action=entidad")
               Debug ents$
+              Dim output.s(0) ;this will be resized later
+              explodeStringArray(output(), ents$)
             EndIf
           Else
             info_login = TextGadget(#PB_Any, 220, 220, 180, 25, "Fallo de login", #PB_Text_Center)
@@ -43,5 +45,5 @@ Repeat
   EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 33
+; CursorPosition = 35
 ; EnableXP
