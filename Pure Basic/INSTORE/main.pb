@@ -31,31 +31,18 @@ Repeat
               Openconfig_shop()
               CloseWindow(panel_login)
               ents$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "user=" + user + "&action=entidad")
-              Debug ents$
-              Dim output.s(0) ;this will be resized later
-              explodeStringArray(output(), ents$, "</option><option")
-              For i = 1 To ArraySize(output())-1
-                value.s = output(i)
-                ocurrencias = CountString(value, "</")
-                firstappear = FindString(value, ">")+1
-                onlyname.s = Mid(value, firstappear)
-                If ocurrencias > 0
-                  firstidappear = FindString(value, "'")+1
-                  id.s = Mid(value, firstidappear)
-                  lastidappear = FindString(id, "'")-1
-                  endid.s = Left(id, lastidappear)
-                  lastappear = FindString(onlyname, "</") -1
-                  name.s = Left(onlyname, lastappear) 
-                Else
-                  firstidappear = FindString(value, "'")+1
-                  id.s = Mid(value, firstidappear)
-                  lastidappear = FindString(id, "'")-1
-                  endid.s = Left(id, lastidappear)
-                  name.s = onlyname
-                EndIf
-                AddGadgetItem(Entidades, 0, name)
-                SetGadgetItemData(Entidades, 0, Val(endid))
-                Debug endid + " - " + name
+              Dim output.s(0)
+              NewMap valores.s()
+              obtainIdName(output(), ents$, "</option><option", valores())
+              ClearGadgetItems(Entidades)
+              ClearGadgetItems(Almacenes)
+              ClearGadgetItems(Paises)
+              ClearGadgetItems(Regiones)
+              ClearGadgetItems(Provincias)
+              ClearGadgetItems(Tiendas)
+              ForEach Valores()
+                AddGadgetItem(Entidades, 0, Valores())
+                SetGadgetItemData(Entidades, 0, Val(MapKey(Valores())))
               Next
             EndIf
           Else
@@ -63,42 +50,91 @@ Repeat
             SetGadgetColor(info_login, #PB_Gadget_FrontColor,RGB(200, 1, 0))
           EndIf
         Case Entidades
-          valor = GetGadgetItemData(Entidades, 0)
-          alms$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "entidad=" + valor + "&action=almacen")
-          Debug alms$
-          Dim output.s(0) ;this will be resized later
-          explodeStringArray(output(), alms$, "</option><option")
-          For i = 1 To ArraySize(output())-1
-            value.s = output(i)
-            ocurrencias = CountString(value, "</")
-            firstappear = FindString(value, ">")+1
-            onlyname.s = Mid(value, firstappear)
-            If ocurrencias > 0
-              firstidappear = FindString(value, "'")+1
-              id.s = Mid(value, firstidappear)
-              lastidappear = FindString(id, "'")-1
-              endid.s = Left(id, lastidappear)
-              lastappear = FindString(onlyname, "</") -1
-              name.s = Left(onlyname, lastappear) 
-            Else
-              firstidappear = FindString(value, "'")+1
-              id.s = Mid(value, firstidappear)
-              lastidappear = FindString(id, "'")-1
-              endid.s = Left(id, lastidappear)
-              name.s = onlyname
-            EndIf
-            AddGadgetItem(Entidades, 0, name)
-            SetGadgetItemData(Entidades, 0, Val(endid))
-            Debug endid + " - " + name
-          Next
+          Select EventType()
+            Case #PB_EventType_Change
+              valor = GetGadgetItemData(Entidades, GetGadgetState(Entidades))
+              alms$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "entidad=" + valor + "&action=almacen")
+              Dim output.s(0)
+              NewMap valores.s()
+              obtainIdName(output(), alms$, "</option><option", valores())
+              ClearGadgetItems(Almacenes)
+              ClearGadgetItems(Paises)
+              ClearGadgetItems(Regiones)
+              ClearGadgetItems(Provincias)
+              ClearGadgetItems(Tiendas)
+              ForEach Valores()
+                AddGadgetItem(Almacenes, 0, Valores())
+                SetGadgetItemData(Almacenes, 0, Val(MapKey(Valores())))
+              Next
+          EndSelect
         Case Almacenes
-          valor = GetGadgetItemData(Almacenes, 0)
+          Select EventType()
+            Case #PB_EventType_Change
+              valor = GetGadgetItemData(Almacenes, GetGadgetState(Almacenes))
+              pais$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "almacen=" + valor + "&action=pais")
+              Dim output.s(0)
+              NewMap valores.s()
+              obtainIdName(output(), pais$, "</option><option", valores())
+              ClearGadgetItems(Paises)
+              ClearGadgetItems(Regiones)
+              ClearGadgetItems(Provincias)
+              ClearGadgetItems(Tiendas)
+              ForEach Valores()
+                AddGadgetItem(Paises, 0, Valores())
+                SetGadgetItemData(Paises, 0, Val(MapKey(Valores())))
+              Next
+          EndSelect
+        Case Paises
+          Select EventType()
+            Case #PB_EventType_Change
+              valor = GetGadgetItemData(Paises, GetGadgetState(Paises))
+              reg$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "pais=" + valor + "&action=region")
+              Dim output.s(0)
+              NewMap valores.s()
+              obtainIdName(output(), reg$, "</option><option", valores())
+              ClearGadgetItems(Regiones)
+              ClearGadgetItems(Provincias)
+              ClearGadgetItems(Tiendas)
+              ForEach Valores()
+                AddGadgetItem(Regiones, 0, Valores())
+                SetGadgetItemData(Regiones, 0, Val(MapKey(Valores())))
+              Next
+          EndSelect
+        Case Regiones
+          Select EventType()
+            Case #PB_EventType_Change
+              valor = GetGadgetItemData(Regiones, GetGadgetState(Regiones))
+              prov$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "region=" + valor + "&action=provincia")
+              Dim output.s(0)
+              NewMap valores.s()
+              obtainIdName(output(), prov$, "</option><option", valores())
+              ClearGadgetItems(Provincias)
+              ClearGadgetItems(Tiendas)
+              ForEach Valores()
+                AddGadgetItem(Provincias, 0, Valores())
+                SetGadgetItemData(Provincias, 0, Val(MapKey(Valores())))
+              Next
+         EndSelect
+        Case Provincias
+          Select EventType()
+            Case #PB_EventType_Change
+              valor = GetGadgetItemData(Provincias, GetGadgetState(Provincias))
+              prov$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "provincia=" + valor + "&action=tienda")
+              Dim output.s(0)
+              NewMap valores.s()
+              obtainIdName(output(), prov$, "</option><option", valores())
+              ClearGadgetItems(Tiendas)
+              ForEach Valores()
+                AddGadgetItem(Tiendas, 0, Valores())
+                SetGadgetItemData(Tiendas, 0, Val(MapKey(Valores())))
+              Next
+       EndSelect
       EndSelect
     Case #PB_Event_CloseWindow
         eventClose = #True
   EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 95
-; FirstLine = 46
+; CursorPosition = 41
+; FirstLine = 1
 ; EnableXP

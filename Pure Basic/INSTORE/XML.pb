@@ -11,14 +11,11 @@ Procedure explodeStringArray(Array a$(1), s$, delimeter$)
   ProcedureReturn count ;return count of substrings
 EndProcedure
 
-
-
 ;explodeStringArray(output(), "<div class='panel-heading'>Entidad</div><div class='panel-body'><Select name='entidad'><option value='' selected>Selecciona una entidad</option><option value='2'>Dinosol</option><option value='5'>Moraleja</option><option value='3'>Mercadona</option></Select></div>", "</option><option")
-Procedure.s obtainIdName(Array a$(1), s$, delimeter$)
+Procedure.s obtainIdName(Array a$(1), s$, delimeter$, Map Valores.s())
   Protected count, i, f
   count = CountString(s$,delimeter$) + 1
   Dim a$(count)
-  NewMap Valores.s()
   For i = 1 To count
     a$(i - 1) = StringField(s$,i,delimeter$)
   Next
@@ -41,19 +38,17 @@ Procedure.s obtainIdName(Array a$(1), s$, delimeter$)
       endid.s = Left(id, lastidappear)
       name.s = onlyname
     EndIf
-    ;Debug endid + " - " + name
     Valores(endid) = name
-  Next
-  ForEach Valores()
-    Debug Valores()
   Next
 EndProcedure
 Dim output.s(0) ;this will be resized later
-Result$ = obtainIdName(output(), "<div class='panel-heading'>Entidad</div><div class='panel-body'><Select name='entidad'><option value='' selected>Selecciona una entidad</option><option value='2'>Dinosol</option><option value='5'>Moraleja</option><option value='3'>Mercadona</option></Select></div>", "</option><option")
-Debug Result$
+NewMap Valores.s()
+obtainIdName(output(), "<div class='panel-heading'>Entidad</div><div class='panel-body'><Select name='entidad'><option value='' selected>Selecciona una entidad</option><option value='2'>Dinosol</option><option value='5'>Moraleja</option><option value='3'>Mercadona</option></Select></div>", "</option><option", Valores())
+ForEach Valores()
+  Debug MapKey(Valores())+ " - "+Valores()
+Next
 
 ; IDE Options = PureBasic 5.61 (Windows - x86)
 ; CursorPosition = 47
-; FirstLine = 3
 ; Folding = -
 ; EnableXP
