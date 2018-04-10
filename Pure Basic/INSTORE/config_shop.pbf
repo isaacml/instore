@@ -9,7 +9,7 @@
 
 Global config_shop
 
-Global Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas
+Global Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, Enviar
 
 
 Procedure Openconfig_shop(x = 0, y = 0, width = 600, height = 400)
@@ -20,6 +20,8 @@ Procedure Openconfig_shop(x = 0, y = 0, width = 600, height = 400)
   Regiones = ComboBoxGadget(#PB_Any, 230, 200, 160, 25)
   Provincias = ComboBoxGadget(#PB_Any, 230, 240, 160, 25)
   Tiendas = ComboBoxGadget(#PB_Any, 230, 280, 160, 25)
+  Enviar = ButtonGadget(#PB_Any, 260, 330, 100, 25, "Enviar")
+  DisableGadget(Enviar, 1)
 EndProcedure
 
 Procedure config_shop_Events(event)
