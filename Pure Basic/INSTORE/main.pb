@@ -6,9 +6,17 @@ IncludeFile  "../LIBS/libs.pb"
 Define output.s
 
 Global user.s
+
 Openpanel_login()
 InitNetwork()
+UseSQLiteDatabase()
+
+ImportC ""
+  time(*tloc = #Null)
+EndImport
+
 ConnectionID = OpenNetworkConnection(server$, port.l) 
+DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
 
 Repeat
   event = WaitWindowEvent()
@@ -138,17 +146,33 @@ Repeat
           Select EventType()
             Case #PB_EventType_Change
               DisableGadget(Enviar, 0)
-              shop$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "tienda=" + valor + "&action=cod_tienda")
-              Debug shop$
+              valor = GetGadgetItemData(Tiendas, GetGadgetState(Tiendas))
+              POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "tienda=" + valor + "&action=cod_tienda")
           EndSelect
-        Case Enviar
+        Case Enviar ;Se envian los datos de configuracion de la tienda
           Select EventType()
             Case #PB_EventType_LeftClick
               res$ = POST_PB(ConnectionID, server$, "/acciones.cgi", "action=save_domain")
               ok$ = StringField(res$, 1, ";") 
               If ok$ = "OK"
-                dom$ = StringField(res$, 2, ";") 
-                Debug dom$
+                dom$ = StringField(res$, 2, ";")
+                ;Creamos el ficheor de configuracion
+                If CreateFile(0, "configshop.reg")
+                  WriteString(0, "shopdomain = " + dom$ + Chr(10))
+                  CloseFile(0)
+                  If OpenDatabase(0, DatabaseFile$, "", "")
+                    err = DatabaseUpdate(0, "INSERT INTO tienda (dominio, last_connect) VALUES ('"+ dom$ +"',"+ time() +")")
+                    If Not err = 0 
+                      Openmenu()
+                      CloseWindow(config_shop)
+                    EndIf
+                    CloseDatabase(0)
+                  Else
+                    Debug "Can't open database!"
+                  EndIf
+                Else
+                  MessageRequester("Information","May not create the file!")
+                EndIf
               EndIf
         EndSelect
       EndSelect
@@ -157,6 +181,6 @@ Repeat
   EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 150
-; FirstLine = 106
+; CursorPosition = 158
+; FirstLine = 129
 ; EnableXP
