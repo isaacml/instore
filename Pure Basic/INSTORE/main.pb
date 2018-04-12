@@ -2,6 +2,7 @@
 IncludeFile "menu.pbf"
 IncludeFile "config.pbi"
 IncludeFile "config_shop.pbf"
+IncludeFile "mensajes.pbf"
 IncludeFile  "../LIBS/libs.pb"
 Define output.s
 
@@ -145,7 +146,7 @@ Repeat
         Case Tiendas
           Select EventType()
             Case #PB_EventType_Change
-              DisableGadget(Enviar, 0)
+              DisableGadget(Enviar, 0) ;Se habilita el boton de envio de configuracion
               valor = GetGadgetItemData(Tiendas, GetGadgetState(Tiendas))
               POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "tienda=" + valor + "&action=cod_tienda")
           EndSelect
@@ -156,10 +157,11 @@ Repeat
               ok$ = StringField(res$, 1, ";") 
               If ok$ = "OK"
                 dom$ = StringField(res$, 2, ";")
-                ;Creamos el ficheor de configuracion
-                If CreateFile(0, "configshop.reg")
+                ;Creamos el fichero de configuracion: guardamos el dominio de la tienda
+                If CreateFile(0, domain_file$)
                   WriteString(0, "shopdomain = " + dom$ + Chr(10))
                   CloseFile(0)
+                  ;Se hace un guardado del dominio en base de datos
                   If OpenDatabase(0, DatabaseFile$, "", "")
                     err = DatabaseUpdate(0, "INSERT INTO tienda (dominio, last_connect) VALUES ('"+ dom$ +"',"+ time() +")")
                     If Not err = 0 
@@ -174,13 +176,25 @@ Repeat
                   MessageRequester("Information","May not create the file!")
                 EndIf
               EndIf
-        EndSelect
+          EndSelect
+       Case msg_normal
+          Select EventType()
+            Case #PB_EventType_LeftClick
+              CloseWindow(menu)
+              Openpanel_mensajes()
+       EndSelect   
+       Case logout
+          Select EventType()
+            Case #PB_EventType_LeftClick
+              CloseWindow(EventWindow())
+              Openpanel_login()
+         EndSelect
       EndSelect
     Case #PB_Event_CloseWindow
         eventClose = #True
   EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 158
-; FirstLine = 129
+; CursorPosition = 182
+; FirstLine = 141
 ; EnableXP
