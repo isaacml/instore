@@ -11,13 +11,20 @@ Global panel_login
 
 Global username, password, send, info_login
 
+Enumeration FormFont
+  #Font_panel_login_0
+EndEnumeration
 
-Procedure Openpanel_login(x = 0, y = 0, width = 600, height = 400)
+LoadFont(#Font_panel_login_0,"Verdana", 12)
+
+
+Procedure Openpanel_login(x = 0, y = 0, width = 800, height = 600)
   panel_login = OpenWindow(#PB_Any, x, y, width, height, "Tienda", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
-  username = StringGadget(#PB_Any, 220, 120, 180, 30, "")
-  password = StringGadget(#PB_Any, 220, 170, 180, 30, "", #PB_String_Password)
-  send = ButtonGadget(#PB_Any, 250, 270, 110, 30, "Enviar")
-  info_login = TextGadget(#PB_Any, 220, 220, 180, 30, "", #PB_Text_Center)
+  username = StringGadget(#PB_Any, 310, 170, 210, 30, "")
+  password = StringGadget(#PB_Any, 310, 220, 210, 30, "", #PB_String_Password)
+  send = ButtonGadget(#PB_Any, 360, 310, 100, 30, "Enviar")
+  SetGadgetFont(send, FontID(#Font_panel_login_0))
+  info_login = TextGadget(#PB_Any, 310, 270, 210, 30, "", #PB_Text_Center)
 EndProcedure
 
 Procedure panel_login_Events(event)

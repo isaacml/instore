@@ -1,7 +1,7 @@
 ﻿server$  = "192.168.4.22"                        ; Server Externo
 port.l   = 8080                                  ; Port
 domain_file$  = "configshop.reg"
-
+  
 Procedure.s obtainIdName(Array a$(1), s$, delimeter$, Map Valores.s())
   Protected count, i, f
   count = CountString(s$,delimeter$) + 1
@@ -31,7 +31,26 @@ Procedure.s obtainIdName(Array a$(1), s$, delimeter$, Map Valores.s())
     Valores(endid) = name
   Next
 EndProcedure
+
+Procedure.s obtainMsgFiles(directory$, List MsgFiles.s())
+  If ExamineDirectory(0, directory$, "*.*")  
+    While NextDirectoryEntry(0)
+      If DirectoryEntryType(0) = #PB_DirectoryEntry_File
+        is_mp3 = CountString(DirectoryEntryName(0), ".mp3")
+        is_wma = CountString(DirectoryEntryName(0), ".wma")
+        If is_mp3 = 1
+          AddElement(MsgFiles())
+          MsgFiles() = DirectoryEntryName(0)
+        ElseIf is_wma = 1
+          AddElement(MsgFiles())
+          MsgFiles() = DirectoryEntryName(0)
+        EndIf
+      EndIf
+    Wend
+    FinishDirectory(0)
+  EndIf
+EndProcedure
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 32
+; CursorPosition = 45
 ; Folding = -
 ; EnableXP

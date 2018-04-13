@@ -9,19 +9,31 @@
 
 Global config_shop
 
-Global Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, Enviar
+Global Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, Enviar, lbl_conf
+
+Enumeration FormFont
+  #Font_config_shop_0
+  #Font_config_shop_1
+EndEnumeration
+
+LoadFont(#Font_config_shop_0,"Verdana", 12)
+LoadFont(#Font_config_shop_1,"Verdana", 14)
 
 
-Procedure Openconfig_shop(x = 0, y = 0, width = 600, height = 400)
+Procedure Openconfig_shop(x = 0, y = 0, width = 800, height = 600)
   config_shop = OpenWindow(#PB_Any, x, y, width, height, "Configuración de la Tienda", #PB_Window_SystemMenu | #PB_Window_WindowCentered)
-  Entidades = ComboBoxGadget(#PB_Any, 230, 80, 160, 25)
-  Almacenes = ComboBoxGadget(#PB_Any, 230, 120, 160, 25)
-  Paises = ComboBoxGadget(#PB_Any, 230, 160, 160, 25)
-  Regiones = ComboBoxGadget(#PB_Any, 230, 200, 160, 25)
-  Provincias = ComboBoxGadget(#PB_Any, 230, 240, 160, 25)
-  Tiendas = ComboBoxGadget(#PB_Any, 230, 280, 160, 25)
-  Enviar = ButtonGadget(#PB_Any, 260, 330, 100, 25, "Enviar")
+  Entidades = ComboBoxGadget(#PB_Any, 330, 150, 160, 25)
+  Almacenes = ComboBoxGadget(#PB_Any, 330, 190, 160, 25)
+  Paises = ComboBoxGadget(#PB_Any, 330, 230, 160, 25)
+  Regiones = ComboBoxGadget(#PB_Any, 330, 270, 160, 25)
+  Provincias = ComboBoxGadget(#PB_Any, 330, 310, 160, 25)
+  Tiendas = ComboBoxGadget(#PB_Any, 330, 350, 160, 25)
+  Enviar = ButtonGadget(#PB_Any, 370, 400, 80, 25, "Enviar")
+  SetGadgetFont(Enviar, FontID(#Font_config_shop_0))
   DisableGadget(Enviar, 1)
+  lbl_conf = TextGadget(#PB_Any, 320, 100, 190, 30, "Configurar dominio")
+  SetGadgetColor(lbl_conf, #PB_Gadget_FrontColor,RGB(0,0,64))
+  SetGadgetFont(lbl_conf, FontID(#Font_config_shop_1))
 EndProcedure
 
 Procedure config_shop_Events(event)

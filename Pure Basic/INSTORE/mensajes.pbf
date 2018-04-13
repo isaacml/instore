@@ -9,21 +9,25 @@
 
 Global panel_mensajes
 
-Global lbl_msg, show_msg
+Global lbl_msg, show_msg, play_msg
 
 Enumeration FormFont
   #Font_panel_mensajes_0
+  #Font_panel_mensajes_1
 EndEnumeration
 
-LoadFont(#Font_panel_mensajes_0,"Verdana", 12)
+LoadFont(#Font_panel_mensajes_0,"Verdana", 14)
+LoadFont(#Font_panel_mensajes_1,"Verdana", 12)
 
 
-Procedure Openpanel_mensajes(x = 0, y = 0, width = 600, height = 400)
+Procedure Openpanel_mensajes(x = 0, y = 0, width = 800, height = 600)
   panel_mensajes = OpenWindow(#PB_Any, x, y, width, height, "", #PB_Window_SystemMenu | #PB_Window_ScreenCentered)
-  lbl_msg = TextGadget(#PB_Any, 140, 50, 390, 30, "Reproducir un mensaje de manera inmediata")
+  lbl_msg = TextGadget(#PB_Any, 200, 100, 440, 30, "Reproducir un mensaje de manera inmediata")
   SetGadgetColor(lbl_msg, #PB_Gadget_FrontColor,RGB(0,0,64))
   SetGadgetFont(lbl_msg, FontID(#Font_panel_mensajes_0))
-  show_msg = ComboBoxGadget(#PB_Any, 250, 110, 140, 20)
+  show_msg = ComboBoxGadget(#PB_Any, 270, 150, 290, 20)
+  play_msg = ButtonGadget(#PB_Any, 360, 190, 110, 30, "Reproducir")
+  SetGadgetFont(play_msg, FontID(#Font_panel_mensajes_1))
 EndProcedure
 
 Procedure panel_mensajes_Events(event)

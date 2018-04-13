@@ -24,21 +24,21 @@ EndEnumeration
 LoadFont(#Font_menu_0,"Verdana", 12)
 
 
-Procedure Openmenu(x = 0, y = 0, width = 600, height = 400)
+Procedure Openmenu(x = 0, y = 0, width = 800, height = 600)
   menu = OpenWindow(#PB_Any, x, y, width, height, "", #PB_Window_SystemMenu | #PB_Window_WindowCentered)
-  prog_mu = ButtonGadget(#PB_Any, 230, 110, 180, 30, "Programar Música")
+  prog_mu = ButtonGadget(#PB_Any, 320, 130, 180, 30, "Programar Música")
   SetGadgetColor(prog_mu, #PB_Gadget_BackColor,RGB(255,0,0))
   SetGadgetFont(prog_mu, FontID(#Font_menu_0))
-  msg_normal = ButtonGadget(#PB_Any, 230, 160, 180, 30, "Mensajes")
+  msg_normal = ButtonGadget(#PB_Any, 320, 190, 180, 30, "Mensajes")
   SetGadgetColor(msg_normal, #PB_Gadget_BackColor,RGB(255,0,0))
   SetGadgetFont(msg_normal, FontID(#Font_menu_0))
-  doms = ButtonGadget(#PB_Any, 230, 210, 180, 30, "Dominios")
+  doms = ButtonGadget(#PB_Any, 320, 250, 180, 30, "Dominios")
   SetGadgetColor(doms, #PB_Gadget_BackColor,RGB(255,0,0))
   SetGadgetFont(doms, FontID(#Font_menu_0))
-  shop_status = ButtonGadget(#PB_Any, 230, 260, 180, 30, "Tienda")
+  shop_status = ButtonGadget(#PB_Any, 320, 310, 180, 30, "Tienda")
   SetGadgetColor(shop_status, #PB_Gadget_BackColor,RGB(255,0,0))
   SetGadgetFont(shop_status, FontID(#Font_menu_0))
-  logout = ButtonImageGadget(#PB_Any, 530, 30, 24, 24, ImageID(Img_menu_0))
+  logout = ButtonImageGadget(#PB_Any, 720, 40, 24, 24, ImageID(Img_menu_0))
 EndProcedure
 
 Procedure menu_Events(event)

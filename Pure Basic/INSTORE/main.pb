@@ -10,6 +10,7 @@ Global user.s
 
 Openpanel_login()
 InitNetwork()
+InitSound()
 UseSQLiteDatabase()
 
 ImportC ""
@@ -18,6 +19,7 @@ EndImport
 
 ConnectionID = OpenNetworkConnection(server$, port.l) 
 DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
+DirectoryMsg$ = "C:\Users\Isaac\Documents\PB\INSTORE\Messages"
 
 Repeat
   event = WaitWindowEvent()
@@ -182,19 +184,35 @@ Repeat
             Case #PB_EventType_LeftClick
               CloseWindow(menu)
               Openpanel_mensajes()
-       EndSelect   
+              NewList msgfiles.s()
+              obtainMsgFiles(DirectoryMsg$, msgfiles())
+              ForEach msgfiles()
+                AddGadgetItem(show_msg, 0, msgfiles())
+              Next
+         EndSelect   
        Case logout
           Select EventType()
             Case #PB_EventType_LeftClick
               CloseWindow(EventWindow())
               Openpanel_login()
-         EndSelect
+          EndSelect
+      Case play_msg
+        Select EventType()
+          Case #PB_EventType_LeftClick
+            If DirectoryMsg$
+              FullMsg$ = DirectoryMsg$ + "\" + GetGadgetText(show_msg)
+              Debug FullMsg$
+              If LoadSound(0, FullMsg$)
+                PlaySound(0)
+              EndIf
+            EndIf
+        EndSelect
       EndSelect
     Case #PB_Event_CloseWindow
         eventClose = #True
   EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 182
-; FirstLine = 141
+; CursorPosition = 208
+; FirstLine = 162
 ; EnableXP
