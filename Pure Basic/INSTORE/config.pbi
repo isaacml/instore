@@ -1,4 +1,4 @@
-﻿server$  = "192.168.4.22"                        ; Server Externo
+﻿server$  = "192.168.0.102"                        ; Server Externo
 port.l   = 8080                                  ; Port
 domain_file$  = "configshop.reg"
   
@@ -50,7 +50,27 @@ Procedure.s obtainMsgFiles(directory$, List MsgFiles.s())
     FinishDirectory(0)
   EndIf
 EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 45
+
+Procedure MP3_Load(Nb,file.s)
+  i=mciSendString_("OPEN "+Chr(34)+file+Chr(34)+" Type MPEGVIDEO ALIAS MP3_"+Str(Nb),0,0,0)
+  If i=0
+    ProcedureReturn #True
+  Else
+    ProcedureReturn #False
+  EndIf
+EndProcedure
+
+Procedure MP3_Play(Nb)
+  i=mciSendString_("play MP3_"+Str(Nb),0,0,0)
+  ProcedureReturn i
+EndProcedure
+
+Procedure MP3_Free(Nb)
+  i=mciSendString_("close MP3_"+Str(Nb),0,0,0)
+  ProcedureReturn i
+EndProcedure
+; IDE Options = PureBasic 5.61 (Windows - x64)
+; CursorPosition = 70
+; FirstLine = 30
 ; Folding = -
 ; EnableXP
