@@ -15,7 +15,7 @@ Global Img_menu_0
 
 UsePNGImageDecoder()
 
-Img_menu_0 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\logout.png")
+Img_menu_0 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\logout.png")
 
 Enumeration FormFont
   #Font_menu_0

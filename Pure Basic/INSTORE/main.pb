@@ -5,8 +5,6 @@ IncludeFile "config_shop.pbf"
 IncludeFile "mensajes.pbf"
 IncludeFile  "../LIBS/libs.pb"
 Define output.s
-loaded=#False
-
 Global user.s
 
 InitNetwork()
@@ -18,8 +16,8 @@ ImportC ""
 EndImport
 
 ConnectionID = OpenNetworkConnection(server$, port.l) 
-DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
-DirectoryMsg$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\Messages"
+DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
+DirectoryMsg$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\Messages"
 
 Repeat
   event = WaitWindowEvent()
@@ -198,23 +196,19 @@ Repeat
           EndSelect
        Case play_msg
           MP3_Free(0)
-       Select EventType()
-
-         Case #PB_EventType_LeftClick
-           FullMsg$ = DirectoryMsg$ + "\" + GetGadgetText(show_msg)
-           If MP3_Load(0, FullMsg$)
-             loaded=#True
-           EndIf
-           If loaded
-             MP3_Play(0)
-           EndIf
-      EndSelect
+          Select EventType()
+            Case #PB_EventType_LeftClick
+              FullMsg$ = DirectoryMsg$ + "\" + GetGadgetText(show_msg)
+              If MP3_Load(0, FullMsg$)
+                MP3_Play(0)
+              EndIf
+          EndSelect
     EndSelect
     Case #PB_Event_CloseWindow
         eventClose = #True
   EndSelect
 Until eventClose = #True
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 209
-; FirstLine = 174
+; IDE Options = PureBasic 5.61 (Windows - x86)
+; CursorPosition = 204
+; FirstLine = 158
 ; EnableXP

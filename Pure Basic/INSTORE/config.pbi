@@ -1,4 +1,4 @@
-﻿server$  = "192.168.0.102"                        ; Server Externo
+﻿server$  = "192.168.4.22"                        ; Server Externo
 port.l   = 8080                                  ; Port
 domain_file$  = "configshop.reg"
   
@@ -69,8 +69,9 @@ Procedure MP3_Free(Nb)
   i=mciSendString_("close MP3_"+Str(Nb),0,0,0)
   ProcedureReturn i
 EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x64)
+  
+; IDE Options = PureBasic 5.61 (Windows - x86)
 ; CursorPosition = 70
-; FirstLine = 30
+; FirstLine = 20
 ; Folding = -
 ; EnableXP
