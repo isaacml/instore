@@ -195,20 +195,20 @@ Repeat
               Openpanel_login()
           EndSelect
        Case play_msg
-          MP3_Free(0)
-          Select EventType()
-            Case #PB_EventType_LeftClick
-              FullMsg$ = DirectoryMsg$ + "\" + GetGadgetText(show_msg)
-              If MP3_Load(0, FullMsg$)
-                MP3_Play(0)
-              EndIf
-          EndSelect
+         MP3_Free(0)
+         Select EventType()
+           Case #PB_EventType_LeftClick
+             FullMsg$ = DirectoryMsg$ + "\" + GetGadgetText(show_msg)
+             If MP3_Load(0, FullMsg$)
+               MP3_Play(0)
+             EndIf
+         EndSelect
     EndSelect
     Case #PB_Event_CloseWindow
         eventClose = #True
   EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 204
+; CursorPosition = 196
 ; FirstLine = 158
 ; EnableXP
