@@ -3,6 +3,7 @@ IncludeFile "menu.pbf"
 IncludeFile "config.pbi"
 IncludeFile "config_shop.pbf"
 IncludeFile "mensajes.pbf"
+IncludeFile "dominios.pbf"
 IncludeFile  "../LIBS/libs.pb"
 Define output.s
 Global user.s
@@ -180,20 +181,20 @@ Repeat
        Case msg_normal
           Select EventType()
             Case #PB_EventType_LeftClick
-              CloseWindow(menu)
+              CloseWindow(EventWindow())
               Openpanel_mensajes()
               NewList msgfiles.s()
               obtainMsgFiles(DirectoryMsg$, msgfiles())
               ForEach msgfiles()
                 AddGadgetItem(show_msg, 0, msgfiles())
               Next
-         EndSelect   
-       Case logout
+          EndSelect
+       Case doms
           Select EventType()
             Case #PB_EventType_LeftClick
               CloseWindow(EventWindow())
-              Openpanel_login()
-          EndSelect
+              Opendominios()
+         EndSelect 
        Case play_msg
          MP3_Free(0)
          Select EventType()
@@ -203,12 +204,21 @@ Repeat
                MP3_Play(0)
              EndIf
          EndSelect
+     EndSelect
+    Case #PB_Event_Menu
+     Select EventMenu()
+       Case #back_msg, #back_dom
+         CloseWindow(EventWindow())
+         Openmenu()
+       Case #logout_menu, #logout_msg
+         CloseWindow(EventWindow())
+         Openpanel_login()
     EndSelect
     Case #PB_Event_CloseWindow
         eventClose = #True
-  EndSelect
+    EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 196
-; FirstLine = 158
+; CursorPosition = 218
+; FirstLine = 168
 ; EnableXP
