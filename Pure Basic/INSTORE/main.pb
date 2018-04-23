@@ -36,10 +36,11 @@ Repeat
             user = username$
             If ReadFile(0,domain_file$)
               Openmenu()
-              CloseWindow(panel_login)
+              CloseWindow(EventWindow())
             Else
               Openconfig_shop()
-              CloseWindow(panel_login)
+              SetWindowData(GetActiveWindow(), 12)
+              CloseWindow(EventWindow())
               ents$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "user=" + user + "&action=entidad")
               Dim output.s(0)
               NewMap valores.s()
@@ -155,27 +156,40 @@ Repeat
           Select EventType()
             Case #PB_EventType_LeftClick
               res$ = POST_PB(ConnectionID, server$, "/acciones.cgi", "action=save_domain")
-              ok$ = StringField(res$, 1, ";") 
-              If ok$ = "OK"
-                dom$ = StringField(res$, 2, ";")
-                ;Creamos el fichero de configuracion: guardamos el dominio de la tienda
-                If CreateFile(0, domain_file$)
-                  WriteString(0, "shopdomain = " + dom$ + Chr(10))
-                  CloseFile(0)
-                  ;Se hace un guardado del dominio en base de datos
-                  If OpenDatabase(0, DatabaseFile$, "", "")
-                    err = DatabaseUpdate(0, "INSERT INTO tienda (dominio, last_connect) VALUES ('"+ dom$ +"',"+ time() +")")
-                    If Not err = 0 
-                      Openmenu()
-                      CloseWindow(config_shop)
+              what_win = GetWindowData(EventWindow()) ;Nos indica en que ventana nos encontramos (config_shop o config_dom)
+              If what_win = 12 ;Ventana de configuración principal (config_shop)
+                ok$ = StringField(res$, 1, ";") 
+                If ok$ = "OK"
+                  dom$ = StringField(res$, 2, ";")
+                  ;Creamos el fichero de configuracion: guardamos el dominio de la tienda
+                  If CreateFile(0, domain_file$)
+                    WriteString(0, "shopdomain = " + dom$ + Chr(10))
+                    CloseFile(0)
+                    ;Se hace un guardado del dominio en base de datos
+                    If OpenDatabase(0, DatabaseFile$, "", "")
+                      err = DatabaseUpdate(0, "INSERT INTO tienda (dominio, last_connect) VALUES ('"+ dom$ +"',"+ time() +")")
+                      If Not err = 0 
+                        Openmenu()
+                        CloseWindow(EventWindow())
+                      EndIf
+                      CloseDatabase(0)
+                    Else
+                      Debug "Can't open database!"
                     EndIf
-                    CloseDatabase(0)
                   Else
-                    Debug "Can't open database!"
+                    MessageRequester("Information","May not create the file!")
                   EndIf
-                Else
-                  MessageRequester("Information","May not create the file!")
                 EndIf
+              ElseIf what_win = 16 ;Ventana de configuración adiccional (dominios)
+                ok$ = StringField(res$, 1, ";") 
+                If ok$ = "OK"
+                  dom$ = StringField(res$, 2, ";")
+                  If OpenFile(0, domain_file$)  ; opens an existing file or creates one, if it does not exist yet
+                    FileSeek(0, Lof(0))         ; jump to the end of the file (result of Lof() is used)
+                    WriteStringN(0, "extradomain = " + dom$)
+                    CloseFile(0)
+                  EndIf
+                EndIf  
               EndIf
           EndSelect
        Case msg_normal
@@ -194,6 +208,21 @@ Repeat
             Case #PB_EventType_LeftClick
               CloseWindow(EventWindow())
               Opendominios()
+              SetWindowData(GetActiveWindow(), 16)
+              ents$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "user=" + user + "&action=entidad")
+              Dim output.s(0)
+              NewMap valores.s()
+              obtainIdName(output(), ents$, "</option><option", valores())
+              ClearGadgetItems(Entidades)
+              ClearGadgetItems(Almacenes)
+              ClearGadgetItems(Paises)
+              ClearGadgetItems(Regiones)
+              ClearGadgetItems(Provincias)
+              ClearGadgetItems(Tiendas)
+              ForEach Valores()
+                AddGadgetItem(Entidades, 0, valores())
+                SetGadgetItemData(Entidades, 0, Val(MapKey(valores())))
+              Next
          EndSelect 
        Case play_msg
          MP3_Free(0)
@@ -210,7 +239,7 @@ Repeat
        Case #back_msg, #back_dom
          CloseWindow(EventWindow())
          Openmenu()
-       Case #logout_menu, #logout_msg
+       Case #logout_menu, #logout_msg, #logout_dom
          CloseWindow(EventWindow())
          Openpanel_login()
     EndSelect
@@ -219,6 +248,6 @@ Repeat
     EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 218
-; FirstLine = 168
+; CursorPosition = 188
+; FirstLine = 158
 ; EnableXP

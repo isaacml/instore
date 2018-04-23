@@ -51,6 +51,10 @@ Procedure.s obtainMsgFiles(directory$, List MsgFiles.s())
   EndIf
 EndProcedure
 
+Procedure.s loadDomains(dom$, List MsgFiles.s())
+  
+EndProcedure
+
 Procedure MP3_Load(Nb,file.s)
   i=mciSendString_("OPEN "+Chr(34)+file+Chr(34)+" Type MPEGVIDEO ALIAS MP3_"+Str(Nb),0,0,0)
   If i=0
@@ -71,7 +75,7 @@ Procedure MP3_Free(Nb)
 EndProcedure
   
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 69
-; FirstLine = 20
-; Folding = -
+; CursorPosition = 53
+; FirstLine = 15
+; Folding = --
 ; EnableXP

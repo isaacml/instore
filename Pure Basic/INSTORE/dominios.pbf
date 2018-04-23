@@ -9,7 +9,7 @@
 
 Global dominios
 
-Global lbl_dom1, Entidades
+Global lbl_dom1, Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, Enviar
 
 Global Img_dominios_0, Img_dominios_1
 
@@ -25,9 +25,11 @@ Img_dominios_1 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\flecha-a
 
 Enumeration FormFont
   #Font_dominios_0
+  #Font_dominios_1
 EndEnumeration
 
 LoadFont(#Font_dominios_0,"Verdana", 14)
+LoadFont(#Font_dominios_1,"Verdana", 12)
 
 
 Procedure Opendominios(x = 0, y = 0, width = 800, height = 600)
@@ -38,10 +40,18 @@ Procedure Opendominios(x = 0, y = 0, width = 800, height = 600)
   ToolBarSeparator()
   ToolBarImageButton(#logout_dom,ImageID(Img_dominios_0))
   ToolBarToolTip(0, #logout_dom, "Desconectar")
-  lbl_dom1 = TextGadget(#PB_Any, 290, ToolBarHeight(0) + 60, 280, 30, "Añadir dominios adicionales")
+  lbl_dom1 = TextGadget(#PB_Any, 280, ToolBarHeight(0) + 30, 280, 30, "Añadir dominios adicionales")
   SetGadgetColor(lbl_dom1, #PB_Gadget_FrontColor,RGB(0,0,64))
   SetGadgetFont(lbl_dom1, FontID(#Font_dominios_0))
-  Entidades = ComboBoxGadget(#PB_Any, 330, ToolBarHeight(0) + 100, 200, 25)
+  Entidades = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 70, 190, 25)
+  Almacenes = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 110, 190, 25)
+  Paises = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 150, 190, 25)
+  Regiones = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 190, 190, 25)
+  Provincias = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 230, 190, 25)
+  Tiendas = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 270, 190, 25)
+  Enviar = ButtonGadget(#PB_Any, 370, ToolBarHeight(0) + 310, 90, 25, "Enviar")
+  SetGadgetFont(Enviar, FontID(#Font_dominios_1))
+  DisableGadget(Enviar, 1)
 EndProcedure
 
 Procedure dominios_Events(event)
