@@ -48,9 +48,7 @@ Procedure config_shop_Events(event)
   EndSelect
   ProcedureReturn #True
 EndProcedure
-
-
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 51
+; CursorPosition = 49
 ; Folding = -
 ; EnableXP

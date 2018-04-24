@@ -51,8 +51,15 @@ Procedure.s obtainMsgFiles(directory$, List MsgFiles.s())
   EndIf
 EndProcedure
 
-Procedure.s loadDomains(dom$, List MsgFiles.s())
-  
+Procedure.s loadDomains(file$, List doms.s())
+  If ReadFile(0, file$)   ; if the file could be read, we continue...
+    While Eof(0) = 0      ; loop as long the 'end of file' isn't reached
+      dom$ = StringField(ReadString(0), 2, " = ")
+      AddElement(doms())
+      doms() = dom$
+    Wend
+    CloseFile(0)
+  EndIf
 EndProcedure
 
 Procedure MP3_Load(Nb,file.s)
@@ -75,7 +82,7 @@ Procedure MP3_Free(Nb)
 EndProcedure
   
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 53
-; FirstLine = 15
+; CursorPosition = 55
+; FirstLine = 31
 ; Folding = --
 ; EnableXP

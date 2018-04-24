@@ -184,11 +184,33 @@ Repeat
                 ok$ = StringField(res$, 1, ";") 
                 If ok$ = "OK"
                   dom$ = StringField(res$, 2, ";")
-                  If OpenFile(0, domain_file$)  ; opens an existing file or creates one, if it does not exist yet
-                    FileSeek(0, Lof(0))         ; jump to the end of the file (result of Lof() is used)
-                    WriteStringN(0, "extradomain = " + dom$)
+                  count = 0
+                  Dim dominios.s(count)
+                  If ReadFile(0, domain_file$)   ; if the file could be read, we continue...
+                    While Eof(0) = 0      ; loop as long the 'end of file' isn't reached
+                      doms_of_file.s = StringField(ReadString(0), 2, " = ")
+                      count+1
+                      Debug count
+                      dominios(count) = doms_of_file
+                    Wend
                     CloseFile(0)
                   EndIf
+;                   For f = 1 To count
+;                     Debug dominios(f)
+;                   Next
+;                   NewList dominios.s()
+;                   loadDomains(domain_file$, dominios())
+;                   ForEach dominios()
+;                     If dominios() = dom$
+;                       Debug "Ese dominio ya existe"
+;                     Else
+;                       If OpenFile(0, domain_file$)  ; opens an existing file or creates one, if it does not exist yet
+;                         FileSeek(0, Lof(0))         ; jump to the end of the file (result of Lof() is used)
+;                         WriteStringN(0, "extradomain = " + dom$)
+;                         CloseFile(0)
+;                       EndIf
+;                     EndIf
+;                   Next
                 EndIf  
               EndIf
           EndSelect
@@ -248,6 +270,6 @@ Repeat
     EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 188
-; FirstLine = 158
+; CursorPosition = 193
+; FirstLine = 161
 ; EnableXP
