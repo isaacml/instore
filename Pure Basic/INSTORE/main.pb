@@ -63,7 +63,7 @@ Repeat
         Case Entidades
           Select EventType()
             Case #PB_EventType_Change
-              DisableGadget(Enviar, 1)
+              DisableGadget(enviar_config, 1)
               valor = GetGadgetItemData(Entidades, GetGadgetState(Entidades))
               alms$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "entidad=" + valor + "&action=almacen")
               Dim output.s(0)
@@ -82,7 +82,7 @@ Repeat
         Case Almacenes
           Select EventType()
             Case #PB_EventType_Change
-              DisableGadget(Enviar, 1)
+              DisableGadget(enviar_config, 1)
               valor = GetGadgetItemData(Almacenes, GetGadgetState(Almacenes))
               pais$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "almacen=" + valor + "&action=pais")
               Dim output.s(0)
@@ -100,7 +100,7 @@ Repeat
         Case Paises
           Select EventType()
             Case #PB_EventType_Change
-              DisableGadget(Enviar, 1)
+              DisableGadget(enviar_config, 1)
               valor = GetGadgetItemData(Paises, GetGadgetState(Paises))
               reg$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "pais=" + valor + "&action=region")
               Dim output.s(0)
@@ -117,7 +117,7 @@ Repeat
         Case Regiones
           Select EventType()
             Case #PB_EventType_Change
-              DisableGadget(Enviar, 1)
+              DisableGadget(enviar_config, 1)
               valor = GetGadgetItemData(Regiones, GetGadgetState(Regiones))
               prov$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "region=" + valor + "&action=provincia")
               Dim output.s(0)
@@ -133,7 +133,7 @@ Repeat
         Case Provincias
           Select EventType()
             Case #PB_EventType_Change
-              DisableGadget(Enviar, 1)
+              DisableGadget(enviar_config, 1)
               valor = GetGadgetItemData(Provincias, GetGadgetState(Provincias))
               shop$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "provincia=" + valor + "&action=tienda")
               Dim output.s(0)
@@ -148,11 +148,11 @@ Repeat
         Case Tiendas
           Select EventType()
             Case #PB_EventType_Change
-              DisableGadget(Enviar, 0) ;Se habilita el boton de envio de configuracion
+              DisableGadget(enviar_config, 0) ;Se habilita el boton de envio de configuracion
               valor = GetGadgetItemData(Tiendas, GetGadgetState(Tiendas))
               POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "tienda=" + valor + "&action=cod_tienda")
           EndSelect
-        Case Enviar ;Se envian los datos de configuracion de la tienda
+        Case enviar_config  ;Se envian los datos de configuracion de la tienda
           Select EventType()
             Case #PB_EventType_LeftClick
               res$ = POST_PB(ConnectionID, server$, "/acciones.cgi", "action=save_domain")
@@ -183,34 +183,31 @@ Repeat
               ElseIf what_win = 16 ;Ventana de configuración adiccional (dominios)
                 ok$ = StringField(res$, 1, ";") 
                 If ok$ = "OK"
-                  dom$ = StringField(res$, 2, ";")
-                  count = 0
-                  Dim dominios.s(count)
-                  If ReadFile(0, domain_file$)   ; if the file could be read, we continue...
-                    While Eof(0) = 0      ; loop as long the 'end of file' isn't reached
-                      doms_of_file.s = StringField(ReadString(0), 2, " = ")
-                      count+1
-                      Debug count
-                      dominios(count) = doms_of_file
-                    Wend
-                    CloseFile(0)
-                  EndIf
-;                   For f = 1 To count
-;                     Debug dominios(f)
-;                   Next
-;                   NewList dominios.s()
-;                   loadDomains(domain_file$, dominios())
-;                   ForEach dominios()
-;                     If dominios() = dom$
-;                       Debug "Ese dominio ya existe"
-;                     Else
-;                       If OpenFile(0, domain_file$)  ; opens an existing file or creates one, if it does not exist yet
-;                         FileSeek(0, Lof(0))         ; jump to the end of the file (result of Lof() is used)
-;                         WriteStringN(0, "extradomain = " + dom$)
-;                         CloseFile(0)
-;                       EndIf
-;                     EndIf
-;                   Next
+                 count = 0
+                 NewList dat.s()
+                 NewList actualizar.s()
+                 dom$ = StringField(res$, 2, ";")
+                 loadDomains(domain_file$, dat())
+                 ;Recorremos el listado de dominios
+                 ResetList(dat())
+                 While NextElement(dat())
+                   If dat() = dom$
+                     count + 1
+                   EndIf
+                 Wend
+                 ;Contador igual a 0: añadimos dominios extra
+                 If count = 0
+                   If OpenFile(0, domain_file$)
+                     FileSeek(0, Lof(0))
+                     WriteStringN(0, "extradomain = " + dom$)
+                     CloseFile(0)
+                     ;Mostramos los dominios actualizados
+                     loadDomains(domain_file$, actualizar())
+                     ForEach actualizar()
+                       AddGadgetItem(lista_dominios, -1, actualizar())
+                     Next
+                   EndIf
+                 EndIf
                 EndIf  
               EndIf
           EndSelect
@@ -228,12 +225,13 @@ Repeat
        Case doms
           Select EventType()
             Case #PB_EventType_LeftClick
+              Dim output.s(0)
+              NewMap valores.s()
+              NewList dat2.s()
               CloseWindow(EventWindow())
               Opendominios()
               SetWindowData(GetActiveWindow(), 16)
               ents$ = POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "user=" + user + "&action=entidad")
-              Dim output.s(0)
-              NewMap valores.s()
               obtainIdName(output(), ents$, "</option><option", valores())
               ClearGadgetItems(Entidades)
               ClearGadgetItems(Almacenes)
@@ -245,6 +243,11 @@ Repeat
                 AddGadgetItem(Entidades, 0, valores())
                 SetGadgetItemData(Entidades, 0, Val(MapKey(valores())))
               Next
+              ;Mostramos los dominios actuales
+;               loadDomains(domain_file$, dat2())
+;               ForEach dat2()
+;                 AddGadgetItem(lista_dominios, -1, dat2())
+;               Next
          EndSelect 
        Case play_msg
          MP3_Free(0)
@@ -270,6 +273,6 @@ Repeat
     EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 193
-; FirstLine = 161
+; CursorPosition = 249
+; FirstLine = 219
 ; EnableXP

@@ -9,7 +9,7 @@
 
 Global dominios
 
-Global lbl_dom1, Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, Enviar
+Global lbl_dom1, Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, enviar_config, lista_dominios, lbl_dom2
 
 Global Img_dominios_0, Img_dominios_1
 
@@ -49,9 +49,14 @@ Procedure Opendominios(x = 0, y = 0, width = 800, height = 600)
   Regiones = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 190, 190, 25)
   Provincias = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 230, 190, 25)
   Tiendas = ComboBoxGadget(#PB_Any, 320, ToolBarHeight(0) + 270, 190, 25)
-  Enviar = ButtonGadget(#PB_Any, 370, ToolBarHeight(0) + 310, 90, 25, "Enviar")
-  SetGadgetFont(Enviar, FontID(#Font_dominios_1))
-  DisableGadget(Enviar, 1)
+  enviar_config = ButtonGadget(#PB_Any, 370, ToolBarHeight(0) + 310, 90, 25, "Enviar")
+  SetGadgetFont(enviar_config, FontID(#Font_dominios_1))
+  DisableGadget(enviar_config, 1)
+  lista_dominios = ListViewGadget(#PB_Any, 180, ToolBarHeight(0) + 430, 470, 80)
+  DisableGadget(lista_dominios, 1)
+  lbl_dom2 = TextGadget(#PB_Any, 320, ToolBarHeight(0) + 380, 190, 30, "Dominios Actuales")
+  SetGadgetColor(lbl_dom2, #PB_Gadget_FrontColor,RGB(0,0,64))
+  SetGadgetFont(lbl_dom2, FontID(#Font_dominios_0))
 EndProcedure
 
 Procedure dominios_Events(event)
