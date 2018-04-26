@@ -9,7 +9,7 @@
 
 Global config_shop
 
-Global Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, enviar_config, lbl_conf
+Global Entidades, Almacenes, Paises, Regiones, Provincias, Tiendas, enviar_config, lbl_conf, err_dom
 
 Enumeration FormFont
   #Font_config_shop_0
@@ -28,12 +28,14 @@ Procedure Openconfig_shop(x = 0, y = 0, width = 800, height = 600)
   Regiones = ComboBoxGadget(#PB_Any, 330, 270, 160, 25)
   Provincias = ComboBoxGadget(#PB_Any, 330, 310, 160, 25)
   Tiendas = ComboBoxGadget(#PB_Any, 330, 350, 160, 25)
-  enviar_config = ButtonGadget(#PB_Any, 370, 400, 80, 25, "Enviar")
+  enviar_config = ButtonGadget(#PB_Any, 370, 390, 80, 25, "Enviar")
   SetGadgetFont(enviar_config, FontID(#Font_config_shop_0))
   DisableGadget(enviar_config, 1)
   lbl_conf = TextGadget(#PB_Any, 320, 100, 190, 30, "Configurar dominio")
   SetGadgetColor(lbl_conf, #PB_Gadget_FrontColor,RGB(0,0,64))
   SetGadgetFont(lbl_conf, FontID(#Font_config_shop_1))
+  err_dom = TextGadget(#PB_Any, 170, 430, 470, 25, "", #PB_Text_Center)
+  SetGadgetColor(err_dom, #PB_Gadget_FrontColor,RGB(255,0,0))
 EndProcedure
 
 Procedure config_shop_Events(event)

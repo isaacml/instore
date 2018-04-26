@@ -57,8 +57,7 @@ Repeat
               Next
             EndIf
           Else
-            info_login = TextGadget(#PB_Any, 220, 220, 180, 25, "Fallo de login", #PB_Text_Center)
-            SetGadgetColor(info_login, #PB_Gadget_FrontColor,RGB(200, 1, 0))
+            SetGadgetText(info_login, "Fallo de login")
           EndIf
         Case Entidades
           Select EventType()
@@ -74,6 +73,7 @@ Repeat
               ClearGadgetItems(Regiones)
               ClearGadgetItems(Provincias)
               ClearGadgetItems(Tiendas)
+              SetGadgetText(err_dom, "")
               ForEach Valores()
                 AddGadgetItem(Almacenes, 0, valores())
                 SetGadgetItemData(Almacenes, 0, Val(MapKey(valores())))
@@ -92,6 +92,7 @@ Repeat
               ClearGadgetItems(Regiones)
               ClearGadgetItems(Provincias)
               ClearGadgetItems(Tiendas)
+              SetGadgetText(err_dom, "")
               ForEach Valores()
                 AddGadgetItem(Paises, 0, valores())
                 SetGadgetItemData(Paises, 0, Val(MapKey(valores())))
@@ -109,6 +110,7 @@ Repeat
               ClearGadgetItems(Regiones)
               ClearGadgetItems(Provincias)
               ClearGadgetItems(Tiendas)
+              SetGadgetText(err_dom, "")
               ForEach Valores()
                 AddGadgetItem(Regiones, 0, valores())
                 SetGadgetItemData(Regiones, 0, Val(MapKey(valores())))
@@ -125,6 +127,7 @@ Repeat
               obtainIdName(output(), prov$, "</option><option", valores())
               ClearGadgetItems(Provincias)
               ClearGadgetItems(Tiendas)
+              SetGadgetText(err_dom, "")
               ForEach Valores()
                 AddGadgetItem(Provincias, 0, valores())
                 SetGadgetItemData(Provincias, 0, Val(MapKey(valores())))
@@ -140,6 +143,7 @@ Repeat
               NewMap valores.s()
               obtainIdName(output(), shop$, "</option><option", valores())
               ClearGadgetItems(Tiendas)
+              SetGadgetText(err_dom, "")
               ForEach Valores()
                 AddGadgetItem(Tiendas, 0, valores())
                 SetGadgetItemData(Tiendas, 0, Val(MapKey(valores())))
@@ -149,6 +153,7 @@ Repeat
           Select EventType()
             Case #PB_EventType_Change
               DisableGadget(enviar_config, 0) ;Se habilita el boton de envio de configuracion
+              SetGadgetText(err_dom, "")
               valor = GetGadgetItemData(Tiendas, GetGadgetState(Tiendas))
               POST_PB(ConnectionID, server$, "/transf_orgs.cgi", "tienda=" + valor + "&action=cod_tienda")
           EndSelect
@@ -183,7 +188,7 @@ Repeat
               ElseIf what_win = 16 ;Ventana de configuración adiccional (dominios)
                 ok$ = StringField(res$, 1, ";") 
                 If ok$ = "OK"
-                 count = 0
+                 count = 0 
                  NewList dat.s()
                  NewList actualizar.s()
                  dom$ = StringField(res$, 2, ";")
@@ -201,16 +206,20 @@ Repeat
                      FileSeek(0, Lof(0))
                      WriteStringN(0, "extradomain = " + dom$)
                      CloseFile(0)
+                     ClearGadgetItems(lista_dominios)
                      ;Mostramos los dominios actualizados
                      loadDomains(domain_file$, actualizar())
                      ForEach actualizar()
                        AddGadgetItem(lista_dominios, -1, actualizar())
                      Next
                    EndIf
-                 EndIf
+                 Else
+                   SetGadgetText(err_dom, "Ese dominio ya existe")  
+                 EndIf  
                 EndIf  
               EndIf
           EndSelect
+       Case shop_status
        Case msg_normal
           Select EventType()
             Case #PB_EventType_LeftClick
@@ -244,10 +253,10 @@ Repeat
                 SetGadgetItemData(Entidades, 0, Val(MapKey(valores())))
               Next
               ;Mostramos los dominios actuales
-;               loadDomains(domain_file$, dat2())
-;               ForEach dat2()
-;                 AddGadgetItem(lista_dominios, -1, dat2())
-;               Next
+              loadDomains(domain_file$, dat2())
+              ForEach dat2()
+                AddGadgetItem(lista_dominios, -1, dat2())
+              Next
          EndSelect 
        Case play_msg
          MP3_Free(0)
@@ -273,6 +282,6 @@ Repeat
     EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 249
-; FirstLine = 219
+; CursorPosition = 220
+; FirstLine = 187
 ; EnableXP
