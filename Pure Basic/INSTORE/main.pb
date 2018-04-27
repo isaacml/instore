@@ -4,6 +4,8 @@ IncludeFile "config.pbi"
 IncludeFile "config_shop.pbf"
 IncludeFile "mensajes.pbf"
 IncludeFile "dominios.pbf"
+IncludeFile "tienda.pbf"
+IncludeFile "tienda.pbi"
 IncludeFile  "../LIBS/libs.pb"
 Define output.s
 Global user.s
@@ -28,12 +30,10 @@ Repeat
       evGadget = EventGadget()
       Select evGadget
         Case send
-          username$ = GetGadgetText(username)
-          password$ = GetGadgetText(password)
-          parameters$ = "user=" + username$ + "&pass=" + password$
+          parameters$ = "user=" + GetGadgetText(username) + "&pass=" + GetGadgetText(password)
           st_login$ = POST_PB(ConnectionID, server$, "/auth.cgi", parameters$)
           If st_login$ = "OK"
-            user = username$
+            user = GetGadgetText(username)
             If ReadFile(0,domain_file$)
               Openmenu()
               CloseWindow(EventWindow())
@@ -219,8 +219,7 @@ Repeat
                 EndIf  
               EndIf
           EndSelect
-       Case shop_status
-       Case msg_normal
+       Case msg_normal ;(Boton de Menu: Mensajes)
           Select EventType()
             Case #PB_EventType_LeftClick
               CloseWindow(EventWindow())
@@ -231,7 +230,7 @@ Repeat
                 AddGadgetItem(show_msg, 0, msgfiles())
               Next
           EndSelect
-       Case doms
+       Case doms ;(Boton de Menu: Dominios)
           Select EventType()
             Case #PB_EventType_LeftClick
               Dim output.s(0)
@@ -258,7 +257,7 @@ Repeat
                 AddGadgetItem(lista_dominios, -1, dat2())
               Next
          EndSelect 
-       Case play_msg
+       Case play_msg ;Boton que reproduce un mensaje
          MP3_Free(0)
          Select EventType()
            Case #PB_EventType_LeftClick
@@ -267,6 +266,8 @@ Repeat
                MP3_Play(0)
              EndIf
          EndSelect
+       Case shop_status ;(Boton de Menu: Tienda)
+         shop_status()
      EndSelect
     Case #PB_Event_Menu
      Select EventMenu()
@@ -282,6 +283,6 @@ Repeat
     EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 220
-; FirstLine = 187
+; CursorPosition = 269
+; FirstLine = 230
 ; EnableXP

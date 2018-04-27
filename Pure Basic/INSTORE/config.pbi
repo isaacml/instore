@@ -1,6 +1,7 @@
 ﻿server$  = "192.168.4.22"                        ; Server Externo
 port.l   = 8080                                  ; Port
 domain_file$  = "configshop.reg"
+settings_file$ = "SettingsShop.reg"
   
 Procedure.s obtainIdName(Array a$(1), s$, delimeter$, Map Valores.s())
   Protected count, i, f
@@ -82,7 +83,6 @@ Procedure MP3_Free(Nb)
 EndProcedure
   
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 61
-; FirstLine = 21
+; CursorPosition = 5
 ; Folding = --
 ; EnableXP
