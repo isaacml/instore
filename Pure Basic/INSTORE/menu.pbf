@@ -16,7 +16,7 @@ EndEnumeration
 
 UsePNGImageDecoder()
 
-Img_menu_0 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\Pure Basic\INSTORE\logout.png")
+Img_menu_0 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\logout.png")
 
 Enumeration FormFont
   #Font_menu_0
@@ -62,8 +62,8 @@ Procedure menu_Events(event)
 EndProcedure
 
 
-; IDE Options = PureBasic 5.61 (Windows - x64)
+; IDE Options = PureBasic 5.61 (Windows - x86)
 ; CursorPosition = 18
-; FirstLine = 5
+; FirstLine = 12
 ; Folding = -
 ; EnableXP

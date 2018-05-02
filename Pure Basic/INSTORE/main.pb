@@ -18,8 +18,8 @@ ImportC ""
 EndImport
 
 ConnectionID = OpenNetworkConnection(server$, port.l) 
-DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
-DirectoryMsg$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\Messages"
+DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
+DirectoryMsg$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\Messages"
 
 Repeat
   event = WaitWindowEvent()
@@ -277,16 +277,21 @@ Repeat
              SetGadgetText(dir_ip, dats())
            EndIf
          Next
+         formar_horas(h1)
+         formar_minutos(m1)
+         formar_horas(h2)
+         formar_minutos(m2)
        Case ip_send
          ip.s = GetGadgetText(dir_ip)
-         Debug ip
+         ClearGadgetItems(dir_ip)
+         SetGadgetText(dir_ip, ip)
      EndSelect
     Case #PB_Event_Menu
      Select EventMenu()
-       Case #back_msg, #back_dom
+       Case #back_msg, #back_dom, #back_shop
          CloseWindow(EventWindow())
          Openmenu()
-       Case #logout_menu, #logout_msg, #logout_dom
+       Case #logout_menu, #logout_msg, #logout_dom, #logout_tienda
          CloseWindow(EventWindow())
          Openpanel_login()
     EndSelect
@@ -294,7 +299,7 @@ Repeat
         eventClose = #True
     EndSelect
 Until eventClose = #True
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 279
-; FirstLine = 255
+; IDE Options = PureBasic 5.61 (Windows - x86)
+; CursorPosition = 282
+; FirstLine = 247
 ; EnableXP

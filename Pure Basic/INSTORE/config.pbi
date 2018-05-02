@@ -81,7 +81,20 @@ Procedure MP3_Free(Nb)
   i=mciSendString_("close MP3_"+Str(Nb),0,0,0)
   ProcedureReturn i
 EndProcedure
-  
-; IDE Options = PureBasic 5.61 (Windows - x64)
+;Genera el select de horas que necesita la Tienda
+Procedure formar_horas(gadget)
+  For a = 0 To 23
+    AddGadgetItem(gadget, -1, Str(a))
+  Next
+EndProcedure
+;Genera el select de minutos que necesita la Tienda
+Procedure formar_minutos(gadget)
+  For a = 0 To 59
+    AddGadgetItem(gadget, -1, Str(a))
+  Next
+EndProcedure
+; IDE Options = PureBasic 5.61 (Windows - x86)
+; CursorPosition = 86
+; FirstLine = 43
 ; Folding = --
 ; EnableXP

@@ -17,8 +17,8 @@ EndEnumeration
 
 UsePNGImageDecoder()
 
-Img_dominios_0 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\Pure Basic\INSTORE\logout.png")
-Img_dominios_1 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\Pure Basic\INSTORE\flecha-atras.png")
+Img_dominios_0 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\logout.png")
+Img_dominios_1 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\flecha-atras.png")
 
 Enumeration FormFont
   #Font_dominios_0
@@ -76,8 +76,8 @@ Procedure dominios_Events(event)
 EndProcedure
 
 
-; IDE Options = PureBasic 5.61 (Windows - x64)
+; IDE Options = PureBasic 5.61 (Windows - x86)
 ; CursorPosition = 20
-; FirstLine = 13
+; FirstLine = 14
 ; Folding = -
 ; EnableXP
