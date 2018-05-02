@@ -82,7 +82,6 @@ Procedure MP3_Free(Nb)
   ProcedureReturn i
 EndProcedure
   
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 5
+; IDE Options = PureBasic 5.61 (Windows - x64)
 ; Folding = --
 ; EnableXP

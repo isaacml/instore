@@ -5,7 +5,6 @@ IncludeFile "config_shop.pbf"
 IncludeFile "mensajes.pbf"
 IncludeFile "dominios.pbf"
 IncludeFile "tienda.pbf"
-IncludeFile "tienda.pbi"
 IncludeFile  "../LIBS/libs.pb"
 Define output.s
 Global user.s
@@ -19,8 +18,8 @@ ImportC ""
 EndImport
 
 ConnectionID = OpenNetworkConnection(server$, port.l) 
-DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
-DirectoryMsg$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\Messages"
+DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
+DirectoryMsg$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\Messages"
 
 Repeat
   event = WaitWindowEvent()
@@ -267,7 +266,20 @@ Repeat
              EndIf
          EndSelect
        Case shop_status ;(Boton de Menu: Tienda)
-         shop_status()
+         CloseWindow(EventWindow())
+         Openpanel_tienda()
+         NewList dats.s()
+         ;Leemos el fichero de settings
+         loadDomains(settings_file$, dats())
+         ForEach dats()
+           If CountString(dats(), "http:") >= 1
+             ;Envíamos la IP de salida
+             SetGadgetText(dir_ip, dats())
+           EndIf
+         Next
+       Case ip_send
+         ip.s = GetGadgetText(dir_ip)
+         Debug ip
      EndSelect
     Case #PB_Event_Menu
      Select EventMenu()
@@ -282,7 +294,7 @@ Repeat
         eventClose = #True
     EndSelect
 Until eventClose = #True
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 269
-; FirstLine = 230
+; IDE Options = PureBasic 5.61 (Windows - x64)
+; CursorPosition = 279
+; FirstLine = 255
 ; EnableXP
