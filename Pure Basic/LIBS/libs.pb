@@ -72,7 +72,7 @@ Procedure.s POST_PB_FILE(host$, port.l, path$, file$)
   ProcedureReturn Output$ ;Devuelve respuesta
  EndProcedure
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 61
+; CursorPosition = 67
 ; FirstLine = 21
 ; Folding = -
 ; EnableXP

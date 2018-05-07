@@ -281,6 +281,28 @@ Repeat
          formar_minutos(m1)
          formar_horas(h2)
          formar_minutos(m2)
+       Case send_horario
+         hora1.s = GetGadgetText(h1)
+         min1.s = GetGadgetText(m1)
+         hora2.s = GetGadgetText(h2)
+         min2.s = GetGadgetText(m2)
+         If hora1 = "" Or min1 = "" Or hora2 = "" Or min2 = ""
+           SetGadgetText(info_horario, "Hay campos vacíos")
+         Else
+           If OpenDatabase(0, DatabaseFile$, "", "")
+             If DatabaseQuery(0, "SELECT hora_inicial, hora_final FROM horario;")
+               While NextDatabaseRow(0) ; Loop for each records
+                 Debug GetDatabaseString(0, 0) + " SEP " + GetDatabaseString(0, 1)    
+               Wend
+               FinishDatabaseQuery(0)
+             Else
+               Debug DatabaseError()
+             EndIf
+           Else
+             Debug DatabaseError()
+             MessageRequester("Information","Error to open")
+           EndIf
+         EndIf
        Case ip_send
          ip.s = GetGadgetText(dir_ip)
          ClearGadgetItems(dir_ip)
@@ -300,6 +322,6 @@ Repeat
     EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 282
-; FirstLine = 247
+; CursorPosition = 292
+; FirstLine = 256
 ; EnableXP

@@ -84,17 +84,25 @@ EndProcedure
 ;Genera el select de horas que necesita la Tienda
 Procedure formar_horas(gadget)
   For a = 0 To 23
-    AddGadgetItem(gadget, -1, Str(a))
+    If Len(Str(a)) = 1
+      AddGadgetItem(gadget, -1, RSet(Str(a), 2, "0"))
+    Else
+      AddGadgetItem(gadget, -1, Str(a))
+    EndIf
   Next
 EndProcedure
 ;Genera el select de minutos que necesita la Tienda
 Procedure formar_minutos(gadget)
   For a = 0 To 59
-    AddGadgetItem(gadget, -1, Str(a))
+    If Len(Str(a)) = 1
+      AddGadgetItem(gadget, -1, RSet(Str(a), 2, "0"))
+    Else
+      AddGadgetItem(gadget, -1, Str(a))
+    EndIf
   Next
 EndProcedure
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 86
-; FirstLine = 43
+; CursorPosition = 100
+; FirstLine = 51
 ; Folding = --
 ; EnableXP
