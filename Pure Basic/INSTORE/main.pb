@@ -282,27 +282,35 @@ Repeat
          formar_horas(h2)
          formar_minutos(m2)
        Case send_horario
-         hora1.s = GetGadgetText(h1)
-         min1.s = GetGadgetText(m1)
-         hora2.s = GetGadgetText(h2)
-         min2.s = GetGadgetText(m2)
-         If hora1 = "" Or min1 = "" Or hora2 = "" Or min2 = ""
-           SetGadgetText(info_horario, "Hay campos vacíos")
-         Else
-           If OpenDatabase(0, DatabaseFile$, "", "")
-             If DatabaseQuery(0, "SELECT hora_inicial, hora_final FROM horario;")
-               While NextDatabaseRow(0) ; Loop for each records
-                 Debug GetDatabaseString(0, 0) + " SEP " + GetDatabaseString(0, 1)    
-               Wend
-               FinishDatabaseQuery(0)
+         Select EventType()
+           Case #PB_EventType_LeftClick
+             hora1.s = GetGadgetText(h1)
+             min1.s = GetGadgetText(m1)
+             hora2.s = GetGadgetText(h2)
+             min2.s = GetGadgetText(m2)
+             If hora1 = "" Or min1 = "" Or hora2 = "" Or min2 = ""
+               SetGadgetText(info_horario, "Hay campos vacíos")
              Else
-               Debug DatabaseError()
+               If OpenDatabase(1, DatabaseFile$, "", "")
+                 If DatabaseQuery(1, "SELECT hora_inicial, hora_final FROM horario;")
+                   exist = NextDatabaseRow(1) ;Se comprueba si hay un horario o NO
+                   If exist = 0 ;No hay horario previo, por tanto, insertamos
+                     sql.s = "INSERT INTO horario (hora_inicial, hora_final) VALUES ('"+ hora1 + ":" + min1 +"','"+ hora2 + ":" + min2 +"')"
+                     DatabaseUpdate(1, sql)
+                   Else ;Hay un horario existente, por tanto, borramos el viejo y insertamos el nuevo
+                     delete.s = "DELETE FROM horario"
+                     DatabaseUpdate(1, delete)
+                     insert.s = "INSERT INTO horario (hora_inicial, hora_final) VALUES ('"+ hora1 + ":" + min1 +"','"+ hora2 + ":" + min2 +"')"
+                     DatabaseUpdate(1, insert)
+                   EndIf
+                   FinishDatabaseQuery(1)
+                 EndIf
+                 CloseDatabase(1)
+               Else
+                 MessageRequester("Information","Error to Open DB")
+               EndIf
              EndIf
-           Else
-             Debug DatabaseError()
-             MessageRequester("Information","Error to open")
-           EndIf
-         EndIf
+         EndSelect
        Case ip_send
          ip.s = GetGadgetText(dir_ip)
          ClearGadgetItems(dir_ip)
@@ -322,6 +330,6 @@ Repeat
     EndSelect
 Until eventClose = #True
 ; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 292
-; FirstLine = 256
+; CursorPosition = 313
+; FirstLine = 269
 ; EnableXP
