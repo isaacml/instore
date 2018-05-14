@@ -11,17 +11,12 @@ Global panel_mensajes
 
 Global lbl_msg, show_msg, play_msg
 
-Global Img_panel_mensajes_0, Img_panel_mensajes_1
-
 Enumeration FormMenu
-  #back_msg
-  #logout_msg
+  #prog
+  #msg
+  #dom
+  #shop
 EndEnumeration
-
-UsePNGImageDecoder()
-
-Img_panel_mensajes_0 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\flecha-atras.png")
-Img_panel_mensajes_1 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\logout.png")
 
 Enumeration FormFont
   #Font_panel_mensajes_0
@@ -33,18 +28,18 @@ LoadFont(#Font_panel_mensajes_1,"Verdana", 12)
 
 
 Procedure Openpanel_mensajes(x = 0, y = 0, width = 800, height = 600)
-  panel_mensajes = OpenWindow(#PB_Any, x, y, width, height, "Desconectar", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
-  CreateToolbar(0, WindowID(panel_mensajes))
-  ToolBarImageButton(#back_msg,ImageID(Img_panel_mensajes_0))
-  ToolBarToolTip(0, #back_msg, "Atrás")
-  ToolBarSeparator()
-  ToolBarImageButton(#logout_msg,ImageID(Img_panel_mensajes_1))
-  ToolBarToolTip(0, #logout_msg, "Desconectar")
-  lbl_msg = TextGadget(#PB_Any, 200, ToolBarHeight(0) + 100, 440, 30, "Reproducir un mensaje de manera inmediata")
+  panel_mensajes = OpenWindow(#PB_Any, x, y, width, height, "Mensajes", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
+  CreateMenu(0, WindowID(panel_mensajes))
+  MenuTitle("Menu")
+  MenuItem(#prog, "Programar Música")
+  MenuItem(#msg, "Mensajes")
+  MenuItem(#dom, "Dominios")
+  MenuItem(#shop, "Tienda")
+  lbl_msg = TextGadget(#PB_Any, 200, 100, 440, 30, "Reproducir un mensaje de manera inmediata")
   SetGadgetColor(lbl_msg, #PB_Gadget_FrontColor,RGB(0,0,64))
   SetGadgetFont(lbl_msg, FontID(#Font_panel_mensajes_0))
-  show_msg = ComboBoxGadget(#PB_Any, 270, ToolBarHeight(0) + 150, 290, 20)
-  play_msg = ButtonGadget(#PB_Any, 360, ToolBarHeight(0) + 190, 110, 30, "Reproducir")
+  show_msg = ComboBoxGadget(#PB_Any, 270, 150, 290, 20)
+  play_msg = ButtonGadget(#PB_Any, 360, 190, 110, 30, "Reproducir")
   SetGadgetFont(play_msg, FontID(#Font_panel_mensajes_1))
 EndProcedure
 
@@ -55,8 +50,10 @@ Procedure panel_mensajes_Events(event)
 
     Case #PB_Event_Menu
       Select EventMenu()
-        Case #back_msg
-        Case #logout_msg
+        Case #prog
+        Case #msg
+        Case #dom
+        Case #shop
       EndSelect
 
     Case #PB_Event_Gadget

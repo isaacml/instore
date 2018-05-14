@@ -20,8 +20,8 @@ EndEnumeration
 
 UsePNGImageDecoder()
 
-Img_panel_tienda_0 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\logout.png")
-Img_panel_tienda_1 = LoadImage(#PB_Any,"C:\Users\Isaac\Documents\PB\INSTORE\flecha-atras.png")
+Img_panel_tienda_0 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\Pure Basic\INSTORE\flecha-atras.png")
+Img_panel_tienda_1 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\Pure Basic\INSTORE\logout.png")
 
 Enumeration FormFont
   #Font_panel_tienda_0
@@ -35,9 +35,9 @@ LoadFont(#Font_panel_tienda_1,"Verdana", 12)
 Procedure Openpanel_tienda(x = 0, y = 0, width = 800, height = 600)
   panel_tienda = OpenWindow(#PB_Any, x, y, width, height, "", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
   CreateToolbar(0, WindowID(panel_tienda))
-  ToolBarImageButton(#back_shop,ImageID(Img_panel_tienda_1))
+  ToolBarImageButton(#back_shop,ImageID(Img_panel_tienda_0))
   ToolBarSeparator()
-  ToolBarImageButton(#logout_tienda,ImageID(Img_panel_tienda_0))
+  ToolBarImageButton(#logout_tienda,ImageID(Img_panel_tienda_1))
   dir_ip = StringGadget(#PB_Any, 280, ToolBarHeight(0) + 450, 270, 30, "")
   lbl_ip = TextGadget(#PB_Any, 350, ToolBarHeight(0) + 410, 150, 30, "IP de Servidor")
   SetGadgetColor(lbl_ip, #PB_Gadget_FrontColor,RGB(0,0,64))

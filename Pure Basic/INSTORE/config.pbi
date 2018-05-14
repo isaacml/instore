@@ -1,4 +1,4 @@
-﻿server$  = "192.168.4.22"                        ; Server Externo
+﻿server$  = "192.168.0.102"                        ; Server Externo
 port.l   = 8080                                  ; Port
 domain_file$  = "configshop.reg"
 settings_file$ = "SettingsShop.reg"
@@ -33,25 +33,6 @@ Procedure.s obtainIdName(Array a$(1), s$, delimeter$, Map Valores.s())
   Next
 EndProcedure
 
-Procedure.s obtainMsgFiles(directory$, List MsgFiles.s())
-  If ExamineDirectory(0, directory$, "*.*")  
-    While NextDirectoryEntry(0)
-      If DirectoryEntryType(0) = #PB_DirectoryEntry_File
-        is_mp3 = CountString(DirectoryEntryName(0), ".mp3")
-        is_wma = CountString(DirectoryEntryName(0), ".wma")
-        If is_mp3 = 1
-          AddElement(MsgFiles())
-          MsgFiles() = DirectoryEntryName(0)
-        ElseIf is_wma = 1
-          AddElement(MsgFiles())
-          MsgFiles() = DirectoryEntryName(0)
-        EndIf
-      EndIf
-    Wend
-    FinishDirectory(0)
-  EndIf
-EndProcedure
-
 Procedure.s loadDomains(file$, List doms.s())
   If ReadFile(0, file$)   ; if the file could be read, we continue...
     While Eof(0) = 0      ; loop as long the 'end of file' isn't reached
@@ -62,47 +43,8 @@ Procedure.s loadDomains(file$, List doms.s())
     CloseFile(0)
   EndIf
 EndProcedure
-
-Procedure MP3_Load(Nb,file.s)
-  i=mciSendString_("OPEN "+Chr(34)+file+Chr(34)+" Type MPEGVIDEO ALIAS MP3_"+Str(Nb),0,0,0)
-  If i=0
-    ProcedureReturn #True
-  Else
-    ProcedureReturn #False
-  EndIf
-EndProcedure
-
-Procedure MP3_Play(Nb)
-  i=mciSendString_("play MP3_"+Str(Nb),0,0,0)
-  ProcedureReturn i
-EndProcedure
-
-Procedure MP3_Free(Nb)
-  i=mciSendString_("close MP3_"+Str(Nb),0,0,0)
-  ProcedureReturn i
-EndProcedure
-;Genera el select de horas que necesita la Tienda
-Procedure formar_horas(gadget)
-  For a = 0 To 23
-    If Len(Str(a)) = 1
-      AddGadgetItem(gadget, -1, RSet(Str(a), 2, "0"))
-    Else
-      AddGadgetItem(gadget, -1, Str(a))
-    EndIf
-  Next
-EndProcedure
-;Genera el select de minutos que necesita la Tienda
-Procedure formar_minutos(gadget)
-  For a = 0 To 59
-    If Len(Str(a)) = 1
-      AddGadgetItem(gadget, -1, RSet(Str(a), 2, "0"))
-    Else
-      AddGadgetItem(gadget, -1, Str(a))
-    EndIf
-  Next
-EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 100
-; FirstLine = 51
-; Folding = --
+; IDE Options = PureBasic 5.61 (Windows - x64)
+; CursorPosition = 33
+; FirstLine = 4
+; Folding = -
 ; EnableXP
