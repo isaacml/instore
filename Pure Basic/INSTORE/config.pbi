@@ -1,4 +1,4 @@
-﻿server$  = "192.168.0.102"                        ; Server Externo
+﻿server$  = "192.168.4.22"                        ; Server Externo
 port.l   = 8080                                  ; Port
 domain_file$  = "configshop.reg"
 settings_file$ = "SettingsShop.reg"
@@ -43,8 +43,6 @@ Procedure.s loadDomains(file$, List doms.s())
     CloseFile(0)
   EndIf
 EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 33
-; FirstLine = 4
+; IDE Options = PureBasic 5.61 (Windows - x86)
 ; Folding = -
 ; EnableXP

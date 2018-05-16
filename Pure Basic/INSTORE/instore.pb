@@ -4,8 +4,8 @@ IncludeFile "dominios.pbf"
 IncludeFile "tienda.pbf"
 
 Procedure Instore(id_con, server$, user.s, domain_file$)
-  DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
-  DirectoryMsg$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\Messages"
+  DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
+  DirectoryMsg$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\Messages"
   
   panel_main = OpenWindow(#PB_Any, 0, 0, 800, 600, "Panel Cliente", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
   
@@ -31,7 +31,7 @@ Procedure Instore(id_con, server$, user.s, domain_file$)
                   MP3_Play(1)
                 EndIf
             EndSelect
-          Case enviar_dom ;Ventana de configuración adiccional (dominios)
+          Case enviar_dom ;Boton de envio (dominios adiccionales)
             res$ = POST_PB_STORE(id_con, server$, "/acciones.cgi", "action=save_domain")
             ok$ = StringField(res$, 1, ";") 
             If ok$ = "OK"
@@ -63,7 +63,39 @@ Procedure Instore(id_con, server$, user.s, domain_file$)
               Else
                 SetGadgetText(err_dom, "Ese dominio ya existe")  
               EndIf  
-            EndIf  
+            EndIf
+          Case send_horario ;Boton de envio (horario de la tienda)
+            Select EventType()
+              Case #PB_EventType_LeftClick
+                hora1.s = GetGadgetText(h1)
+                min1.s = GetGadgetText(m1)
+                hora2.s = GetGadgetText(h2)
+                min2.s = GetGadgetText(m2)
+                If hora1 = "" Or min1 = "" Or hora2 = "" Or min2 = ""
+                  SetGadgetText(info_horario, "Hay campos vacíos")
+                Else
+                  If OpenDatabase(1, DatabaseFile$, "", "")
+                    If DatabaseQuery(1, "SELECT hora_inicial, hora_final FROM horario;")
+                      exist = NextDatabaseRow(1) ;Se comprueba si hay un horario o NO
+                      If exist = 0               ;No hay horario previo, por tanto, insertamos
+                        sql.s = "INSERT INTO horario (hora_inicial, hora_final) VALUES ('"+ hora1 + ":" + min1 +"','"+ hora2 + ":" + min2 +"')"
+                        DatabaseUpdate(1, sql)
+                      Else ;Hay un horario existente, por tanto, borramos el viejo y insertamos el nuevo
+                        delete.s = "DELETE FROM horario"
+                        DatabaseUpdate(1, delete)
+                        insert.s = "INSERT INTO horario (hora_inicial, hora_final) VALUES ('"+ hora1 + ":" + min1 +"','"+ hora2 + ":" + min2 +"')"
+                        DatabaseUpdate(1, insert)
+                      EndIf
+                      SetGadgetColor(info_horario, #PB_Gadget_FrontColor, $15c206)
+                      SetGadgetText(info_horario, "Nuevo horario añadido")
+                      FinishDatabaseQuery(1)
+                    EndIf
+                    CloseDatabase(1)
+                  Else
+                    MessageRequester("Information","Error to Open DB")
+                  EndIf
+                EndIf
+            EndSelect
           Case Entidades
             Select EventType()
               Case #PB_EventType_Change
@@ -165,8 +197,8 @@ Procedure Instore(id_con, server$, user.s, domain_file$)
         EndSelect
       Case #PB_Event_Menu
         Select EventMenu()
-          Case #prog, #prog_dom: Debug "voy pa programar"
-          Case #msg, #msg_dom
+          Case #prog, #prog_dom, #prog_shop: Debug "voy pa programar"
+          Case #msg, #msg_dom, #msg_shop
             CloseWindow(EventWindow())
             Openpanel_mensajes()
             NewList msgfiles.s()
@@ -174,7 +206,7 @@ Procedure Instore(id_con, server$, user.s, domain_file$)
             ForEach msgfiles()
               AddGadgetItem(show_msg, 0, msgfiles())
             Next
-          Case #dom, #dom_dom;(Boton de Menu: Dominios)
+          Case #dom, #dom_dom, #dom_shop ;(Boton de Menu: Dominios)
             CloseWindow(EventWindow())
             Opendominios()
             Dim output.s(0)
@@ -197,13 +229,43 @@ Procedure Instore(id_con, server$, user.s, domain_file$)
             ForEach dat2()
               AddGadgetItem(lista_dominios, -1, dat2())
             Next
-          Case #shop, #shop_dom: Debug "Voy pa tienda"
+          Case #shop, #shop_dom, #shop_shop ;(Boton de Menu: Tienda)
+            CloseWindow(EventWindow())
+            Openpanel_tienda()
+            NewList dats.s()
+            ;Leemos el fichero de settings
+            load_Domains(settings_file$, dats())
+            ForEach dats()
+              If CountString(dats(), "http:") >= 1
+                ;Envíamos la IP de salida
+                SetGadgetText(dir_ip, dats())
+              EndIf
+            Next
+            formar_horas(h1)
+            formar_minutos(m1)
+            formar_horas(h2)
+            formar_minutos(m2)
+            If OpenDatabase(0, DatabaseFile$, "", "")
+              If DatabaseQuery(0, "SELECT hora_inicial, hora_final FROM horario;")
+                exist = NextDatabaseRow(0) ;Se comprueba si hay un horario o NO
+                If exist = 1 
+                  SetGadgetText(h1, StringField(GetDatabaseString(0, 0), 1, ":"))
+                  SetGadgetText(m1, StringField(GetDatabaseString(0, 0), 2, ":"))
+                  SetGadgetText(h2, StringField(GetDatabaseString(0, 1), 1, ":"))
+                  SetGadgetText(m2, StringField(GetDatabaseString(0, 1), 2, ":"))
+                EndIf
+                FinishDatabaseQuery(0)
+              EndIf
+              CloseDatabase(0)
+            Else
+              MessageRequester("Information","Error to Open DB")
+            EndIf
         EndSelect
     EndSelect
   Until Event = #PB_Event_CloseWindow
 EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 34
-; FirstLine = 24
+; IDE Options = PureBasic 5.61 (Windows - x86)
+; CursorPosition = 78
+; FirstLine = 53
 ; Folding = -
 ; EnableXP

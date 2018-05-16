@@ -11,17 +11,12 @@ Global panel_tienda
 
 Global dir_ip, lbl_ip, ip_send, lbl_horario, lbl1, lbl2, h1, m1, h2, m2, send_horario, info_horario
 
-Global Img_panel_tienda_0, Img_panel_tienda_1
-
 Enumeration FormMenu
-  #back_shop
-  #logout_tienda
+  #prog_shop
+  #msg_shop
+  #dom_shop
+  #shop_shop
 EndEnumeration
-
-UsePNGImageDecoder()
-
-Img_panel_tienda_0 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\Pure Basic\INSTORE\flecha-atras.png")
-Img_panel_tienda_1 = LoadImage(#PB_Any,"C:\Users\0oIsa\Documents\Pure Basic\INSTORE\logout.png")
 
 Enumeration FormFont
   #Font_panel_tienda_0
@@ -34,30 +29,32 @@ LoadFont(#Font_panel_tienda_1,"Verdana", 12)
 
 Procedure Openpanel_tienda(x = 0, y = 0, width = 800, height = 600)
   panel_tienda = OpenWindow(#PB_Any, x, y, width, height, "", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
-  CreateToolbar(0, WindowID(panel_tienda))
-  ToolBarImageButton(#back_shop,ImageID(Img_panel_tienda_0))
-  ToolBarSeparator()
-  ToolBarImageButton(#logout_tienda,ImageID(Img_panel_tienda_1))
-  dir_ip = StringGadget(#PB_Any, 280, ToolBarHeight(0) + 450, 270, 30, "")
-  lbl_ip = TextGadget(#PB_Any, 350, ToolBarHeight(0) + 410, 150, 30, "IP de Servidor")
+  CreateMenu(0, WindowID(panel_tienda))
+  MenuTitle("Menu")
+  MenuItem(#prog_shop, "Programar Música")
+  MenuItem(#msg_shop, "Mensajes")
+  MenuItem(#dom_shop, "Dominios")
+  MenuItem(#shop_shop, "Tienda")
+  dir_ip = StringGadget(#PB_Any, 280, 450, 270, 30, "")
+  lbl_ip = TextGadget(#PB_Any, 350, 410, 150, 30, "IP de Servidor")
   SetGadgetColor(lbl_ip, #PB_Gadget_FrontColor,RGB(0,0,64))
   SetGadgetFont(lbl_ip, FontID(#Font_panel_tienda_0))
-  ip_send = ButtonGadget(#PB_Any, 350, ToolBarHeight(0) + 490, 140, 25, "Modificar")
+  ip_send = ButtonGadget(#PB_Any, 350, 490, 140, 25, "Modificar")
   SetGadgetFont(ip_send, FontID(#Font_panel_tienda_1))
-  lbl_horario = TextGadget(#PB_Any, 310, ToolBarHeight(0) + 30, 240, 30, "Horario de reproducción")
+  lbl_horario = TextGadget(#PB_Any, 310, 30, 240, 30, "Horario de reproducción")
   SetGadgetColor(lbl_horario, #PB_Gadget_FrontColor,RGB(0,0,64))
   SetGadgetFont(lbl_horario, FontID(#Font_panel_tienda_0))
-  lbl1 = TextGadget(#PB_Any, 260, ToolBarHeight(0) + 80, 40, 30, "De ", #PB_Text_Center)
+  lbl1 = TextGadget(#PB_Any, 260, 80, 40, 30, "De ", #PB_Text_Center)
   SetGadgetFont(lbl1, FontID(#Font_panel_tienda_1))
-  lbl2 = TextGadget(#PB_Any, 410, ToolBarHeight(0) + 80, 40, 30, " a ", #PB_Text_Center)
+  lbl2 = TextGadget(#PB_Any, 410, 80, 40, 30, " a ", #PB_Text_Center)
   SetGadgetFont(lbl2, FontID(#Font_panel_tienda_1))
-  h1 = ComboBoxGadget(#PB_Any, 300, ToolBarHeight(0) + 80, 50, 25)
-  m1 = ComboBoxGadget(#PB_Any, 360, ToolBarHeight(0) + 80, 50, 25)
-  h2 = ComboBoxGadget(#PB_Any, 450, ToolBarHeight(0) + 80, 50, 25)
-  m2 = ComboBoxGadget(#PB_Any, 510, ToolBarHeight(0) + 80, 50, 25)
-  send_horario = ButtonGadget(#PB_Any, 380, ToolBarHeight(0) + 120, 100, 25, "Enviar")
+  h1 = ComboBoxGadget(#PB_Any, 300, 80, 50, 25)
+  m1 = ComboBoxGadget(#PB_Any, 360, 80, 50, 25)
+  h2 = ComboBoxGadget(#PB_Any, 450, 80, 50, 25)
+  m2 = ComboBoxGadget(#PB_Any, 510, 80, 50, 25)
+  send_horario = ButtonGadget(#PB_Any, 380, 120, 100, 25, "Enviar")
   SetGadgetFont(send_horario, FontID(#Font_panel_tienda_1))
-  info_horario = TextGadget(#PB_Any, 300, ToolBarHeight(0) + 170, 270, 30, "", #PB_Text_Center)
+  info_horario = TextGadget(#PB_Any, 300, 170, 270, 30, "", #PB_Text_Center)
   SetGadgetColor(info_horario, #PB_Gadget_FrontColor,RGB(255,0,0))
 EndProcedure
 
@@ -68,8 +65,10 @@ Procedure panel_tienda_Events(event)
 
     Case #PB_Event_Menu
       Select EventMenu()
-        Case #back_shop
-        Case #logout_tienda
+        Case #prog_shop
+        Case #msg_shop
+        Case #dom_shop
+        Case #shop_shop
       EndSelect
 
     Case #PB_Event_Gadget

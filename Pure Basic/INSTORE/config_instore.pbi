@@ -1,4 +1,4 @@
-﻿server$  = "192.168.0.102"                       ; Server Externo
+﻿server$  = "192.168.4.22"                       ; Server Externo
 port.l   = 8080                                  ; Port
 settings_file$ = "SettingsShop.reg"
 
@@ -138,7 +138,6 @@ Procedure.s POST_PB_STORE(ConnectionID, host$, path$, parameters$)
   FreeMemory(*Buffer)
   CloseNetworkConnection(ConnectionID) 
 EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 1
+; IDE Options = PureBasic 5.61 (Windows - x86)
 ; Folding = --
 ; EnableXP
