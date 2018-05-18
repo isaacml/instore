@@ -3,9 +3,9 @@ IncludeFile "mensajes.pbf"
 IncludeFile "dominios.pbf"
 IncludeFile "tienda.pbf"
 
-Procedure Instore(id_con, server$, user.s, domain_file$)
-  DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
-  DirectoryMsg$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\Messages"
+Procedure Instore(id_con, server$, user.s, domain_file$, settings_file$)
+  DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
+  DirectoryMsg$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\Messages"
   
   panel_main = OpenWindow(#PB_Any, 0, 0, 800, 600, "Panel Cliente", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
   
@@ -22,6 +22,9 @@ Procedure Instore(id_con, server$, user.s, domain_file$)
     Select Event
       Case #PB_Event_Gadget
         Select EventGadget()
+          Case ip_send
+            ip.s = GetGadgetText(dir_ip)
+            Debug ip
           Case play_msg ;Boton que reproduce un mensaje
             MP3_Free(1)
             Select EventType()
@@ -264,8 +267,7 @@ Procedure Instore(id_con, server$, user.s, domain_file$)
     EndSelect
   Until Event = #PB_Event_CloseWindow
 EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 78
-; FirstLine = 53
+; IDE Options = PureBasic 5.61 (Windows - x64)
+; CursorPosition = 27
 ; Folding = -
 ; EnableXP

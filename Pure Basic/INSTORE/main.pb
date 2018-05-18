@@ -15,7 +15,7 @@ ImportC ""
 EndImport
 
 ConnectionID = OpenNetworkConnection(server$, port)
-DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
+DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
 
 Repeat
   event = WaitWindowEvent()
@@ -31,7 +31,7 @@ Repeat
             user = GetGadgetText(username)
             If ReadFile(0,domain_file$)
               CloseWindow(EventWindow())
-              Instore(ConnectionID, server$, user, domain_file$)
+              Instore(ConnectionID, server$, user, domain_file$, settings_file$)
             Else
               Openconfig_shop()
               SetWindowData(GetActiveWindow(), 12)
@@ -170,7 +170,7 @@ Repeat
                       err = DatabaseUpdate(0, "INSERT INTO tienda (dominio, last_connect) VALUES ('"+ dom$ +"',"+ time() +")")
                       If Not err = 0
                         CloseWindow(EventWindow())
-                        Instore(ConnectionID, server$, user, domain_file$)
+                        Instore(ConnectionID, server$, user, domain_file$, settings_file$)
                       EndIf
                       CloseDatabase(0)
                     Else
@@ -187,6 +187,7 @@ Repeat
       eventClose = #True
   EndSelect
 Until eventClose = #True
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 4
+; IDE Options = PureBasic 5.61 (Windows - x64)
+; CursorPosition = 172
+; FirstLine = 148
 ; EnableXP
