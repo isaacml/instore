@@ -4,8 +4,8 @@ IncludeFile "dominios.pbf"
 IncludeFile "tienda.pbf"
 
 Procedure Instore(id_con, server$, user.s, domain_file$, settings_file$)
-  DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
-  DirectoryMsg$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\Messages"
+  DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
+  DirectoryMsg$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\Messages"
   
   panel_main = OpenWindow(#PB_Any, 0, 0, 800, 600, "Panel Cliente", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_WindowCentered)
   
@@ -265,9 +265,11 @@ Procedure Instore(id_con, server$, user.s, domain_file$, settings_file$)
             EndIf
         EndSelect
     EndSelect
+    Delay(1)
   Until Event = #PB_Event_CloseWindow
 EndProcedure
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 27
+; IDE Options = PureBasic 5.61 (Windows - x86)
+; CursorPosition = 267
+; FirstLine = 213
 ; Folding = -
 ; EnableXP

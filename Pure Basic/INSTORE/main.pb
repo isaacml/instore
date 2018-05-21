@@ -15,7 +15,7 @@ ImportC ""
 EndImport
 
 ConnectionID = OpenNetworkConnection(server$, port)
-DatabaseFile$ = "C:\Users\0oIsa\Documents\PRUEBAS_INSTORE\shop.db"
+DatabaseFile$ = "C:\Users\Isaac\Documents\Prueba Compilado PB\shop.db"
 
 Repeat
   event = WaitWindowEvent()
@@ -186,8 +186,9 @@ Repeat
     Case #PB_Event_CloseWindow
       eventClose = #True
   EndSelect
+  Delay(1)
 Until eventClose = #True
-; IDE Options = PureBasic 5.61 (Windows - x64)
-; CursorPosition = 172
-; FirstLine = 148
+; IDE Options = PureBasic 5.61 (Windows - x86)
+; CursorPosition = 188
+; FirstLine = 132
 ; EnableXP
