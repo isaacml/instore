@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/isaacml/instore/libs"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/isaacml/instore/libs"
 )
 
 //Variables para guardar el identificador anterior, en caso de no encontrar datos.
@@ -369,10 +370,22 @@ func dest_explorer(w http.ResponseWriter, r *http.Request) {
 				db_mu.Unlock()
 				output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 			} else { //Solo la organizacion a la que pertenece
+				resultado := libs.GenerateFORM(settings["serverroot"]+"/acciones.cgi", "accion;destinos", "internal_action;gent_ent_noadmin", "userAdmin;"+username)
+				res := strings.Split(resultado, "@@")
+				div_ent := strings.Split(res[1], "::")
+				for _, val := range div_ent {
+					if val != "" {
+						arr_entidad = strings.Split(val, ";")
+						output += fmt.Sprintf("<option value='entidad:.:%s'>%s</option>", arr_entidad[0], arr_entidad[1])
+						db_mu.Lock()
+						back_org = "entidad"
+						db_mu.Unlock()
+					}
+				}
 				db_mu.Lock()
-				estado_destino = res[1]
-				output = fmt.Sprintf("%s;<span style='color: #1A5276'>%s</span>;<input type='hidden' name='destinos' value='%s'>", res[0], estado_destino, estado_destino)
+				estado_destino = "*"
 				db_mu.Unlock()
+				output += ";<span style='color: #1A5276'>" + estado_destino + "</span>;<span style='color: #2E8B57'></span>"
 			}
 			fmt.Fprint(w, output)
 		}

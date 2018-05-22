@@ -231,19 +231,11 @@ func playInstantaneos(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	//Reproducimos el mensaje instantaneo
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
-	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
-	msg_file, err := os.Create("insta_msg_file.bat")
-	if err != nil {
-		err = fmt.Errorf("msg_file: CANNOT CREATE MSG FILE")
-	}
-	defer msg_file.Close()
-	msg_file.WriteString("@echo off\r\napps\\ffplay.exe -nodisp \"" + msg_files_location + r.FormValue("instantaneos") + "\" -autoexit")
-	exec.Command("cmd", "/c", "insta_msg_file.bat").Run()
+	cadena := "apps\\ffplay.exe -nodisp \"" + msg_files_location + r.FormValue("instantaneos") + "\" -autoexit"
+	fmt.Println(cadena)
+	exec.Command("cmd", "/c", cadena)
 	//Vuelve a sonar la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
-	// if st == "END" {
-	// 	fmt.Fprint(w, "FIN")
-	// }
 }
 
 //Programar Musica para la Tienda
