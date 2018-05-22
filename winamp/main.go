@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -228,7 +229,7 @@ func (w *Winamp) SongLenght(file string) int {
 }
 
 // Metodo que introduce la publicidad por ffplay
-func (w *Winamp) PlayFFplay(publi string) string {
+func (w *Winamp) PlayFFplay(publi string) {
 	var gen_bat string
 	//Paramos la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
@@ -244,5 +245,4 @@ func (w *Winamp) PlayFFplay(publi string) string {
 	exec.Command("cmd", "/c", "msg_file.bat").Run()
 	//Vuelve a sonar la cancion
 	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
-	return "END"
 }

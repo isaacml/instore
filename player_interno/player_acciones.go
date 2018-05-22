@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/isaacml/instore/libs"
-	"github.com/isaacml/instore/winamp"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
+
+	"github.com/isaacml/instore/libs"
 )
 
 //Bitmap de música no cifrada: valores posibles 0 o 1
@@ -228,12 +229,21 @@ func instantaneos(w http.ResponseWriter, r *http.Request) {
 
 func playInstantaneos(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	var win winamp.Winamp
 	//Reproducimos el mensaje instantaneo
-	st := win.PlayFFplay(msg_files_location + r.FormValue("instantaneos"))
-	if st == "END" {
-		fmt.Fprint(w, "FIN")
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
+	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
+	msg_file, err := os.Create("insta_msg_file.bat")
+	if err != nil {
+		err = fmt.Errorf("msg_file: CANNOT CREATE MSG FILE")
 	}
+	defer msg_file.Close()
+	msg_file.WriteString("@echo off\r\napps\\ffplay.exe -nodisp \"" + msg_files_location + r.FormValue("instantaneos") + "\" -autoexit")
+	exec.Command("cmd", "/c", "insta_msg_file.bat").Run()
+	//Vuelve a sonar la cancion
+	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
+	// if st == "END" {
+	// 	fmt.Fprint(w, "FIN")
+	// }
 }
 
 //Programar Musica para la Tienda

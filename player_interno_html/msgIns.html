@@ -116,7 +116,7 @@
                                 </fieldset>
                                 <br> 
                             </form>
-                            <button id="enviar" class="btn btn-lg btn-success" name="enviar">Reproducir</button>
+                            <button id="enviar" class="btn btn-lg btn-success" onclick="send_msg()" name="enviar">Reproducir</button>
                             <br><br>
                         </div>
                     </div>
@@ -142,15 +142,10 @@
             $.post("/instantaneos.cgi?sid={{sid}}", function(data, status) {
                 $("#instantaneos").html(data);
             });
-            $("#enviar").click(function(){
-                $("#enviar").hide();
-                $.post("/playInstantaneos.cgi?sid={{sid}}",  $("#testform").serialize(), function(data, status) {
-                    if (data == "FIN"){
-                        location.reload();
-                    }
-                });
-            });
         });
+        function send_msg(){
+            $.post("/playInstantaneos.cgi?sid={{sid}}",  $("#testform").serialize(), function(data, status) {});  
+        }
     </script>
 </body>
 </html>
