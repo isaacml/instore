@@ -229,13 +229,23 @@ func instantaneos(w http.ResponseWriter, r *http.Request) {
 
 func playInstantaneos(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	//Reproducimos el mensaje instantaneo
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
-	cadena := "apps\\ffplay.exe -nodisp \"" + msg_files_location + r.FormValue("instantaneos") + "\" -autoexit"
-	fmt.Println(cadena)
-	exec.Command("cmd", "/c", cadena)
-	//Vuelve a sonar la cancion
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
+	bat_file := "msg_file.bat"
+	mensaje := r.FormValue("instantaneos")
+	fmt.Println(mensaje)
+	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
+	msg_file, err := os.Create(bat_file)
+	if err != nil {
+		err = fmt.Errorf("msg_file: CANNOT CREATE MSG FILE")
+	}
+	//Generar el link de reproduccion de mensaje
+	gen_bat := "@echo off\r\napps\\CLEvER.exe volume 0\r\napps\\ffplay.exe -nodisp \"" + msg_files_location + mensaje + "\" -autoexit\r\napps\\CLEvER.exe volume 250"
+	msg_file.WriteString(gen_bat)
+	msg_file.Close()
+	//Una vez creado el fichero, lo ejecutamos (se reproduce el mensaje)
+	err = exec.Command("cmd", "/c", bat_file).Run()
+	if err != nil {
+		err = fmt.Errorf("bat_msg_file: FAIL TO EXECUTE BAT")
+	}
 }
 
 //Programar Musica para la Tienda

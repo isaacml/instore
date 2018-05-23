@@ -105,7 +105,7 @@
                             Reproduce un mensaje de manera inmediata
                         </div>
                         <div class="panel-body" align="center">
-                            <form id="testform" action="" method="post">
+                            <form id="testform" action="/playInstantaneos.cgi?sid={{sid}}" method="post">
                                 <fieldset>
                                     <h5 class="text-muted">Elige el mensaje</h5>
                                     <br>
@@ -114,9 +114,9 @@
                                     </div>
                                     <div id="st_inst"></div>
                                 </fieldset>
-                                <br> 
+                                <br>
+                                <input id="enviar" type="submit" class="btn btn-lg btn-success" value="Reproducir"/>
                             </form>
-                            <button id="enviar" class="btn btn-lg btn-success" onclick="send_msg()" name="enviar">Reproducir</button>
                             <br><br>
                         </div>
                     </div>
@@ -143,9 +143,6 @@
                 $("#instantaneos").html(data);
             });
         });
-        function send_msg(){
-            $.post("/playInstantaneos.cgi?sid={{sid}}",  $("#testform").serialize(), function(data, status) {});  
-        }
     </script>
 </body>
 </html>
