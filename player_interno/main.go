@@ -3,8 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/isaacml/instore/libs"
-	_ "github.com/mattn/go-sqlite3"
 	"io"
 	"log"
 	"net/http"
@@ -13,6 +11,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/isaacml/instore/libs"
+	"github.com/isaacml/instore/winamp"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -25,6 +27,7 @@ var (
 	capacidad_arr int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
 	block         bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
 	schedule      bool                                        //Guarda el estado que genera el horario de reproducción (true: reproduce | false: no reproduce)
+	winplayer     *winamp.Winamp
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -45,6 +48,7 @@ func init() {
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
 	libs.LoadSettingsLin(serverRoot, settings) // Se carga los valores del fichero SettingsShop.reg
+	winplayer = winamp.Winamper()
 }
 
 // Funcion principal del programa
@@ -70,6 +74,7 @@ func main() {
 	http.HandleFunc("/acciones.cgi", acciones)
 	//Exploradores
 	http.HandleFunc("/instantaneos.cgi", instantaneos)
+	http.HandleFunc("/mostrar_boton.cgi", mostrar_boton)
 	http.HandleFunc("/playInstantaneos.cgi", playInstantaneos)
 	http.HandleFunc("/programarMusica.cgi", programarMusica)
 

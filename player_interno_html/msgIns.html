@@ -105,7 +105,7 @@
                             Reproduce un mensaje de manera inmediata
                         </div>
                         <div class="panel-body" align="center">
-                            <form id="testform" action="/playInstantaneos.cgi?sid={{sid}}" method="post">
+                            <form id="testform" action="" method="post">
                                 <fieldset>
                                     <h5 class="text-muted">Elige el mensaje</h5>
                                     <br>
@@ -115,9 +115,9 @@
                                     <div id="st_inst"></div>
                                 </fieldset>
                                 <br>
-                                <input id="enviar" type="submit" class="btn btn-lg btn-success" value="Reproducir"/>
                             </form>
                             <br><br>
+                            <button id="enviar" class="btn btn-lg btn-success" onclick="sendMsg()" name="enviar">Reproducir</button>
                         </div>
                     </div>
                 </div>
@@ -126,6 +126,7 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
+            setInterval("mostrar_boton()", 1000); //Cada segundo muestra el estado de la tienda
             $.post("/acciones.cgi?sid={{sid}}&accion=bitmaps", function(data, status) {
                 var res = data.split(";");
                 //Programar Música
@@ -143,6 +144,19 @@
                 $("#instantaneos").html(data);
             });
         });
+        function sendMsg(){
+            $.post("/playInstantaneos.cgi?sid={{sid}}", $("#testform").serialize(), function(data, status) {});
+        }
+        function mostrar_boton(){
+            $.post("/mostrar_boton.cgi?sid={{sid}}", function(data, status) {
+                if (data == "Deshabilitamos"){
+                    $("#enviar").hide();
+                }
+                if (data == "Habilitamos"){
+                    $("#enviar").show();
+                }
+            });
+        }
     </script>
 </body>
 </html>

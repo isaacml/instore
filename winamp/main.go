@@ -12,18 +12,20 @@ import (
 
 type Winamp struct {
 	// internal status variables
-	play   bool
-	stop   bool
-	pause  bool
-	volume int
-	run    bool
-	mu     sync.Mutex // mutex tu protect the internal variables on multithreads
+	play           bool
+	stop           bool
+	pause          bool
+	volume         int
+	run            bool
+	mostrar_button bool
+	mu             sync.Mutex // mutex tu protect the internal variables on multithreads
 }
 
 type Status struct {
-	Playing  bool
-	Stopping bool
-	Pausing  bool
+	Playing       bool
+	Stopping      bool
+	Pausing       bool
+	MostrarButton bool
 }
 
 //Constructor para Winamp
@@ -37,6 +39,7 @@ func Winamper() *Winamp {
 	win.stop = false
 	win.pause = false
 	win.run = false
+	win.mostrar_button = true
 
 	return win
 }
@@ -51,6 +54,7 @@ func (w *Winamp) Status() *Status {
 	st.Playing = w.play
 	st.Pausing = w.pause
 	st.Stopping = w.stop
+	st.MostrarButton = w.mostrar_button
 
 	return &st
 }
@@ -227,21 +231,19 @@ func (w *Winamp) SongLenght(file string) int {
 	return final_segs
 }
 
-// Metodo que introduce la publicidad por ffplay
+// Metodo que reproduce mensajes instantaneos por ffplay
 func (w *Winamp) PlayFFplay(publi string) {
 	var gen_bat string
-	//Paramos la cancion
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 0").Run()
-	//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
+	//Creamos el fichero bat que va a guardar el mensaje que queremos reproducir
+	w.mostrar_button = false
 	msg_file, err := os.Create("msg_file.bat")
 	if err != nil {
 		err = fmt.Errorf("msg_file: CANNOT CREATE MSG FILE")
 	}
 	defer msg_file.Close()
-	gen_bat = "@echo off\r\napps\\ffplay.exe -nodisp \"" + publi + "\" -autoexit"
+	gen_bat = "@echo off\r\napps\\CLEvER.exe volume 0\r\napps\\ffplay.exe -nodisp \"" + publi + "\" -autoexit\r\napps\\CLEvER.exe volume 250"
 	msg_file.WriteString(gen_bat)
 	//Una vez creado el fichero, lo ejecutamos (se reproduce el mensaje)
 	exec.Command("cmd", "/c", "msg_file.bat").Run()
-	//Vuelve a sonar la cancion
-	exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
+	w.mostrar_button = true
 }

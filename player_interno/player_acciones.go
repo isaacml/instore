@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"time"
-	"os/exec"
 	"strings"
 
 	"github.com/isaacml/instore/libs"
@@ -16,8 +14,6 @@ import (
 //0: solo se puede escuchar musica no cifrada
 //1: tanto música cifrada como no cifrada
 var st_music int
-
-var gbl_instantaneos int64
 
 func acciones(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -232,29 +228,8 @@ func instantaneos(w http.ResponseWriter, r *http.Request) {
 
 func playInstantaneos(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	creation_seg := time.Now().Unix() - gbl_instantaneos
-	if creation_seg < 60 {
-		return
-	}else{
-		gbl_instantaneos = time.Now().Unix()
-		bat_file := "msg_file.bat"
-		mensaje := r.FormValue("instantaneos")
-		fmt.Println(mensaje)
-		//Creamos el fichero bat que va a guardar la duracion total(en seg) de la canción
-		msg_file, err := os.Create(bat_file)
-		if err != nil {
-			err = fmt.Errorf("msg_file: CANNOT CREATE MSG FILE")
-		}
-		//Generar el link de reproduccion de mensaje
-		gen_bat := "@echo off\r\napps\\CLEvER.exe volume 0\r\napps\\ffplay.exe -nodisp \"" + msg_files_location + mensaje + "\" -autoexit\r\napps\\CLEvER.exe volume 250"
-		msg_file.WriteString(gen_bat)
-		msg_file.Close()
-		//Una vez creado el fichero, lo ejecutamos (se reproduce el mensaje)
-		err = exec.Command("cmd", "/c", bat_file).Run()
-		if err != nil {
-			err = fmt.Errorf("bat_msg_file: FAIL TO EXECUTE BAT")
-		}
-	}
+	mensaje := r.FormValue("instantaneos")
+	go winplayer.PlayFFplay(msg_files_location + mensaje)
 }
 
 //Programar Musica para la Tienda
@@ -399,4 +374,16 @@ func programarMusica(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
+
+//Muestra o NO el boton de reproduccion de mensajes instantaneos
+func mostrar_boton(w http.ResponseWriter, r *http.Request) {
+	var output string
+	mostrar := winplayer.Status().MostrarButton
+	if mostrar == false {
+		output = "Deshabilitamos"
+	} else {
+		output = "Habilitamos"
+	}
+	fmt.Fprint(w, output)
 }
