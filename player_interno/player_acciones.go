@@ -387,3 +387,23 @@ func mostrar_boton(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, output)
 }
+
+//Establece el volumen que va a tener el winamp
+func volumen_global(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var salida string
+	accion := r.FormValue("accion")
+	sid := r.FormValue("sid")
+	_, ok := user[sid]
+	if ok {
+		//Muestra los directorios de musica de la tienda
+		if accion == "mostrar_volumen" {
+			salida = fmt.Sprintf("<tr><td><input type='text' name='volumen' value='%d'></td></tr>", winplayer.Status().Volume)
+		}
+		if accion == "guardar_volumen" {
+			vol := libs.ToInt(r.FormValue("volumen"))
+			winplayer.SetVolume(vol)
+		}
+		fmt.Fprint(w, salida)
+	}
+}

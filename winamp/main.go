@@ -26,6 +26,7 @@ type Status struct {
 	Stopping      bool
 	Pausing       bool
 	MostrarButton bool
+	Volume        int
 }
 
 //Constructor para Winamp
@@ -35,6 +36,7 @@ func Winamper() *Winamp {
 	defer win.mu.Unlock()
 
 	// initialize the internal variables values
+	win.volume = 128
 	win.play = false
 	win.stop = false
 	win.pause = false
@@ -55,8 +57,18 @@ func (w *Winamp) Status() *Status {
 	st.Pausing = w.pause
 	st.Stopping = w.stop
 	st.MostrarButton = w.mostrar_button
+	st.Volume = w.volume
 
 	return &st
+}
+
+func (w *Winamp) SetVolume(vol int) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	if vol >= 0 && vol <= 250 {
+		w.volume = vol
+	}
 }
 
 //Función que arranca Winamp, si no está arrancado
@@ -241,7 +253,7 @@ func (w *Winamp) PlayFFplay(publi string) {
 		err = fmt.Errorf("msg_file: CANNOT CREATE MSG FILE")
 	}
 	defer msg_file.Close()
-	gen_bat = "@echo off\r\napps\\CLEvER.exe volume 0\r\napps\\ffplay.exe -nodisp \"" + publi + "\" -autoexit\r\napps\\CLEvER.exe volume 250"
+	gen_bat = "@echo off\r\napps\\CLEvER.exe volume 0\r\napps\\ffplay.exe -nodisp \"" + publi + "\" -autoexit\r\napps\\CLEvER.exe volume " + fmt.Sprintf("%d", w.volume)
 	msg_file.WriteString(gen_bat)
 	//Una vez creado el fichero, lo ejecutamos (se reproduce el mensaje)
 	exec.Command("cmd", "/c", "msg_file.bat").Run()

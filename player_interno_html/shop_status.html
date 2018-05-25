@@ -124,6 +124,18 @@
                     </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">
+                            Volumen Global
+                        </div>
+                        <div class="panel-body" align="center">
+                            <form id="testform1" action="" method="post">
+                                <table id="st_vol"></table>
+                            </form>
+                            <br>
+                            <button id="cambiar" class="btn btn-lg btn-success" name="cambiar">Cambiar</button>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
                             Estado
                         </div>
                         <div class="panel-body" align="center">
@@ -168,6 +180,9 @@
                     $("#normalMsg_top").hide();
                 }
             });
+            $.post("/volumen_global.cgi?sid={{sid}}&accion=mostrar_volumen", function(data, status) {
+                $("#st_vol").html(data);
+            });
             $("#modificar").click(function(){
                 $.post("/acciones.cgi?sid={{sid}}&accion=edit_ip", $("#testform").serialize(), function(data, status) {
                     $("#info_ip").html(data);
@@ -182,6 +197,9 @@
             });
             $("#send").click(function(){
                 $.post("/acciones.cgi?sid={{sid}}&accion=recoger_horas", $("#testform0").serialize(), function(data, status) {});
+            });
+            $("#cambiar").click(function(){
+                $.post("/volumen_global.cgi?sid={{sid}}&accion=guardar_volumen", $("#testform1").serialize(), function(data, status) {});
             });
         });
         function estado(){
