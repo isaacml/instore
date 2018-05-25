@@ -55,7 +55,6 @@ func reproduccion() {
 			if err != nil {
 				Error.Println(err)
 			}
-			//fmt.Println(st_prog)
 			if st_prog == "" {
 				arr_music := libs.MusicToPlay(music_files, st_music)
 				for k, v := range arr_music {
@@ -325,7 +324,7 @@ func reproduccion_msgs() {
 					//BETWEEN
 					if fecha_ini <= fecha && fecha_fin >= fecha {
 						if playtime == clock {
-							winplayer.PlayFFplay(msg_files_location + fichero)
+							go winplayer.PlayFFplay(msg_files_location + fichero)
 						}
 					}
 				}

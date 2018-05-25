@@ -233,7 +233,6 @@
         $("#add").click(function(){
             //Muestra el numero de archivos que llevamos guardados
             $.post("/encriptar_musica.cgi?sid={{sid}}&action=guardar", $("#testform1").serialize(), function(data, status) {
-                $("#saved_files").html(data);
                 $("#stat2").html(data);
             }); 
         });
