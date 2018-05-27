@@ -84,7 +84,7 @@ func (w *Winamp) RunWinamp() {
 
 //Función que establece el volumen del Winamp
 func (w *Winamp) Volume() {
-	err := exec.Command("cmd", "/c", "apps\\CLEvER.exe volume 250").Run()
+	err := exec.Command("cmd", "/c", "apps\\CLEvER.exe volume " + fmt.Sprintf("%d", w.volume)).Run()
 	if err != nil {
 		err = fmt.Errorf("VOL: FAIL TO SEND VOLUME")
 	}

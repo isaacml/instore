@@ -115,6 +115,8 @@ func saveListInBD() {
 						if tiene_msg != true { //Se comprueba si el listado contiene mensajes
 							//SOLO ARCHIVOS DE PUBLICIDAD
 							var publi string
+							borrar_todos_mensajes()
+							borrar_publi_int(separar_publi[1])
 							arch_publi := strings.Split(separar_publi[1], ";")
 							for _, publi = range arch_publi {
 								var cont int
@@ -128,10 +130,7 @@ func saveListInBD() {
 								fecha_fin := separar[2]
 								gap := separar[3]
 								//Comprobamos si existen los ficheros de publi en la BD interna
-								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, gap FROM publi WHERE fichero=?", f_pub).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_gap)
-								if errS != nil {
-									Error.Println(errS)
-								}
+								db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, gap FROM publi WHERE fichero=?", f_pub).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_gap)
 								//Contador = 0 --> La BD interna no tiene el fichero publi
 								if cont == 0 {
 									//Se comprueba si el player_interno tiene el fichero publi.
@@ -155,6 +154,8 @@ func saveListInBD() {
 						separar_msg := strings.Split(separar_publi[1], "[mensaje];")
 						//Hay ficheros de mensaje
 						if len(separar_msg) > 1 {
+							borrar_publi_int(separar_msg[0])
+							borrar_mensajes_int(separar_msg[1])
 							//Tomamos listados de mensajes, publicidad y los almacenamos
 							f_publicidad := strings.Split(separar_msg[0], ";")
 							f_mensajes := strings.Split(separar_msg[1], ";")
@@ -168,10 +169,7 @@ func saveListInBD() {
 								fecha_fin := separar[2]
 								gap := separar[3]
 								//Comprobamos si existen los ficheros de publi en la BD interna
-								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, gap FROM publi WHERE fichero=?", f_pub).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_gap)
-								if errS != nil {
-									Error.Println(errS)
-								}
+								db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, gap FROM publi WHERE fichero=?", f_pub).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_gap)
 								//Contador = 0 --> La BD interna no tiene el fichero publi
 								if cont == 0 {
 									//Se comprueba si el player_interno tiene el fichero publi.
@@ -189,7 +187,7 @@ func saveListInBD() {
 									if bd_gap != gap || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
 										update_publi(f_pub, fecha_ini, fecha_fin, gap)
 									}
-								}
+								}	
 							}
 							//FICHEROS de MENSAJES
 							for _, msg := range f_mensajes {
@@ -202,10 +200,7 @@ func saveListInBD() {
 								fecha_fin := separar[2]
 								playtime := separar[3]
 								//Comprobamos si existen los mensajes en la BD interna
-								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, playtime FROM mensaje WHERE fichero=?", msgname).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_playtime)
-								if errS != nil {
-									Error.Println(errS)
-								}
+								db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, playtime FROM mensaje WHERE fichero=?", msgname).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_playtime)
 								//Contador = 0 --> La BD interna no tiene el mensaje
 								if cont == 0 {
 									//Se comprueba si el player_interno tiene el fichero mensaje.
@@ -230,6 +225,8 @@ func saveListInBD() {
 						//No hay ficheros de publicidad, por tanto vamos a comprobar si hay mensajes
 						separar_mensaje := strings.Split(respuesta, "[mensaje];")
 						if len(separar_mensaje) > 1 {
+							borrar_toda_publi()
+							borrar_mensajes_int(separar_mensaje[1])
 							//Hay mensajes, vamos a obtenerlos uno a uno
 							mensajes := strings.Split(separar_mensaje[1], ";")
 							for _, msg := range mensajes {
@@ -241,10 +238,7 @@ func saveListInBD() {
 								fecha_ini := separar[1]
 								fecha_fin := separar[2]
 								playtime := separar[3]
-								errS := db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, playtime FROM mensaje WHERE fichero=?", msgname).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_playtime)
-								if errS != nil {
-									Error.Println(errS)
-								}
+								db.QueryRow("SELECT count(id), fecha_ini, fecha_fin, playtime FROM mensaje WHERE fichero=?", msgname).Scan(&cont, &bd_f_ini, &bd_f_fin, &bd_playtime)
 								//contador = 0 --> no existe el mensaje en BD, por lo tanto vamos a añadirlo.
 								if cont == 0 {
 									//Se comprueba si el player_interno tiene el fichero mensaje.
@@ -507,5 +501,106 @@ func update_publi(f_pub, fecha_ini, fecha_fin, gap string) {
 	db_mu.Unlock()
 	if err1 != nil {
 		Error.Println(err1)
+	}
+}
+
+func borrar_publi_int(listado string){
+	q1, err := db.Query("SELECT fichero FROM publi")
+	if err != nil {
+		Error.Println(err)
+	}
+	for q1.Next() {
+		var fichero string
+		//Miramos y guardamos en un array los ficheros que tenemos en BD
+		err = q1.Scan(&fichero)
+		if err != nil {
+			Error.Println(err)
+		}
+		//Borramos los mensajes que no coincidan con el listado
+		if !strings.Contains(listado, fichero){
+			//Borramos el fichero desde la ruta interna
+			err = os.Remove(publi_files_location + fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Borramos de la base de datos los ficheros de publicidad
+			db_mu.Lock()
+			db.Exec("DELETE FROM publi WHERE fichero = ?", fichero)
+			db_mu.Unlock()
+		}
+	}
+}
+
+func borrar_mensajes_int(listado string){
+	q1, err := db.Query("SELECT fichero FROM mensaje")
+	if err != nil {
+		Error.Println(err)
+	}
+	for q1.Next() {
+		var fichero string
+		//Miramos y guardamos en un array los ficheros que tenemos en BD
+		err = q1.Scan(&fichero)
+		if err != nil {
+			Error.Println(err)
+		}
+		//Borramos los mensajes que no coincidan con el listado
+		if !strings.Contains(listado, fichero){
+			//Borramos el fichero desde la ruta interna
+			err = os.Remove(msg_files_location + fichero)
+			if err != nil {
+				Error.Println(err)
+			}
+			//Borramos de la base de datos los ficheros de mensaje
+			db_mu.Lock()
+			db.Exec("DELETE FROM mensaje WHERE fichero = ?", fichero)
+			db_mu.Unlock()
+		}
+	}
+}
+
+func borrar_toda_publi(){
+	q1, err := db.Query("SELECT fichero FROM publi")
+	if err != nil {
+		Error.Println(err)
+	}
+	for q1.Next() {
+		var fichero string
+		//Miramos y guardamos en un array los ficheros que tenemos en BD
+		err = q1.Scan(&fichero)
+		if err != nil {
+			Error.Println(err)
+		}
+		//Borramos el fichero desde la ruta interna
+		err = os.Remove(publi_files_location + fichero)
+		if err != nil {
+			Error.Println(err)
+		}
+		//Borramos de la base de datos los ficheros de mensaje
+		db_mu.Lock()
+		db.Exec("DELETE FROM publi WHERE fichero = ?", fichero)
+		db_mu.Unlock()
+	}
+}
+func borrar_todos_mensajes(){
+	q1, err := db.Query("SELECT fichero FROM mensaje")
+	if err != nil {
+		Error.Println(err)
+	}
+	for q1.Next() {
+		var fichero string
+		//Miramos y guardamos en un array los ficheros que tenemos en BD
+		err = q1.Scan(&fichero)
+		if err != nil {
+			Error.Println(err)
+		}
+		//Borramos el fichero desde la ruta interna
+		err = os.Remove(msg_files_location + fichero)
+		if err != nil {
+			Error.Println(err)
+		}
+		//Borramos de la base de datos los ficheros de mensaje
+		db_mu.Lock()
+		db.Exec("DELETE FROM mensaje WHERE fichero = ?", fichero)
+		db_mu.Unlock()
 	}
 }
