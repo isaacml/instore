@@ -85,7 +85,7 @@
                         <ul class="dropdown-menu dropdown-user">
                             <li id="prog_music_top"><a href="prog.html?{{sid}}"><i class="fa fa-bars fa-fw"></i> Programar Música</a></li>
                             <li id="normalMsg_top"><a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Mensaje Normal</a></li>
-                            <li><a href="dominios.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Dominios</a></li>
+                            <li id="domain_top"><a href="dominios.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a></li>
                             <li><a href="shop_status.html?{{sid}}"><i class="fa fa-th-large fa-fw"></i> Tienda</a></li>
                             <li class="divider"></li>
                             <li><a href="/logout.cgi?sid={{sid}}"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a></li>
@@ -111,8 +111,8 @@
                         <li id="normalMsg">
                             <a href="msgIns.html?{{sid}}"><i class="fa fa-envelope-o fa-fw"></i> Mensaje Normal</a>
                         </li>
-                        <li>
-                            <a href="dominios.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Dominios</a>
+                        <li id="zona_domain">
+                            <a href="dominios.html?{{sid}}"><i class="fa fa-gear fa-fw"></i> Configuración</a>
                         </li>
                         <li>
                             <a href="shop_status.html?{{sid}}"><i class="fa fa-th-large fa-fw"></i> Tienda</a>
@@ -142,6 +142,11 @@
                 if (res[4] == 0){
                     $("#normalMsg").hide();
                     $("#normalMsg_top").hide();
+                }
+                //Panel de dominios
+                if (res[5] != 1){
+                    $("#zona_domain").hide();
+                    $("#domain_top").hide();
                 }
             });   
             $.post("/acciones.cgi?sid={{sid}}&accion=check_config", function(data, status) {
