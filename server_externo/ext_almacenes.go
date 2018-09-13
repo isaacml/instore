@@ -23,26 +23,36 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 		} else if entidad == "" {
 			output = "<div class='form-group text-warning'>Debe haber almenos una entidad</div>"
 		} else {
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Hacemos un select para obtener el id del usuario super-admin
+			db_mu.Lock()
 			err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear almacenes
 			if padre_id == 0 || padre_id == id_admin {
 				//Select que muestra todas los almacenes de un usuario concreto
+				db_mu.Lock()
 				alms, err := db.Query("SELECT almacen FROM almacenes WHERE creador_id = ?", id_user)
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
+					return
 				}
 				for alms.Next() {
 					err = alms.Scan(&alm_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Se comprueba que no hay dos almacenes con el mismo nombre
 					if alm_name == almacen {
@@ -58,6 +68,7 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir almacen</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Almacen añadido correctamente</div>"
 					}
@@ -84,20 +95,27 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 			output = "<div class='form-group text-warning'>El campo almacen no puede estar vacío</div>"
 		} else {
 			//Obtenemos el id y el padre(creador) del usuario conectado
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			if padre_id == 0 || padre_id == 1 {
 				//Select que muestra todos los almacenes de un usuario concreto
+				db_mu.Lock()
 				alms, err := db.Query("SELECT almacen FROM almacenes WHERE creador_id = ? AND id != ?", id_user, edit_id)
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
+					return
 				}
 				for alms.Next() {
 					err = alms.Scan(&alm_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Se comprueba que no hay dos almacenes con el mismo nombre
 					if alm_name == almacen {
@@ -111,6 +129,7 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al modificar almacen</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Almacen modificado correctamente</div>"
 					}
@@ -129,18 +148,25 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 		var tiempo int64
 		var almacen, entidad string
 		username := r.FormValue("username")
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
+		db_mu.Lock()
 		query, err := db.Query("SELECT almacenes.id, almacenes.almacen, almacenes.timestamp, entidades.nombre FROM entidades INNER JOIN almacenes ON almacenes.entidad_id = entidades.id WHERE almacenes.creador_id = ?", creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &almacen, &tiempo, &entidad)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Se obtiene la fecha de creacion de un almacen
 			f_creacion := libs.FechaCreacion(tiempo)
@@ -155,14 +181,18 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 		var id, ent_id int
 		var almacen string
 		edit_id := r.FormValue("edit_id")
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, almacen, entidad_id FROM almacenes WHERE id = ?", edit_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &almacen, &ent_id)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			fmt.Fprintf(w, "id=%d&almacen=%s&entidad=%d", id, almacen, ent_id)
 		}
@@ -170,9 +200,12 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 	//BORRAR UN ALMACEN
 	if accion == "del_alm" {
 		var cont int
+		db_mu.Lock()
 		query, err := db.Query("SELECT * FROM pais WHERE almacen_id = ?", r.FormValue("borrar"))
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			cont++
@@ -183,6 +216,7 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			fmt.Fprint(w, "OK")
 		} else {
@@ -194,14 +228,20 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 		var id int
 		var list string
 		user := r.FormValue("username")
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", user).Scan(&id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		//Muestra un select de entidades por usuario
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id = ?", id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select id='entidad' name='entidad'>"
 		if query.Next() {
@@ -210,12 +250,14 @@ func almacenes(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&id_ent, &name)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
 			for query.Next() {
 				err = query.Scan(&id_ent, &name)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
 			}

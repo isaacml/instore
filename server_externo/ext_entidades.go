@@ -21,26 +21,36 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			output = "<div class='form-group text-warning'>El campo no puede estar vacío</div>"
 		} else {
 			//Obtenemos el id y el padre(creador) de un usuario concreto
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Obtener el id del usuario super-admin
+			db_mu.Lock()
 			err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear entidades
 			if padre_id == 0 || padre_id == id_admin {
 				//Select que muestra todas las entidades de un usuario concreto
+				db_mu.Lock()
 				ents, err := db.Query("SELECT nombre FROM entidades WHERE creador_id = ?", id_user)
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
+					return
 				}
 				for ents.Next() {
 					err = ents.Scan(&ent_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Se comprueba que no hay dos entidades con el mismo nombre
 					if ent_name == entidad {
@@ -56,6 +66,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir entidad</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Entidad añadida correctamente</div>"
 					}
@@ -79,21 +90,28 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 			output = "<div class='form-group text-warning'>El campo no puede estar vacío</div>"
 		} else {
 			//Obtenemos el id y el padre(creador) del usuario conectado
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id_user, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Si es un usuario super-admin o  tiene creador super-admin, le permitimos modificar
 			if padre_id == 0 || padre_id == 1 {
 				//Select que muestra todas las entidades de un usuario concreto
+				db_mu.Lock()
 				ents, err := db.Query("SELECT nombre FROM entidades WHERE creador_id = ?", id_user)
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
+					return
 				}
 				for ents.Next() {
 					err = ents.Scan(&ent_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Se comprueba que no hay dos entidades con el mismo nombre
 					if ent_name == entidad {
@@ -108,6 +126,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al modificar entidad</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Entidad modificada correctamente</div>"
 					}
@@ -127,18 +146,25 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 		var nombre, f_creacion, st string
 		username := r.FormValue("username")
 		//Obtenemos el id de usuario conectado
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, nombre, timestamp, status FROM entidades WHERE creador_id = ?", creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &nombre, &tiempo, &status)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Se obtiene la fecha de creacion de una entidad
 			f_creacion = libs.FechaCreacion(tiempo)
@@ -158,14 +184,18 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 		edit_id := r.FormValue("edit_id")
 		var id, st int
 		var nombre string
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, nombre, status FROM entidades WHERE id = ?", edit_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &nombre, &st)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			fmt.Fprintf(w, "id=%d&entidad=%s&st_ent=%d", id, nombre, st)
 		}
@@ -179,6 +209,7 @@ func entidades(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err1 != nil {
 			Error.Println(err1)
+			return
 		}
 		fmt.Fprint(w, "<div class='form-group text-success'>Se ha cambiado el estado</div>")
 	}

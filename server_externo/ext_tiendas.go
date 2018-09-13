@@ -27,26 +27,36 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		if tienda == "" || address == "" || phone == "" || almacen == "" || pais == "" || region == "" || provincia == "" {
 			output = "<div class='form-group text-warning'>Los campos no pueden estar vacíos</div>"
 		} else {
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Hacemos un select para obtener el id del usuario super-admin
+			db_mu.Lock()
 			err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear tiendas
 			if padre_id == 0 || padre_id == id_admin {
 				//Buscamos las tiendas asociadas a una provincia
+				db_mu.Lock()
 				shop, err := db.Query("SELECT tienda FROM tiendas WHERE provincia_id = ?", provincia)
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
+					return
 				}
 				for shop.Next() {
 					err = shop.Scan(&shop_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Se comprueba que no hay dos tiendas con el mismo nombre
 					if tienda == shop_name {
@@ -62,6 +72,7 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir tienda</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Tienda añadida correctamente</div>"
 					}
@@ -88,20 +99,27 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		if tienda == "" || address == "" || phone == "" {
 			output = "<div class='form-group text-warning'>No puede haber campos vacíos</div>"
 		} else {
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			if padre_id == 0 || padre_id == 1 {
 				//Buscamos las tiendas asociadas a una provincia
+				db_mu.Lock()
 				query, err := db.Query("SELECT tienda FROM tiendas WHERE provincia_id = ? AND id != ?", provincia, edit_id)
+				db_mu.Unlock()
 				if err != nil {
 					Warning.Println(err)
+					return
 				}
 				for query.Next() {
 					err = query.Scan(&shop_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Si hay alguno, el contador incrementa
 					if shop_name == tienda {
@@ -116,6 +134,7 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir la tienda</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Tienda añadida correctamente</div>"
 					}
@@ -134,18 +153,25 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		var tiempo int64
 		var provincia, region, pais, almacen, tienda, address, phone, extra string
 		username := r.FormValue("username")
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
+		db_mu.Lock()
 		query, err := db.Query("SELECT tiendas.id, tiendas.tienda, tiendas.timestamp, provincia.provincia, region.region, pais.pais, almacenes.almacen, tiendas.address, tiendas.phone, tiendas.extra FROM tiendas INNER JOIN provincia ON tiendas.provincia_id = provincia.id INNER JOIN region ON region.id = provincia.region_id INNER JOIN pais ON region.pais_id = pais.id INNER JOIN almacenes ON almacenes.id = pais.almacen_id WHERE tiendas.creador_id = ?", creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &tienda, &tiempo, &provincia, &region, &pais, &almacen, &address, &phone, &extra)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Se obtiene la fecha de creacion de un almacen
 			f_creacion := libs.FechaCreacion(tiempo)
@@ -159,14 +185,18 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		var id, id_prov int
 		var tienda, address, phone, extra string
 		edit_id := r.FormValue("edit_id")
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, tienda, address, phone, extra, provincia_id FROM tiendas WHERE id = ?", edit_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &tienda, &address, &phone, &extra, &id_prov)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			fmt.Fprintf(w, "id=%d&tienda=%s&address=%s&phone=%s&extra=%s&id_prov=%d", id, tienda, address, phone, extra, id_prov)
 		}
@@ -178,15 +208,19 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 	}
 	//MOSTRAR UN SELECT DE PROVINCIAS SEGUN SU REGION
 	if accion == "show_prov" {
 		var list string
 		//Muestra un select de provincias por usuario
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, provincia FROM provincia WHERE region_id = ?", r.FormValue("reg"))
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		list = "<option value=''>[Seleccionar Provincia]</option>"
 		if query.Next() {
@@ -195,12 +229,14 @@ func tiendas(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&id_prov, &name)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list += fmt.Sprintf("<option value='%d'>%s</option>", id_prov, name)
 			for query.Next() {
 				err = query.Scan(&id_prov, &name)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_prov, name)
 			}

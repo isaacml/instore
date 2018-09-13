@@ -14,9 +14,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 	if accion == "entidad" {
 		var list, id_user, padre_id, entity_id string
 		user := r.FormValue("username")
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id, padre_id, entidad_id FROM usuarios WHERE user = ?", user).Scan(&id_user, &padre_id, &entity_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		if padre_id == "" && padre_id == "" {
 			list = "<br><span style='color: #C90101'>Usuario Desconocido: el usuario no existe</span>"
@@ -25,9 +28,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			var id_ent int
 			var name string
 			//Muestra las entidades que su padre ha creado.
+			db_mu.Lock()
 			query, err := db.Query("SELECT id, nombre FROM entidades WHERE creador_id=?", id_user)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select name='entidad'>"
 			if query.Next() {
@@ -38,6 +44,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					query.Scan(&id_ent, &name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
 				}
@@ -49,9 +56,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			var id_ent int
 			var name string
 			//Muestra las entidades que su padre ha creado.
+			db_mu.Lock()
 			query, err := db.Query("SELECT id, nombre FROM entidades WHERE id=?", entity_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list = "<div class='panel-heading'>Entidad</div><div class='panel-body'><select name='entidad'>"
 			if query.Next() {
@@ -62,6 +72,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					query.Scan(&id_ent, &name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					list += fmt.Sprintf("<option value='%d'>%s</option>", id_ent, name)
 				}
@@ -81,9 +92,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		if ent != "" {
 			var id_alm int
 			var almacen string
+			db_mu.Lock()
 			query, err := db.Query("SELECT id, almacen FROM almacenes WHERE entidad_id = ?", ent)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list = "<div class='panel-heading'>Almacen</div><div class='panel-body'><select name='almacen'>"
 			if query.Next() {
@@ -94,6 +108,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					query.Scan(&id_alm, &almacen)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					list += fmt.Sprintf("<option value='%d'>%s</option>", id_alm, almacen)
 				}
@@ -103,9 +118,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			list += "</select></div>"
 
 			//Zona de Guardado de Dominio
+			db_mu.Lock()
 			errdom := db.QueryRow("SELECT nombre FROM entidades WHERE id = ?", ent).Scan(&entidad)
+			db_mu.Unlock()
 			if errdom != nil {
 				Error.Println(errdom)
+				return
 			}
 			status_dom = entidad
 			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
@@ -128,9 +146,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		if alm != "" {
 			var id_pais int
 			var pais string
+			db_mu.Lock()
 			query, err := db.Query("SELECT id, pais FROM pais WHERE almacen_id = ?", alm)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list = "<div class='panel-heading'>País</div><div class='panel-body'><select name='pais'>"
 			if query.Next() {
@@ -141,6 +162,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					query.Scan(&id_pais, &pais)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					list += fmt.Sprintf("<option value='%d'>%s</option>", id_pais, pais)
 				}
@@ -150,9 +172,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			list += "</select></div>"
 
 			//Zona de Guardado de Dominio
+			db_mu.Lock()
 			errdom := db.QueryRow("SELECT almacen FROM almacenes WHERE id = ?", alm).Scan(&almacen)
+			db_mu.Unlock()
 			if errdom != nil {
 				Error.Println(errdom)
+				return
 			}
 			if strings.Contains(status_dom, ".") {
 				status_dom = partir[0] + "." + almacen
@@ -181,9 +206,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		if pais != "" {
 			var id_region int
 			var region string
+			db_mu.Lock()
 			query, err := db.Query("SELECT id, region FROM region WHERE pais_id = ?", pais)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list = "<div class='panel-heading'>Región</div><div class='panel-body'><select name='region'>"
 			if query.Next() {
@@ -194,6 +222,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					query.Scan(&id_region, &region)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					list += fmt.Sprintf("<option value='%d'>%s</option>", id_region, region)
 				}
@@ -203,9 +232,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			list += "</select></div>"
 
 			//Zona de Guardado de Dominio
+			db_mu.Lock()
 			errdom := db.QueryRow("SELECT pais FROM pais WHERE id = ?", pais).Scan(&country)
+			db_mu.Unlock()
 			if errdom != nil {
 				Error.Println(errdom)
+				return
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + country
 			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
@@ -228,9 +260,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		if reg != "" {
 			var id_prov int
 			var prov string
+			db_mu.Lock()
 			query, err := db.Query("SELECT id, provincia FROM provincia WHERE region_id = ?", reg)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list = "<div class='panel-heading'>Provincia</div><div class='panel-body'><select name='provincia'>"
 			if query.Next() {
@@ -241,6 +276,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					query.Scan(&id_prov, &prov)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					list += fmt.Sprintf("<option value='%d'>%s</option>", id_prov, prov)
 				}
@@ -250,9 +286,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			list += "</select></div>"
 
 			//Zona de Guardado de Dominio
+			db_mu.Lock()
 			errdom := db.QueryRow("SELECT region FROM region WHERE id = ?", reg).Scan(&region)
+			db_mu.Unlock()
 			if errdom != nil {
 				Error.Println(errdom)
+				return
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + region
 			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
@@ -275,9 +314,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		if prov != "" {
 			var id_tienda int
 			var tiendas string
+			db_mu.Lock()
 			query, err := db.Query("SELECT id, tienda FROM tiendas WHERE provincia_id = ?", prov)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list = "<div class='panel-heading'>Tienda</div><div class='panel-body'><select name='tienda'>"
 			if query.Next() {
@@ -288,6 +330,7 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 					query.Scan(&id_tienda, &tiendas)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					list += fmt.Sprintf("<option value='%d'>%s</option>", id_tienda, tiendas)
 				}
@@ -297,9 +340,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 			list += "</select></div>"
 
 			//Zona de Guardado de Dominio
+			db_mu.Lock()
 			errdom := db.QueryRow("SELECT provincia FROM provincia WHERE id = ?", prov).Scan(&provincia)
+			db_mu.Unlock()
 			if errdom != nil {
 				Error.Println(errdom)
+				return
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + provincia
 			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"
@@ -319,9 +365,12 @@ func config_shop(w http.ResponseWriter, r *http.Request) {
 		partir := strings.Split(status_dom, ".") // partimos el estado del dominio, para poder modificarlo
 		if shop != "" {
 			//Zona de Guardado de Dominio
+			db_mu.Lock()
 			err := db.QueryRow("SELECT tienda FROM tiendas WHERE id = ?", shop).Scan(&tienda)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			status_dom = partir[0] + "." + partir[1] + "." + partir[2] + "." + partir[3] + "." + partir[4] + "." + tienda
 			domain = "<span style='color: #B8860B'>" + status_dom + "</span>"

@@ -23,26 +23,36 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		if almacen == "" || pais == "" || region == "" || provincia == "" {
 			output = "<div class='form-group text-warning'>Los campos no pueden estar vacíos</div>"
 		} else {
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Hacemos un select para obtener el id del usuario super-admin
+			db_mu.Lock()
 			err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear provincias
 			if padre_id == 0 || padre_id == id_admin {
 				//Buscamos las provincias asociadas a una region
+				db_mu.Lock()
 				prov, err := db.Query("SELECT provincia FROM provincia WHERE region_id = ?", region)
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
+					return
 				}
 				for prov.Next() {
 					err = prov.Scan(&prov_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Se comprueba que no hay dos provincias con el mismo nombre
 					if provincia == prov_name {
@@ -58,6 +68,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir provincia</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Provincia añadida correctamente</div>"
 					}
@@ -82,20 +93,27 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		if provincia == "" {
 			output = "<div class='form-group text-warning'>El campo provincia no puede estar vacío</div>"
 		} else {
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			if padre_id == 0 || padre_id == 1 {
 				//Buscamos las provincias asociadas a una region
+				db_mu.Lock()
 				query, err := db.Query("SELECT provincia FROM provincia WHERE region_id = ? AND id != ?", region, edit_id)
+				db_mu.Unlock()
 				if err != nil {
 					Warning.Println(err)
+					return
 				}
 				for query.Next() {
 					err = query.Scan(&prov_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Si hay alguna, el contador incrementa
 					if prov_name == provincia {
@@ -110,6 +128,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al modificar provincia</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>Provincia modificada correctamente</div>"
 					}
@@ -128,18 +147,25 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		var tiempo int64
 		var provincia, region, pais, almacen string
 		username := r.FormValue("username")
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
+		db_mu.Lock()
 		query, err := db.Query("SELECT provincia.id, provincia.provincia, provincia.timestamp, region.region, pais.pais, almacenes.almacen FROM provincia INNER JOIN region ON provincia.region_id = region.id INNER JOIN pais ON region.pais_id = pais.id INNER JOIN almacenes ON almacenes.id = pais.almacen_id WHERE provincia.creador_id = ?", creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &provincia, &tiempo, &region, &pais, &almacen)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Se obtiene la fecha de creacion de una provincia
 			f_creacion := libs.FechaCreacion(tiempo)
@@ -154,14 +180,18 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 		var id, id_reg int
 		var provincia string
 		edit_id := r.FormValue("edit_id")
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, provincia, region_id FROM provincia WHERE id = ?", edit_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &provincia, &id_reg)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			fmt.Fprintf(w, "id=%d&provincia=%s&id_reg=%d", id, provincia, id_reg)
 		}
@@ -169,9 +199,12 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 	//BORRAR UNA PROVINCIA
 	if accion == "del_prov" {
 		var cont int
+		db_mu.Lock()
 		query, err := db.Query("SELECT * FROM tiendas WHERE provincia_id = ?", r.FormValue("borrar"))
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			cont++
@@ -182,6 +215,7 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			fmt.Fprint(w, "OK")
 		} else {
@@ -192,9 +226,12 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 	if accion == "show_region" {
 		var list string
 		//Muestra un select de regiones por provincia
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, region FROM region WHERE pais_id = ?", r.FormValue("pais"))
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		list = "<option value=''>[Seleccionar Región]</option>"
 		if query.Next() {
@@ -203,12 +240,14 @@ func provincias(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&id_region, &name)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list += fmt.Sprintf("<option value='%d'>%s</option>", id_region, name)
 			for query.Next() {
 				err = query.Scan(&id_region, &name)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_region, name)
 			}

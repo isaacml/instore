@@ -23,26 +23,36 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		} else if almacen == "" {
 			output = "<div class='form-group text-warning'>Debe haber almenos un almacen</div>"
 		} else {
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Hacemos un select para obtener el id del usuario super-admin
+			db_mu.Lock()
 			err = db.QueryRow("SELECT id FROM usuarios WHERE padre_id = 0 AND entidad_id = 0").Scan(&id_admin)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Si es un usuario super-admin o un usuario que tiene creador super-admin, le permitimos crear paises
 			if padre_id == 0 || padre_id == id_admin {
 				//Buscamos los paises asociados a un determinado almacen
+				db_mu.Lock()
 				query, err := db.Query("SELECT pais FROM pais WHERE almacen_id = ?", almacen)
+				db_mu.Unlock()
 				if err != nil {
 					Warning.Println(err)
+					return
 				}
 				for query.Next() {
 					err = query.Scan(&pais_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Si hay alguno, el contador incrementa
 					if pais_name == pais {
@@ -58,6 +68,7 @@ func paises(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al añadir pais</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>País añadido correctamente</div>"
 					}
@@ -83,20 +94,27 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		} else if pais == "" {
 			output = "<div class='form-group text-warning'>El campo pais no puede estar vacío</div>"
 		} else {
+			db_mu.Lock()
 			err := db.QueryRow("SELECT id, padre_id FROM usuarios WHERE user = ?", username).Scan(&id, &padre_id)
+			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			if padre_id == 0 || padre_id == 1 {
 				//Buscamos los paises asociados a un determinado almacen
+				db_mu.Lock()
 				query, err := db.Query("SELECT pais FROM pais WHERE almacen_id = ? AND id != ?", almacen, edit_id)
+				db_mu.Unlock()
 				if err != nil {
 					Warning.Println(err)
+					return
 				}
 				for query.Next() {
 					err = query.Scan(&pais_name)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Si hay alguno, el contador incrementa
 					if pais_name == pais {
@@ -111,6 +129,7 @@ func paises(w http.ResponseWriter, r *http.Request) {
 					if err1 != nil {
 						Error.Println(err1)
 						output = "<div class='form-group text-danger'>Fallo al modificar país</div>"
+						return
 					} else {
 						output = "<div class='form-group text-success'>País modificado correctamente</div>"
 					}
@@ -129,18 +148,25 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		var tiempo int64
 		var pais, almacen string
 		username := r.FormValue("username")
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", username).Scan(&creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
+		db_mu.Lock()
 		query, err := db.Query("SELECT pais.id, pais.pais, pais.timestamp, almacenes.almacen FROM pais INNER JOIN almacenes ON pais.almacen_id = almacenes.id WHERE pais.creador_id = ?", creador_id)
+		db_mu.Unlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &pais, &tiempo, &almacen)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Se obtiene la fecha de creacion de un pais
 			f_creacion := libs.FechaCreacion(tiempo)
@@ -155,14 +181,18 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		edit_id := r.FormValue("edit_id")
 		var id, almacen_id int
 		var pais string
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, pais, almacen_id FROM pais WHERE id = ?", edit_id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&id, &pais, &almacen_id)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			fmt.Fprintf(w, "id=%d&pais=%s&almacen=%d", id, pais, almacen_id)
 		}
@@ -170,9 +200,12 @@ func paises(w http.ResponseWriter, r *http.Request) {
 	//BORRAR UN PAIS
 	if accion == "del_pais" {
 		var cont int
+		db_mu.Lock()
 		query, err := db.Query("SELECT * FROM region WHERE pais_id = ?", r.FormValue("borrar"))
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			cont++
@@ -183,6 +216,7 @@ func paises(w http.ResponseWriter, r *http.Request) {
 			db_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			fmt.Fprint(w, "OK")
 		} else {
@@ -194,14 +228,20 @@ func paises(w http.ResponseWriter, r *http.Request) {
 		var id int
 		var list string
 		user := r.FormValue("username")
+		db_mu.Lock()
 		err := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", user).Scan(&id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		//Muestra un select de almacenes por usuario
+		db_mu.Lock()
 		query, err := db.Query("SELECT id, almacen FROM almacenes WHERE creador_id = ?", id)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		list = "<option value=''>[Seleccionar Almacen]</option>"
 		if query.Next() {
@@ -210,12 +250,14 @@ func paises(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&id_alm, &name)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			list += fmt.Sprintf("<option value='%d'>%s</option>", id_alm, name)
 			for query.Next() {
 				err = query.Scan(&id_alm, &name)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				list += fmt.Sprintf("<option value='%d'>%s</option>", id_alm, name)
 			}

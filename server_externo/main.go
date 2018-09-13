@@ -18,7 +18,7 @@ var (
 	Warning       *log.Logger
 	Error         *log.Logger
 	db            *sql.DB
-	db_mu         sync.RWMutex
+	db_mu         sync.Mutex
 	port          map[string]string = make(map[string]string) //Mapa que guarda el puerto del servidor externo
 	bad, empty    string                                      //Variables de estado global
 	status_dom    string                                      //Variable que va a guardar el dominio de la tienda
@@ -104,9 +104,12 @@ func BorrarFicherosAntiguos() {
 		//tiempo limite = 1 mes 2592000
 		limit_time := time.Now().Unix() - 2592000
 		//PUBLICIDAD
+		db_mu.Lock()
 		publi, errP := db.Query("SELECT id, fichero FROM publi WHERE fecha_final < ? AND timestamp < ? ", now, limit_time)
+		db_mu.Unlock()
 		if errP != nil {
 			Error.Println(errP)
+			continue
 		}
 		for publi.Next() {
 			var id int
@@ -115,21 +118,30 @@ func BorrarFicherosAntiguos() {
 			err := publi.Scan(&id, &fichero)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Borramos id y fichero desde la ruta interna para el borrado
 			err = os.Remove(publi_files_location + fichero)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Borramos de la base de datos los ficheros de publicidad
 			db_mu.Lock()
-			db.Exec("DELETE FROM publi WHERE id = ?", id)
+			_,err = db.Exec("DELETE FROM publi WHERE id = ?", id)
 			db_mu.Unlock()
+			if err != nil {
+				Error.Println(err)
+				continue
+			}
 		}
 		//MENSAJES
+		db_mu.Lock()
 		msg, errM := db.Query("SELECT id, fichero FROM mensaje WHERE fecha_final < ? AND timestamp < ? ", now, limit_time)
+		db_mu.Unlock()
 		if errM != nil {
 			Error.Println(errM)
+			continue
 		}
 		for msg.Next() {
 			var id int
@@ -138,16 +150,22 @@ func BorrarFicherosAntiguos() {
 			err := msg.Scan(&id, &fichero)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Borramos el fichero desde la ruta interna
 			err = os.Remove(msg_files_location + fichero)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			//Borramos de la base de datos los ficheros de mensajes
 			db_mu.Lock()
-			db.Exec("DELETE FROM mensaje WHERE id = ?", id)
+			_,err = db.Exec("DELETE FROM mensaje WHERE id = ?", id)
 			db_mu.Unlock()
+			if err != nil {
+				Error.Println(err)
+				continue
+			}
 		}
 		time.Sleep(2 * time.Minute) //Cada 2 minutos se revisa en busca de nuevos ficheros (publi/msg) para borrar
 	}

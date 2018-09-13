@@ -34,9 +34,12 @@ func publi_files(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		//Si la copia ha ido bien, pasamos a guardar los datos en la BD de servidor
+		db_mu.Lock()
 		query, err := db.Query("SELECT id FROM usuarios WHERE user = ?", r.FormValue("ownUser"))
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			//Obtengo el identificador del creador
@@ -45,6 +48,7 @@ func publi_files(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&id)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			db_mu.Lock()
 			_, err1 := db.Exec("INSERT INTO publi (`fichero`, `fecha_inicio`, `fecha_final`, `destino`, `creador_id`, `timestamp`, `gap`) VALUES (?,?,?,?,?,?,?)",
@@ -80,9 +84,12 @@ func msg_files(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		//Si la copia ha ido bien, pasamos a guardar los datos en la BD de servidor
+		db_mu.Lock()
 		query, err := db.Query("SELECT id FROM usuarios WHERE user = ?", r.FormValue("ownUser"))
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query.Next() {
 			//Obtengo el identificador del creador
@@ -91,6 +98,7 @@ func msg_files(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&id)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			db_mu.Lock()
 			_, err1 := db.Exec("INSERT INTO mensaje (`fichero`, `fecha_inicio`, `fecha_final`, `destino`, `creador_id`, `timestamp`, `playtime`) VALUES (?,?,?,?,?,?,?)",
@@ -110,15 +118,21 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 	var id_user string
 	//Primera vez que se muestran los ficheros publi /msg
 	if r.FormValue("accion") == "first_show" {
+		db_mu.Lock()
 		err0 := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", r.FormValue("username")).Scan(&id_user)
+		db_mu.Unlock()
 		if err0 != nil {
 			Error.Println(err0)
+			return
 		}
 		if r.FormValue("tabla") == "publi" {
+			db_mu.Lock()
 			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			db_mu.Unlock()
 			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				var fichero, f_ini, f_fin, destinos string
@@ -126,6 +140,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &gap)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				//Se obtiene la fecha de creacion de una entidad
 				f_creacion := libs.FechaCreacion(timestamp)
@@ -139,10 +154,13 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if r.FormValue("tabla") == "mensaje" {
+			db_mu.Lock()
 			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, playtime FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			db_mu.Unlock()
 			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				var fichero, f_ini, f_fin, destinos, playtime string
@@ -150,6 +168,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &playtime)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				//Se obtiene la fecha de creacion de una entidad
 				f_creacion := libs.FechaCreacion(timestamp)
@@ -166,15 +185,21 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 	//Muestra los datos detallados de publicidad y mensajes recibiendo un patrón de busqueda
 	if r.FormValue("accion") == "mostrar" {
 		search := r.FormValue("search") //Patrón de Busqueda
+		db_mu.Lock()
 		err0 := db.QueryRow("SELECT id FROM usuarios WHERE user = ?", r.FormValue("username")).Scan(&id_user)
+		db_mu.Unlock()
 		if err0 != nil {
 			Error.Println(err0)
+			return
 		}
 		if r.FormValue("tabla") == "publi" {
+			db_mu.Lock()
 			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, gap FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			db_mu.Unlock()
 			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				var fichero, f_ini, f_fin, destinos string
@@ -182,6 +207,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &gap)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				if strings.Contains(destinos, search) {
 					//Se obtiene la fecha de creacion de una entidad
@@ -197,10 +223,13 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if r.FormValue("tabla") == "mensaje" {
+			db_mu.Lock()
 			sql := fmt.Sprintf("SELECT id, fichero, fecha_inicio, fecha_final, destino, timestamp, playtime FROM %s WHERE creador_id = %s", r.FormValue("tabla"), id_user)
+			db_mu.Unlock()
 			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				var fichero, f_ini, f_fin, destinos, playtime string
@@ -208,6 +237,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 				err = query.Scan(&id, &fichero, &f_ini, &f_fin, &destinos, &timestamp, &playtime)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				if strings.Contains(destinos, search) {
 					//Se obtiene la fecha de creacion de una entidad
@@ -223,12 +253,13 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if r.FormValue("accion") == "borrar" {
-		sql := fmt.Sprintf("DELETE FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("borrar"))
 		db_mu.Lock()
-		_, err := db.Exec(sql)
+		sql := fmt.Sprintf("DELETE FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("borrar"))
 		db_mu.Unlock()
+		_, err := db.Exec(sql)
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		output = "OK"
 	}
@@ -236,15 +267,19 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 		var id, gap int
 		var f_inicio, f_fin, destino, horario string
 		if r.FormValue("tabla") == "publi" {
+			db_mu.Lock()
 			sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, destino, gap FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
+			db_mu.Unlock()
 			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				err := query.Scan(&id, &f_inicio, &f_fin, &destino, &gap)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				//Convertimos a fecha normal
 				f_ini_conv := libs.FechaSQLtoNormal(f_inicio)
@@ -254,15 +289,19 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if r.FormValue("tabla") == "mensaje" {
+			db_mu.Lock()
 			sql := fmt.Sprintf("SELECT id, fecha_inicio, fecha_final, destino, playtime FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("edit_id"))
+			db_mu.Unlock()
 			query, err := db.Query(sql)
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				err := query.Scan(&id, &f_inicio, &f_fin, &destino, &horario)
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				//Convertimos a fecha normal
 				f_ini_conv := libs.FechaSQLtoNormal(f_inicio)
@@ -293,6 +332,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			}
 			if err1 != nil {
 				Error.Println(err1)
+				return
 			}
 		}
 		if r.FormValue("tabla") == "mensaje" {
@@ -310,6 +350,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			}
 			if err1 != nil {
 				Error.Println(err1)
+				return
 			}
 		}
 	}

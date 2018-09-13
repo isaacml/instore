@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"sync"
 )
 
 /*
@@ -754,11 +755,13 @@ func Min2hour(mm int) (int, int) {
 	return hh, min
 }
 
-func St_Prog_Music(db *sql.DB) (string, error) {
+func St_Prog_Music(db *sql.DB, db_mu sync.Mutex) (string, error) {
 	var err error
 	var cont int
 	var st_prog string
+	db_mu.Lock()
 	db.QueryRow("SELECT count(estado) FROM st_prog_music").Scan(&cont)
+	db_mu.Unlock()
 	if cont == 0 {
 		st_prog = ""
 	} else {

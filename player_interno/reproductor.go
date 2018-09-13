@@ -51,7 +51,7 @@ func reproduccion() {
 			}
 			musica := make(map[int]string)
 			pl := 1
-			st_prog, err := libs.St_Prog_Music(db)
+			st_prog, err := libs.St_Prog_Music(db, db_mu)
 			if err != nil {
 				Error.Println(err)
 			}
@@ -63,7 +63,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					st_prog_int, err := libs.St_Prog_Music(db)
+					st_prog_int, err := libs.St_Prog_Music(db, db_mu)
 					if err != nil {
 						Error.Println(err)
 					}
@@ -149,7 +149,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					st_prog_int, err := libs.St_Prog_Music(db)
+					st_prog_int, err := libs.St_Prog_Music(db, db_mu)
 					if err != nil {
 						Error.Println(err)
 					}
@@ -233,7 +233,7 @@ func reproduccion() {
 				rand.Seed(time.Now().UnixNano())
 				shuffle := rand.Perm(len(musica))
 				for _, v := range shuffle {
-					st_prog_int, err := libs.St_Prog_Music(db)
+					st_prog_int, err := libs.St_Prog_Music(db, db_mu)
 					if err != nil {
 						Error.Println(err)
 					}

@@ -82,13 +82,16 @@ func publi_msg(w http.ResponseWriter, r *http.Request) {
 		nombre_fichero := r.FormValue("fichero")
 		timestamp := time.Now().Unix()
 		//Se comprueba que la existencia en la tienda se corresponde con la existencia en el server interno
+		db_mu.Lock()
 		db.QueryRow("SELECT existe FROM mensaje WHERE fichero=?", nombre_fichero).Scan(&existe)
+		db_mu.Unlock()
 		//existe = vacio --> No ha sido insertado nunca
 		if existe == "" {
 			//Por tanto, lo insertamos con el existe en N para que el bucle BuscarNuevosFicheros() pueda localizarlo
 			publi, err := db.Prepare("INSERT INTO mensaje (`fichero`, `existe`, `timestamp`) VALUES (?,?,?)")
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			db_mu.Lock()
 			_, err1 := publi.Exec(nombre_fichero, "N", timestamp)
@@ -112,13 +115,16 @@ func publi_msg(w http.ResponseWriter, r *http.Request) {
 		f_ini := r.FormValue("fecha_ini")
 		timestamp := time.Now().Unix()
 		//Se comprueba que la existencia del fichero en la tienda se corresponde con la existencia en el server interno
+		db_mu.Lock()
 		db.QueryRow("SELECT existe FROM publi WHERE fichero=?", nombre_fichero).Scan(&existe)
+		db_mu.Unlock()
 		//existe = vacio --> No ha sido insertado nunca
 		if existe == "" {
 			//Por tanto, lo insertamos con el existe en N para que el bucle BuscarNuevosFicheros() pueda localizarlo
 			publi, err := db.Prepare("INSERT INTO publi (`fichero`, `existe`, fecha_ini, `timestamp`, `gap`) VALUES (?,?,?,?,?)")
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			db_mu.Lock()
 			_, err1 := publi.Exec(nombre_fichero, "N", f_ini, timestamp, gap)

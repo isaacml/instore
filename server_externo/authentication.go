@@ -8,11 +8,12 @@ import (
 // This function could be used to access to a Database for user/pass authentication procedure
 func authentication(user, pass string) bool {
 	var username, password string
-	db_mu.RLock()
+	db_mu.Lock()
 	query2, err := db.Query("SELECT user, pass FROM usuarios WHERE user = ?", user)
-	db_mu.RUnlock()
+	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return false
 	}
 	for query2.Next() {
 		err = query2.Scan(&username, &password)

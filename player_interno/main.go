@@ -22,7 +22,7 @@ var (
 	Warning       *log.Logger
 	Error         *log.Logger
 	db            *sql.DB
-	db_mu         sync.RWMutex
+	db_mu         sync.Mutex
 	settings      map[string]string = make(map[string]string) //Guarda los settings de la tienda
 	capacidad_arr int                                         //Guarda la capacidad que tiene el array que guarda la ruta de directorio
 	block         bool                                        //Estado de bloqueo del reproductor y el gestor de descarga de publicidad/mensajes
