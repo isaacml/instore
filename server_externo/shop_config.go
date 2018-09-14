@@ -392,9 +392,9 @@ func send_shop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var output string
 	if enviar_estado == true {
-		algoritmo_ident() //Encargado de guardar en BD la conexion de una tienda.
+		ident := algoritmo_ident() //Encargado de guardar en BD la conexion de una tienda.
 		//Se envía Ok y enviamos status_dom para generar el fichero (configshop.reg)
-		output = "OK;" + status_dom
+		output = "OK;" + status_dom + ";" + ident
 	} else {
 		output = "NOOK;" //No se genera nada
 	}
