@@ -406,7 +406,7 @@ func send_shop(w http.ResponseWriter, r *http.Request) {
 func algoritmo_ident(){
 	var cont int
 	var err error
-	ident := "IDN:31M:88F:BN7:000" //Identificador por defecto
+	ident := "IDN:31M:88F:BN7:NM0" //Identificador por defecto
 	fecha := libs.MyCurrentDate()  //Fecha actual
 	db_mu.Lock()
 	err = db.QueryRow("SELECT count(ident) FROM conexiones").Scan(&cont)
@@ -439,9 +439,9 @@ func algoritmo_ident(){
 			return
 		}
 		//Procesamos ese identificador
-		separator := strings.Split(last_ident, "IDN:31M:88F:BN7:")
+		separator := strings.Split(last_ident, "IDN:31M:88F:BN7:NM")
 		val := libs.ToInt(separator[1])
-		new_ident := fmt.Sprintf("%s%d", separator[0], val+1) //Se genera el nuevo identificador
+		new_ident := fmt.Sprintf("IDN:31M:88F:BN7:NM%d", val+1) //Se genera el nuevo identificador
 		//Por último, guardamos el registro de conexión de la tienda con su nuevo identificador
 		query, err := db.Prepare("INSERT INTO conexiones (`ident`, `dominio`, `fecha_hora`) VALUES (?,?,?)")
 		if err != nil {
