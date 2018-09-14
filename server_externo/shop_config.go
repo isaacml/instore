@@ -403,19 +403,20 @@ func send_shop(w http.ResponseWriter, r *http.Request) {
 
 //Busca en la base de datos la existencia de un identificador de la tienda, si no existe ninguno se le asigna el primero que tenemos por defecto.
 //En caso contrario, se obtiene el ultimo identificador y se incrementa en uno.
-func algoritmo_ident(){
+func algoritmo_ident() string {
 	var cont int
 	var err error
-	ident := "IDN:31M:88F:BN7:NM0" //Identificador por defecto
+	var ident string
 	fecha := libs.MyCurrentDate()  //Fecha actual
 	db_mu.Lock()
 	err = db.QueryRow("SELECT count(ident) FROM conexiones").Scan(&cont)
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
-		return
+		return ""
 	}
 	if cont == 0 {
+		ident = "IDN:31M:88F:BN7:NM0" //Identificador por defecto
 		//Guarda por primera vez el identificador de la tienda.
 		query, err := db.Prepare("INSERT INTO conexiones (`ident`, `dominio`, `fecha_hora`) VALUES (?,?,?)")
 		if err != nil {
@@ -426,7 +427,7 @@ func algoritmo_ident(){
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
-			return
+			return "" 
 		}
 	}else{ //Existe almenos un identificador, por tanto:
 		var last_ident string
@@ -436,23 +437,24 @@ func algoritmo_ident(){
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
-			return
+			return ""
 		}
 		//Procesamos ese identificador
 		separator := strings.Split(last_ident, "IDN:31M:88F:BN7:NM")
 		val := libs.ToInt(separator[1])
-		new_ident := fmt.Sprintf("IDN:31M:88F:BN7:NM%d", val+1) //Se genera el nuevo identificador
+		ident = fmt.Sprintf("IDN:31M:88F:BN7:NM%d", val+1) //Se genera el nuevo identificador
 		//Por último, guardamos el registro de conexión de la tienda con su nuevo identificador
 		query, err := db.Prepare("INSERT INTO conexiones (`ident`, `dominio`, `fecha_hora`) VALUES (?,?,?)")
 		if err != nil {
 			Error.Println(err)
 		}
 		db_mu.Lock()
-		_, err = query.Exec(new_ident, status_dom, fecha)
+		_, err = query.Exec(ident, status_dom, fecha)
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
-			return
+			return ""
 		}
 	}
+	return ident
 }
