@@ -52,6 +52,7 @@ func main() {
 	http.HandleFunc("/auth.cgi", auth)
 	http.HandleFunc("/acciones.cgi", acciones)
 	http.HandleFunc("/transf_orgs.cgi", transf_orgs)
+	http.HandleFunc("/transf_orgs_vs.cgi", transf_orgs_vs)
 	http.HandleFunc("/publi_msg.cgi", publi_msg)
 
 	s := &http.Server{

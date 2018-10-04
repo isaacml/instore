@@ -82,6 +82,7 @@ func main() {
 	http.HandleFunc("/modo_vista.cgi", modo_vista)
 	//SELECTS PARA EL PLAYER INTERNO
 	http.HandleFunc("/config_shop.cgi", config_shop)
+	http.HandleFunc("/config_shop_vs.cgi", config_shop_vs)
 	http.HandleFunc("/send_shop.cgi", send_shop)
 	http.HandleFunc("/recoger_dominio.cgi", recoger_dominio)
 

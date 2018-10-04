@@ -141,3 +141,39 @@ func publi_msg(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+//Intermediario de organizaciones entre la tienda Visual Studio y el servidor externo
+func transf_orgs_vs(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var respuesta string
+	accion := r.FormValue("action")
+	//Enviamos el username al servidor interno
+	if accion == "entidad" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop_vs.cgi", "action;entidad", "nom_ent;"+r.FormValue("nom_ent")))
+	}
+	//Enviamos la entidad al servidor interno
+	if accion == "almacen" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop_vs.cgi", "action;almacen", "entidad;"+r.FormValue("entidad")))
+	}
+	//Enviamos el almacen al servidor interno
+	if accion == "pais" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop_vs.cgi", "action;pais", "almacen;"+r.FormValue("almacen")))
+	}
+	//Enviamos el pais al servidor interno
+	if accion == "region" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop_vs.cgi", "action;region", "pais;"+r.FormValue("pais")))
+	}
+	//Enviamos la región al servidor interno
+	if accion == "provincia" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop_vs.cgi", "action;provincia", "region;"+r.FormValue("region")))
+	}
+	//Enviamos la provincia al servidor interno
+	if accion == "tienda" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop_vs.cgi", "action;tienda", "provincia;"+r.FormValue("provincia")))
+	}
+	//Enviamos la tienda al servidor interno
+	if accion == "cod_tienda" {
+		respuesta = fmt.Sprintf("%s", libs.GenerateFORM(serverext["serverexterno"]+"/config_shop_vs.cgi", "action;cod_tienda", "tienda;"+r.FormValue("tienda")))
+	}
+	fmt.Fprint(w, respuesta)
+}
