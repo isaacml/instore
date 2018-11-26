@@ -194,7 +194,7 @@ func reproduccion() {
 					if pl == gap {
 						//Movemos aleatoriamente todos los ficheros publi guardados en nuestro arr.
 						rand.Seed(time.Now().UnixNano())
-						shuffle2 := rand.Perm(len(publi))
+						shuffle2 :=  (len(publi))
 						//Una vez mezclado, cogemos el primer fichero de publicidad y lo reproducimos.
 						for _, val := range shuffle2 {
 							//Directorio publi + Fichero publi

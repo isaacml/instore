@@ -248,6 +248,7 @@ func explorer(w http.ResponseWriter, r *http.Request) {
 	//TOMA LOS FICHEROS DEL FORMULARIO 2, Y LOS PROCESA
 	//r.FormValue("type") == "publi", procedemos a insertar los datos en la tabla publi
 	if r.FormValue("action") == "get_ficheros" && r.FormValue("type") == "publi" {
+
 		//Variables
 		f_inicio := r.FormValue("f_inicio")
 		f_final := r.FormValue("f_fin")

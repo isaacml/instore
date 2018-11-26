@@ -1,8 +1,0 @@
-# cp metalplayer.service /lib/systemd/system/metalplayer.service
-# cp etc_init.d/metalplayer /etc/init.d/metalplayer
-# chmod +x /etc/init.d/metalplayer
-
-
-systemctl enable metalplayer.service
-systemctl start metalplayer.service
-

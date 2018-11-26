@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/todostreaming/ratelimit"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -15,8 +14,10 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"time"
 	"sync"
+	"time"
+
+	"github.com/todostreaming/ratelimit"
 )
 
 /*
@@ -503,7 +504,7 @@ MusicToPlay: Esta función determina los ficheros que va a reproducir el player 
 	st:    Estado de la música cifrada (0: solo cif / 1: cif y no cif)
 Devuelve un array con todos los ficheros a reproducir.
 */
-func MusicToPlay(ruta string, st int) ([]string) {
+func MusicToPlay(ruta string, st int) []string {
 	var arr_music []string
 	var cmd []byte
 	var gen_bat string
@@ -512,18 +513,18 @@ func MusicToPlay(ruta string, st int) ([]string) {
 	defer msg_file.Close()
 	if st == 0 {
 		//Se obtienen los ficheros del directorio y subdirectorios (solo música cif)
-		gen_bat = "dir /s /b \""+ruta+"*.xxx\""
+		gen_bat = "dir /s /b \"" + ruta + "*.xxx\""
 	} else if st == 1 {
 		//Se obtienen los ficheros del directorio y subdirectorios (cif / no cif)
-		gen_bat = "dir /s /b \""+ruta+"*.mp3\" & dir /s /b \""+ruta+"*.xxx\""
+		gen_bat = "dir /s /b \"" + ruta + "*.mp3\" & dir /s /b \"" + ruta + "*.xxx\""
 	}
 	msg_file.WriteString(gen_bat)
 	//Una vez creado el fichero, lo ejecutamos
 	cmd, _ = exec.Command("cmd", "/c", "music_to_play.bat").CombinedOutput()
 	ficheros := strings.Split(string(cmd), "\r\n")
 	for _, val := range ficheros {
-		if strings.Contains(val, ruta){
-			if !strings.Contains(val, "dir /s /b"){
+		if strings.Contains(val, ruta) {
+			if !strings.Contains(val, "dir /s /b") {
 				//Se agregan cada una de las canciones al contenedor de música
 				arr_music = append(arr_music, val)
 			}

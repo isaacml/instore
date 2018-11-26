@@ -8,7 +8,7 @@ import (
 func config_shop_vs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() 					//recupera campos del form tanto GET como POST
 	accion := r.FormValue("action") //variable que tiene la accion de cada org
-	var list string; 				//variable para imprimir la salida
+	var list string 				//variable para imprimir la salida
 	
 	//Generamos el select de entidades
 	if accion == "entidad" {

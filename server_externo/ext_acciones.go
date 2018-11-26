@@ -287,10 +287,8 @@ func acciones(w http.ResponseWriter, r *http.Request) {
 func recoger_dominio(w http.ResponseWriter, r *http.Request) {
 	var output string
 	var domains []string
-	fmt.Println(r.FormValue("dominios"))
 	doms := strings.Split(r.FormValue("dominios"), ":.:")
 	doms = doms[:len(doms)-1]
-	fmt.Println(doms)
 	for _, val := range doms {
 		//enviamos el dominio a DomainGenerator() en la libreria de funciones
 		dom := libs.DomainGenerator(val)

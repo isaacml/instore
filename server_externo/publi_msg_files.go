@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/isaacml/instore/libs"
 	"io"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/isaacml/instore/libs"
 )
 
 func publi_files(w http.ResponseWriter, r *http.Request) {
@@ -253,10 +254,34 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if r.FormValue("accion") == "borrar" {
+		var filename string
+		//Obtenemos el nombre del fichero y lo borramos de manera local
+		sql := fmt.Sprintf("SELECT fichero FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("borrar"))
+		err := db.QueryRow(sql).Scan(&filename)
+		if filename != "" {
+			fmt.Println(filename)
+			if r.FormValue("tabla") == "mensaje" {
+				//Borramos el fichero de mensaje
+				err = os.Remove(msg_files_location + filename)
+				if err != nil {
+					Error.Println(err)
+					return
+				}
+			}
+			if r.FormValue("tabla") == "publi" {
+				//Borramos el fichero de publicidad
+				err = os.Remove(publi_files_location + filename)
+				if err != nil {
+					Error.Println(err)
+					return
+				}
+			}
+		}
+		//Despues lo borramos de base de datos
 		db_mu.Lock()
-		sql := fmt.Sprintf("DELETE FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("borrar"))
+		sql = fmt.Sprintf("DELETE FROM %s WHERE id = %s", r.FormValue("tabla"), r.FormValue("borrar"))
 		db_mu.Unlock()
-		_, err := db.Exec(sql)
+		_, err = db.Exec(sql)
 		if err != nil {
 			Error.Println(err)
 			return
@@ -316,6 +341,7 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.FormValue("accion") == "modificar" {
 		var err1 error
+		timestamp := time.Now().Unix()
 		//Generamos las fechas en formato SQL (Ej. 20170212)
 		f_ini := libs.FechaNormaltoSQL(r.FormValue("f_ini"))
 		f_fin := libs.FechaNormaltoSQL(r.FormValue("f_fin"))
@@ -323,11 +349,11 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			//Si el destino está vacio, no lo modificamos.
 			if r.FormValue("destino") == "" {
 				db_mu.Lock()
-				_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("gap"), r.FormValue("id"))
+				_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, gap=?, timestamp=? WHERE id = ?", f_ini, f_fin, r.FormValue("gap"), timestamp, r.FormValue("id"))
 				db_mu.Unlock()
 			} else {
 				db_mu.Lock()
-				_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, destino=?, gap=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), r.FormValue("gap"), r.FormValue("id"))
+				_, err1 = db.Exec("UPDATE publi SET fecha_inicio=?, fecha_final=?, destino=?, gap=?, timestamp=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), r.FormValue("gap"), timestamp, r.FormValue("id"))
 				db_mu.Unlock()
 			}
 			if err1 != nil {
@@ -341,11 +367,11 @@ func modo_vista(w http.ResponseWriter, r *http.Request) {
 			//Si el destino está vacio, no lo modificamos.
 			if r.FormValue("destino") == "" {
 				db_mu.Lock()
-				_, err1 = db.Exec("UPDATE mensaje SET fecha_inicio=?, fecha_final=?, playtime=? WHERE id = ?", f_ini, f_fin, horario, r.FormValue("id"))
+				_, err1 = db.Exec("UPDATE mensaje SET fecha_inicio=?, fecha_final=?, playtime=?, timestamp=? WHERE id = ?", f_ini, f_fin, horario, timestamp, r.FormValue("id"))
 				db_mu.Unlock()
 			} else {
 				db_mu.Lock()
-				_, err1 = db.Exec("UPDATE mensaje SET fecha_inicio=?, fecha_final=?, destino=?, playtime=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), horario, r.FormValue("id"))
+				_, err1 = db.Exec("UPDATE mensaje SET fecha_inicio=?, fecha_final=?, destino=?, playtime=?, timestamp=? WHERE id = ?", f_ini, f_fin, r.FormValue("destino"), horario, timestamp, r.FormValue("id"))
 				db_mu.Unlock()
 			}
 			if err1 != nil {

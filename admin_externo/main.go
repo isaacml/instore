@@ -3,8 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/isaacml/instore/libs"
-	_ "github.com/mattn/go-sqlite3"
 	"io"
 	"log"
 	"net/http"
@@ -12,6 +10,9 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/isaacml/instore/libs"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -102,6 +103,7 @@ func mantenimiento() {
 		publicidad, err := db.Query("SELECT id, ruta, fichero, fecha_inicio, fecha_final, destino, gap FROM publi WHERE id = (SELECT MIN(id) FROM publi)")
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for publicidad.Next() {
 			err = publicidad.Scan(&id, &ruta, &fichero, &fecha_inicio, &fecha_final, &destino, &gap)
