@@ -187,7 +187,7 @@ func saveListInBD() {
 									if bd_gap != gap || bd_f_ini != fecha_ini || bd_f_fin != fecha_fin {
 										update_publi(f_pub, fecha_ini, fecha_fin, gap)
 									}
-								}	
+								}
 							}
 							//FICHEROS de MENSAJES
 							for _, msg := range f_mensajes {
@@ -504,7 +504,7 @@ func update_publi(f_pub, fecha_ini, fecha_fin, gap string) {
 	}
 }
 
-func borrar_publi_int(listado string){
+func borrar_publi_int(listado string) {
 	q1, err := db.Query("SELECT fichero FROM publi")
 	if err != nil {
 		Error.Println(err)
@@ -517,7 +517,7 @@ func borrar_publi_int(listado string){
 			Error.Println(err)
 		}
 		//Borramos los mensajes que no coincidan con el listado
-		if !strings.Contains(listado, fichero){
+		if !strings.Contains(listado, fichero) {
 			//Borramos el fichero desde la ruta interna
 			err = os.Remove(publi_files_location + fichero)
 			if err != nil {
@@ -531,7 +531,7 @@ func borrar_publi_int(listado string){
 	}
 }
 
-func borrar_mensajes_int(listado string){
+func borrar_mensajes_int(listado string) {
 	q1, err := db.Query("SELECT fichero FROM mensaje")
 	if err != nil {
 		Error.Println(err)
@@ -544,7 +544,7 @@ func borrar_mensajes_int(listado string){
 			Error.Println(err)
 		}
 		//Borramos los mensajes que no coincidan con el listado
-		if !strings.Contains(listado, fichero){
+		if !strings.Contains(listado, fichero) {
 			//Borramos el fichero desde la ruta interna
 			err = os.Remove(msg_files_location + fichero)
 			if err != nil {
@@ -558,7 +558,7 @@ func borrar_mensajes_int(listado string){
 	}
 }
 
-func borrar_toda_publi(){
+func borrar_toda_publi() {
 	q1, err := db.Query("SELECT fichero FROM publi")
 	if err != nil {
 		Error.Println(err)
@@ -581,7 +581,7 @@ func borrar_toda_publi(){
 		db_mu.Unlock()
 	}
 }
-func borrar_todos_mensajes(){
+func borrar_todos_mensajes() {
 	q1, err := db.Query("SELECT fichero FROM mensaje")
 	if err != nil {
 		Error.Println(err)
